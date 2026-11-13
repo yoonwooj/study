@@ -183,7 +183,7 @@ h1,h2,h3,p{margin:0}
 .grades button b{font-size:1.2rem}
 .grades button small{font-size:.65rem;color:var(--sub)}
 .grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:#fff;}
-.grades button[aria-pressed=true] small{color:var(--pri-ink);opacity:.9}
+.grades button[aria-pressed=true] small{color:#fff;opacity:.9}
 
 /* ── 오답노트 ── */
 .tabbar button{position:relative}
