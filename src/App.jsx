@@ -214,7 +214,7 @@ export default function App() {
 
       {tab === 'learn' && (
         <main className="page">
-          <section className="hero"><small>지금 선택한 과정</small><b>{SUBJECTS[subj]} · {grade}학년 {sem}학기{subj === 'mor' && grade < 3 ? ' (바른 생활)' : ''}</b></section>
+          <section className="hero"><b>{SUBJECTS[subj]} · {grade}학년 {sem}학기{subj === 'mor' && grade < 3 ? ' (바른 생활)' : ''}</b></section>
           <section className="sel">
             <div className="sel-row"><span className="lbl">학년</span>
               <div className="grades" role="group" aria-label="학년 선택">
