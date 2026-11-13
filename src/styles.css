@@ -155,7 +155,7 @@ h1,h2,h3,p{margin:0}
 /* 과목 탭 · 도덕 테마(주황) */
 .subj{display:flex;gap:6px}
 .subj button{padding:6px 18px;border-radius:999px;background:var(--line);color:var(--sub);font-size:1.05rem;font-weight:700}
-.subj button[aria-pressed=true]{background:var(--pri);color:var(--pri-ink)}
+.subj button[aria-pressed=true]{background:var(--pri);color:#fff;}
 .app[data-subject=mor]{--pri:#34c759;--pri-ink:#0a2d14;--soft:#e4f8ea;--pri-text:#17803a}
 @media (prefers-color-scheme:dark){.app[data-subject=mor]{--pri:#5ddb7e;--pri-ink:#06210f;--soft:#1b3a26;--pri-text:#7ee59a}}
 .app[data-subject=mor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
@@ -170,7 +170,7 @@ h1,h2,h3,p{margin:0}
 .app[data-subject=kor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
 
 /* ── 과목 아래 학년·학기·방식 구분 ── */
-.hero{background:linear-gradient(135deg,var(--pri),var(--pri2,var(--pri)));color:var(--pri-ink);border-radius:18px;padding:16px 18px;display:grid;gap:2px}
+.hero{background:linear-gradient(135deg,var(--pri),var(--pri2,var(--pri)));color:#fff;border-radius:18px;padding:16px 18px;display:grid;gap:2px}
 .hero small{opacity:.85;font-size:.8rem}
 .hero b{font-size:1.3rem}
 .sel{background:var(--card);border-radius:18px;padding:12px;display:grid;gap:10px}
@@ -182,7 +182,7 @@ h1,h2,h3,p{margin:0}
 .sel .grades button{background:var(--bg);border-color:transparent}
 .grades button b{font-size:1.2rem}
 .grades button small{font-size:.65rem;color:var(--sub)}
-.grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:#fff;}
 .grades button[aria-pressed=true] small{color:var(--pri-ink);opacity:.9}
 
 /* ── 오답노트 ── */
