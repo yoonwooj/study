@@ -65,7 +65,7 @@ h1,h2,h3,p{margin:0}
 .btn.no{background:var(--no);color:#fff}
 .btn:disabled{background:var(--line);color:var(--sub)}
 .btn:active:not(:disabled){transform:scale(.98)}
-.tabbar{min-height:var(--tab-h);position:fixed;left:0;right:0;bottom:0;z-index:7;display:grid;grid-template-columns:1fr 1fr;max-width:var(--maxw);margin:0 auto;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar{min-height:var(--tab-h);position:fixed;left:0;right:0;bottom:0;z-index:7;display:grid;grid-template-columns:repeat(3,1fr);max-width:var(--maxw);margin:0 auto;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabbar button{display:grid;justify-items:center;gap:0;padding:8px 0 10px;font-size:.78rem;color:var(--sub)}
 .tabbar button span{font-size:1.3rem;filter:grayscale(1);opacity:.7}
 .tabbar button[aria-current=true]{color:var(--pri);font-weight:700}
@@ -159,3 +159,37 @@ h1,h2,h3,p{margin:0}
 .app[data-subject=mor]{--pri:#34c759;--pri-ink:#0a2d14;--soft:#e4f8ea;--pri-text:#17803a}
 @media (prefers-color-scheme:dark){.app[data-subject=mor]{--pri:#5ddb7e;--pri-ink:#06210f;--soft:#1b3a26;--pri-text:#7ee59a}}
 .app[data-subject=mor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
+
+/* ── 과목 테마: 더 밝고 쨍한 색 ── */
+.app[data-subject=kor]{--pri:#1a73ff;--pri2:#5aa8ff;--pri-ink:#fff;--soft:#e2eeff;--pri-text:#0a5ce0}
+.app[data-subject=mor]{--pri:#12d160;--pri2:#6cf0a2;--pri-ink:#04301a;--soft:#d9fbe6;--pri-text:#0a8a3d}
+@media (prefers-color-scheme:dark){
+  .app[data-subject=kor]{--pri:#4d94ff;--pri2:#7db4ff;--pri-ink:#07142e;--soft:#1f2f55;--pri-text:#8fbcff}
+  .app[data-subject=mor]{--pri:#33e57c;--pri2:#7af3a8;--pri-ink:#04210f;--soft:#163a28;--pri-text:#6ff0a0}
+}
+.app[data-subject=kor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
+
+/* ── 과목 아래 학년·학기·방식 구분 ── */
+.hero{background:linear-gradient(135deg,var(--pri),var(--pri2,var(--pri)));color:var(--pri-ink);border-radius:18px;padding:16px 18px;display:grid;gap:2px}
+.hero small{opacity:.85;font-size:.8rem}
+.hero b{font-size:1.3rem}
+.sel{background:var(--card);border-radius:18px;padding:12px;display:grid;gap:10px}
+.sel-row{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:8px}
+.lbl{font-size:.78rem;font-weight:700;color:var(--sub)}
+.grades{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.grades.nf{grid-template-columns:repeat(7,1fr)}
+.grades button{display:grid;justify-items:center;padding:8px 0;border-radius:12px;background:var(--card);border:2px solid var(--line);line-height:1.15}
+.sel .grades button{background:var(--bg);border-color:transparent}
+.grades button b{font-size:1.2rem}
+.grades button small{font-size:.65rem;color:var(--sub)}
+.grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.grades button[aria-pressed=true] small{color:var(--pri-ink);opacity:.9}
+
+/* ── 오답노트 ── */
+.tabbar button{position:relative}
+.bdg{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ff4d4f;color:#fff;font-size:.65rem;font-style:normal;font-weight:700;display:grid;place-items:center}
+.note{background:var(--card);border-radius:14px;padding:14px;display:grid;gap:4px;border-left:4px solid var(--no)}
+.note-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.note .meta{font-size:.78rem;color:var(--sub)}
+.del{width:28px;height:28px;border-radius:50%;background:var(--bg);color:var(--sub);flex:0 0 auto}
+.empty{text-align:center;padding:30px 0;line-height:1.8}
