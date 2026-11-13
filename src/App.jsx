@@ -32,10 +32,14 @@ const coreQs = (sj, g, s) => {
   return shuffle(out)
 }
 const PER_SLIDE = 3
+const SHOW_NOTICE = false // 안내 팝업 임시 비활성화 (다시 켜려면 true)
 const NOTICE_KEY = 'koreanQuizNoticeHide'
 const today = () => new Date().toDateString()
 const noticeHidden = () => { try { return localStorage.getItem(NOTICE_KEY) === today() } catch { return false } }
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || [] } catch { return [] } }
+const NOTE_KEY = 'koreanQuizNotes1'
+const loadNotes = () => { try { return JSON.parse(localStorage.getItem(NOTE_KEY)) || [] } catch { return [] } }
+const saveNotes = (n) => { try { localStorage.setItem(NOTE_KEY, JSON.stringify(n)) } catch { /* 저장 불가 시 무시 */ } }
 const save = (r) => { try { localStorage.setItem(KEY, JSON.stringify(r)) } catch { /* 저장 불가 시 무시 */ } }
 
 export default function App() {
@@ -43,14 +47,16 @@ export default function App() {
   const [subj, setSubj] = useState('kor')
   const [grade, setGrade] = useState(1)
   const [sem, setSem] = useState(1)
-  const [mode, setMode] = useState('core')
+  const [mode, setMode] = useState('unit')
   const [picked, setPicked] = useState([])
   const [run, setRun] = useState(null)
   const [text, setText] = useState('')
   const [records, setRecords] = useState(load)
+  const [notes, setNotes] = useState(loadNotes)
+  const [noteGrade, setNoteGrade] = useState('all')
   const unitsRef = useRef(null)
   const [uIdx, setUIdx] = useState(0)
-  const [notice, setNotice] = useState(() => !noticeHidden())
+  const [notice, setNotice] = useState(() => SHOW_NOTICE && !noticeHidden())
 
   const units = CUR[subj][grade][sem]
   const counts = units.map((_, i) => bankOf(subj, grade, sem, i).length)
@@ -84,16 +90,25 @@ export default function App() {
     const order = [...picked].sort((a, b) => a - b)
     begin(order.flatMap((i) => unitQs(subj, grade, sem, i)), order.map((i) => units[i]).join(', '), 'unit')
   }
+  const updateNotes = (fn) => setNotes((p) => { const n = fn(p); saveNotes(n); return n })
+  const delNote = (key) => updateNotes((p) => p.filter((x) => x.key !== key))
+  const startNotes = (list) => begin(
+    shuffle(list).slice(0, CORE_N).map((nt) => ({ ...prep(nt.q, nt.unit), _ctx: { subj: nt.subj, g: nt.g, s: nt.s } })),
+    '오답노트 복습', 'note')
   const submit = (v) => {
     const q = run.qs[run.i]
     const ok = isRight(q, v)
+    const ctx = q._ctx || { subj, g: grade, s: sem }
+    const key = `${ctx.subj}|${ctx.g}|${ctx.s}|${q.q}`
+    if (ok) updateNotes((p) => (p.some((x) => x.key === key) ? p.filter((x) => x.key !== key) : p))
+    else updateNotes((p) => (p.some((x) => x.key === key) ? p : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: q.a, e: q.e } }, ...p].slice(0, 300)))
     setRun({ ...run, ans: v, ok, score: run.score + (ok ? 1 : 0), wrongs: ok ? run.wrongs : [...run.wrongs, q] })
   }
   const next = () => {
     setText('')
     if (run.i + 1 < run.qs.length) return setRun({ ...run, i: run.i + 1, ans: null, ok: null })
     let saved = false
-    if (!run.retry) {
+    if (!run.retry && run.kind !== 'note') {
       const r = [...records, { subj, g: grade, s: sem, kind: run.kind, label: run.label, score: run.score, total: run.qs.length, at: Date.now() }]
       setRecords(r); save(r); saved = true
     }
@@ -160,7 +175,7 @@ export default function App() {
     return (
       <div className="app" data-subject={subj}>
         <main className="result">
-          <p className="sub">{SUBJECTS[subj]} {grade}학년 {sem}학기 · {run.retry ? '틀린 문제 다시 풀기' : run.label}</p>
+          <p className="sub">{run.kind === 'note' ? '오답노트' : `${SUBJECTS[subj]} ${grade}학년 ${sem}학기`} · {run.retry ? '틀린 문제 다시 풀기' : run.label}</p>
           <svg viewBox="0 0 120 120" className="ring-wrap" role="img" aria-label={`${run.qs.length}문제 중 ${run.score}문제 정답`}>
             <circle cx="60" cy="60" r="54" className="ring-bg" />
             <circle cx="60" cy="60" r="54" className="ring" strokeDasharray={`${C * pct} ${C}`} transform="rotate(-90 60 60)" />
@@ -194,21 +209,30 @@ export default function App() {
         <div className="subj" role="group" aria-label="과목 선택">
           {Object.entries(SUBJECTS).map(([k, v]) => <button key={k} aria-pressed={subj === k} onClick={() => pickSubj(k)}>{v}</button>)}
         </div>
-        <span className="sub">{tab === 'learn' ? `${grade}학년 ${sem}학기${subj === 'mor' && grade < 3 ? ' · 바른 생활' : ''}` : '내 학습 기록'}</span>
+        <span className="sub">{tab === 'learn' ? `${grade}학년 ${sem}학기${subj === 'mor' && grade < 3 ? ' · 바른 생활' : ''}` : tab === 'note' ? '오답노트' : '내 학습 기록'}</span>
       </header>
 
       {tab === 'learn' && (
         <main className="page">
-          <div className="chips" aria-label="학년 선택">
-            {[1, 2, 3, 4, 5, 6].map((g) => <button key={g} className="chip" aria-pressed={g === grade} onClick={() => pickGrade(g)}>{g}학년</button>)}
-          </div>
-          <div className="seg" aria-label="학기 선택">
-            {[1, 2].map((s) => <button key={s} aria-pressed={s === sem} onClick={() => pickSem(s)}>{s}학기</button>)}
-          </div>
-          <div className="seg alt" aria-label="학습 방식">
-            <button aria-pressed={mode === 'core'} onClick={() => { setMode('core'); setPicked([]) }}>학기 핵심 20문제</button>
-            <button aria-pressed={mode === 'unit'} onClick={() => setMode('unit')}>단원별 학습</button>
-          </div>
+          <section className="hero"><small>지금 선택한 과정</small><b>{SUBJECTS[subj]} · {grade}학년 {sem}학기{subj === 'mor' && grade < 3 ? ' (바른 생활)' : ''}</b></section>
+          <section className="sel">
+            <div className="sel-row"><span className="lbl">학년</span>
+              <div className="grades" role="group" aria-label="학년 선택">
+                {[1, 2, 3, 4, 5, 6].map((g) => <button key={g} aria-pressed={g === grade} onClick={() => pickGrade(g)}><b>{g}</b><small>학년</small></button>)}
+              </div>
+            </div>
+            <div className="sel-row"><span className="lbl">학기</span>
+              <div className="seg" role="group" aria-label="학기 선택">
+                {[1, 2].map((s) => <button key={s} aria-pressed={s === sem} onClick={() => pickSem(s)}>{s}학기</button>)}
+              </div>
+            </div>
+            <div className="sel-row"><span className="lbl">방식</span>
+              <div className="seg alt" role="group" aria-label="학습 방식">
+                <button aria-pressed={mode === 'unit'} onClick={() => setMode('unit')}>단원별 학습</button>
+                <button aria-pressed={mode === 'core'} onClick={() => { setMode('core'); setPicked([]) }}>학기 핵심 20문제</button>
+              </div>
+            </div>
+          </section>
 
           {mode === 'core' ? (
             <section className="card">
@@ -245,6 +269,34 @@ export default function App() {
         </main>
       )}
 
+      {tab === 'note' && (() => {
+        const mine = notes.filter((x) => x.subj === subj)
+        const shown = noteGrade === 'all' ? mine : mine.filter((x) => x.g === noteGrade)
+        return (
+          <main className="page">
+            <section className="hero"><small>{SUBJECTS[subj]} 오답노트</small><b>틀린 문제 {mine.length}개</b></section>
+            <div className="grades nf" role="group" aria-label="학년 필터">
+              {['all', 1, 2, 3, 4, 5, 6].map((g) => (
+                <button key={g} aria-pressed={noteGrade === g} onClick={() => setNoteGrade(g)}>{g === 'all' ? <b>전체</b> : <><b>{g}</b><small>학년</small></>}</button>
+              ))}
+            </div>
+            {shown.length === 0 ? <p className="sub empty">틀린 문제가 없어요. 🎉<br />문제를 풀다 틀리면 여기에 모여요.</p> : (
+              <>
+                <p className="sub">다시 풀어서 맞히면 오답노트에서 자동으로 사라져요.</p>
+                {shown.map((nt) => (
+                  <div key={nt.key} className="note">
+                    <div className="note-top"><span className="meta">{nt.g}학년 {nt.s}학기 · {nt.unit}</span><button className="del" onClick={() => delNote(nt.key)} aria-label="오답노트에서 삭제">✕</button></div>
+                    <b>{nt.q.q}</b>
+                    <p>정답: <strong>{answerText(nt.q)}</strong></p>
+                    <p className="why">{nt.q.e}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </main>
+        )
+      })()}
+
       {tab === 'rec' && (
         <main className="page">
           <section className="card">
@@ -269,6 +321,16 @@ export default function App() {
         </main>
       )}
 
+      {tab === 'note' && (() => {
+        const mine = notes.filter((x) => x.subj === subj)
+        const shown = noteGrade === 'all' ? mine : mine.filter((x) => x.g === noteGrade)
+        return (
+          <div className="cta"><div className="cta-in">
+            <button className="btn block" disabled={shown.length === 0} onClick={() => startNotes(shown)}>{shown.length === 0 ? '풀 문제가 없어요' : `📝 ${Math.min(shown.length, CORE_N)}문제 다시 풀기`}</button>
+          </div></div>
+        )
+      })()}
+
       {tab === 'learn' && (
         <div className="cta"><div className="cta-in">
           {mode === 'core'
@@ -279,6 +341,7 @@ export default function App() {
 
       <nav className="tabbar">
         <button aria-current={tab === 'learn'} onClick={() => setTab('learn')}><span>📖</span>학습</button>
+        <button aria-current={tab === 'note'} onClick={() => setTab('note')}><span>📝</span>오답노트{notes.length > 0 && <i className="bdg">{notes.length > 99 ? '99+' : notes.length}</i>}</button>
         <button aria-current={tab === 'rec'} onClick={() => setTab('rec')}><span>📊</span>기록</button>
       </nav>
 
