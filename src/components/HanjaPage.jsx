@@ -4,6 +4,8 @@ import { dayIndex, todayLabel } from '../lib/date.js'
 import { shuffle } from '../lib/quiz.js'
 import HanjaWrite from './HanjaWrite.jsx'
 
+const SHOW_HANJA_QUIZ = false // 맞혀 보기 임시 숨김 (다시 켜려면 true)
+
 // 매일 한 글자씩 바뀌는 하루한자
 export default function HanjaPage() {
   const day = dayIndex()
@@ -21,6 +23,7 @@ export default function HanjaPage() {
         <p className="sub"><span className="lv">{h.level}급</span> 배정한자</p>
         <ul className="words">{h.words.map((w) => <li key={w}>{w}</li>)}</ul>
       </section>
+      {SHOW_HANJA_QUIZ && (
       <section className="card">
         <h2>맞혀 보기</h2>
         <p className="sub">「{h.c}」의 뜻과 음은 무엇일까요?</p>
@@ -31,9 +34,10 @@ export default function HanjaPage() {
         </div>
         {pick && <p className="sub">{pick === h ? '🎉 정답이에요!' : `😢 정답은 "${h.hun} ${h.eum}"이에요.`}</p>}
       </section>
+      )}
       <section className="card">
         <h2>✍️ 써 보기 · {pc}</h2>
-        <p className="sub">반투명 글자 위에 획순이 표시돼요. 손가락이나 펜으로 따라 써 보세요.</p>
+        <p className="sub">획순이 표시돼요. 손가락이나 펜으로 따라 써 보세요.</p>
         <HanjaWrite key={pc} c={pc} />
       </section>
       <section className="card">

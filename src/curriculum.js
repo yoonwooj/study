@@ -1,5 +1,12 @@
 // 목차 기준 단원 목록 (제공해 주신 목차 그대로). 1~2학년 도덕은 통합교과 "바른 생활" 주제입니다.
-export const SUBJECTS = { kor: '국어', mor: '도덕' }
+import { BOOKS, EDITIONS } from './curriculum.eng.js'
+
+// 영어는 임시로 숨겼어요. 다시 켜려면 아래 eng 줄의 주석을 풀고, bank/index.js의 eng3 주석도 풀어 주세요.
+export const SUBJECTS = {
+  kor: '국어',
+  // eng: '영어',
+  mor: '도덕',
+}
 export const CUR = {
   kor: {
     1: { 1: ['한글 놀이', '1. 글자를 만들어요', '2. 받침이 있는 글자를 읽어요', '3. 낱말과 친해져요', '4. 여러 가지 낱말을 익혀요', '5. 반갑게 인사해요', '6. 또박또박 읽어요', '7. 알맞은 낱말을 찾아요'],
@@ -28,3 +35,13 @@ export const CUR = {
          2: ['5. 평화 통일을 향한 발걸음', '6. 세계 시민과 지구촌 평화', '7. 환경 위기 극복과 생태 윤리'] },
   },
 }
+
+// ── 영어: 교과서 판(edition)별 단원 ──
+export const editionsOf = (g) => EDITIONS.filter((e) => e.grade === g)
+export const editionLabel = (e) => {
+  const book = (BOOKS.find((b) => b.id === e.book) || {}).name || ''
+  return e.author ? `${book} (${e.author})` : book
+}
+// 과목에 따라 단원 목록과 문제 키를 돌려줘요. 영어는 학기 구분 없이 판ID(ed)로 구분해요.
+export const unitsOf = (subj, g, s, ed) => (subj === 'eng' ? (EDITIONS.find((e) => e.id === ed) || { units: [] }).units : CUR[subj][g][s])
+export const keyOf = (subj, g, s, i, ed) => (subj === 'eng' ? `eng-${ed}-${i}` : `${subj}-${g}-${s}-${i}`)

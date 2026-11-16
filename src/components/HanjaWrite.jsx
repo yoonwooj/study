@@ -113,9 +113,7 @@ export default function HanjaWrite({ c }) {
           </>}
         </div>
       )}
-      <p className="sub wnote">
-        {!guide ? '불러오는 중…' : guide.kind === 'none' ? '이 글자는 획순 데이터가 아직 없어요. 반투명 글자를 따라 써 보세요.' : `총 ${N}획 · 내가 쓴 획 ${count}`}
-      </p>
+      {guide && guide.kind !== 'none' && <p className="sub wnote">총 {N}획 · 내가 쓴 획 {count}</p>}
     </div>
   )
 }
