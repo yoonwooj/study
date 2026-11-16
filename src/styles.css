@@ -155,22 +155,22 @@ h1,h2,h3,p{margin:0}
 /* 과목 탭 · 도덕 테마(주황) */
 .subj{display:flex;gap:6px}
 .subj button{padding:6px 18px;border-radius:999px;background:var(--line);color:var(--sub);font-size:1.05rem;font-weight:700}
-.subj button[aria-pressed=true]{background:var(--pri);color:#fff;}
+.subj button[aria-pressed=true]{background:var(--pri);color:var(--pri-ink)}
 .app[data-subject=mor]{--pri:#34c759;--pri-ink:#0a2d14;--soft:#e4f8ea;--pri-text:#17803a}
 @media (prefers-color-scheme:dark){.app[data-subject=mor]{--pri:#5ddb7e;--pri-ink:#06210f;--soft:#1b3a26;--pri-text:#7ee59a}}
 .app[data-subject=mor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
 
 /* ── 과목 테마: 더 밝고 쨍한 색 ── */
 .app[data-subject=kor]{--pri:#1a73ff;--pri2:#5aa8ff;--pri-ink:#fff;--soft:#e2eeff;--pri-text:#0a5ce0}
-.app[data-subject=mor]{--pri:#12d160;--pri2:#6cf0a2;--pri-ink:#04301a;--soft:#d9fbe6;--pri-text:#0a8a3d}
+.app[data-subject=mor]{--pri:#12d160;--pri2:#6cf0a2;--pri-ink:#fff;--soft:#d9fbe6;--pri-text:#0a8a3d}
 @media (prefers-color-scheme:dark){
   .app[data-subject=kor]{--pri:#4d94ff;--pri2:#7db4ff;--pri-ink:#07142e;--soft:#1f2f55;--pri-text:#8fbcff}
-  .app[data-subject=mor]{--pri:#33e57c;--pri2:#7af3a8;--pri-ink:#04210f;--soft:#163a28;--pri-text:#6ff0a0}
+  .app[data-subject=mor]{--pri:#33e57c;--pri2:#7af3a8;--pri-ink:#fff;--soft:#163a28;--pri-text:#6ff0a0}
 }
 .app[data-subject=kor] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
 
 /* ── 과목 아래 학년·학기·방식 구분 ── */
-.hero{background:linear-gradient(135deg,var(--pri),var(--pri2,var(--pri)));color:#fff;border-radius:18px;padding:16px 18px;display:grid;gap:2px}
+.hero{background:linear-gradient(135deg,var(--pri),var(--pri2,var(--pri)));color:var(--pri-ink);border-radius:18px;padding:16px 18px;display:grid;gap:2px}
 .hero small{opacity:.85;font-size:.8rem}
 .hero b{font-size:1.3rem}
 .sel{background:var(--card);border-radius:18px;padding:12px;display:grid;gap:10px}
@@ -182,8 +182,8 @@ h1,h2,h3,p{margin:0}
 .sel .grades button{background:var(--bg);border-color:transparent}
 .grades button b{font-size:1.2rem}
 .grades button small{font-size:.65rem;color:var(--sub)}
-.grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:#fff;}
-.grades button[aria-pressed=true] small{color:#fff;opacity:.9}
+.grades button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.grades button[aria-pressed=true] small{color:var(--pri-ink);opacity:.9}
 
 /* ── 오답노트 ── */
 .tabbar button{position:relative}
@@ -193,3 +193,106 @@ h1,h2,h3,p{margin:0}
 .note .meta{font-size:.78rem;color:var(--sub)}
 .del{width:28px;height:28px;border-radius:50%;background:var(--bg);color:var(--sub);flex:0 0 auto}
 .empty{text-align:center;padding:30px 0;line-height:1.8}
+
+/* ── 상단바: 이름 + 햄버거 ── */
+.appbar{align-items:center}
+.ab-right{display:flex;align-items:center;gap:8px;min-width:0}
+.name{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.9rem;font-weight:500}
+.burger{width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:1.3rem;line-height:1}
+
+/* ── 햄버거 메뉴: 딤 처리 + 오른쪽 서랍 ── */
+.dim{position:fixed;inset:0;z-index:40;background:rgba(8,12,20,.55);opacity:0;pointer-events:none;transition:opacity .25s}
+.dim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(80%,320px);background:var(--card);padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;transform:translateX(100%);visibility:hidden;transition:transform .25s,visibility 0s .25s;box-shadow:-8px 0 30px rgba(0,0,0,.25)}
+.drawer.on{transform:none;visibility:visible;transition:transform .25s}
+.drawer-head{display:flex;justify-content:space-between;align-items:center}
+.drawer-head b{font-size:1.2rem}
+.drawer-list{display:grid;gap:8px;margin-top:6px}
+.drawer-list button{display:flex;align-items:center;gap:12px;width:100%;padding:16px 14px;border-radius:14px;background:var(--bg);text-align:left;font-weight:700}
+.drawer-list button span{font-size:1.4rem}
+.drawer-list button i{margin-left:auto;font-style:normal;color:var(--sub);font-size:1.4rem}
+
+/* ── 이번주 학습 ── */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;margin:6px 0}
+.wd{display:grid;justify-items:center;gap:2px}
+.wd .bar{width:100%;height:84px;background:var(--bg);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}
+.wd .bar span{display:block;width:100%;background:var(--pri);border-radius:8px 8px 0 0;min-height:0}
+.wd small{color:var(--sub);font-size:.72rem}
+.wd.today b{color:var(--pri-text,var(--pri))}
+
+/* ── 하루한자 · 과학상식 ── */
+.hanja{font-size:6.5rem;line-height:1.1;font-weight:700;font-family:"Noto Serif KR","Batang","Songti SC",serif}
+.hun{font-size:1.4rem;font-weight:700;margin:0}
+.words{list-style:none;padding:0;margin:6px 0 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.words li{padding:6px 12px;border-radius:999px;background:var(--soft);font-weight:500}
+.recent{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.recent button{background:var(--bg);border-radius:12px;border:2px solid transparent;padding:8px 0;display:grid}
+.recent button[aria-pressed=true]{border-color:var(--pri)}
+.recent b{font-size:1.5rem}
+.recent small{font-size:.65rem;color:var(--sub)}
+.sci-emoji{font-size:4.5rem;line-height:1.2}
+.sci-text{line-height:1.7;margin:0}
+.card .opts,.card .ox{margin-top:6px}
+
+/* ── 오늘의 학습 ── */
+.daily-banner{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border-radius:16px;background:var(--card);border:2px solid var(--pri);text-align:left}
+.daily-banner>span:first-child{font-size:1.8rem}
+.daily-banner b{display:block;font-size:1.05rem}
+.daily-banner small{display:block;color:var(--sub);font-size:.82rem}
+.daily-banner em{margin-left:auto;font-style:normal;font-weight:700;color:#e8590c;white-space:nowrap}
+.streak div{display:flex;justify-content:space-between;align-items:center}
+.streak b{font-size:1.2rem}
+.streak small{color:var(--sub)}
+
+/* ── 한자 써보기 ── */
+.lv{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--pri);color:var(--pri-ink);font-weight:700;font-size:.8rem}
+.write{display:grid;gap:10px;justify-items:center}
+.pad{position:relative;width:100%;max-width:340px;aspect-ratio:1;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);overflow:hidden}
+.pad svg,.pad canvas{position:absolute;inset:0;width:100%;height:100%}
+.pad svg{pointer-events:none}
+.pad canvas{touch-action:none;cursor:crosshair}
+.pad .grid line{stroke:var(--line);stroke-width:6;stroke-dasharray:24 18}
+.gshape{fill:currentColor;opacity:.14}
+.gshape.seen{fill:var(--pri);opacity:.3}
+.gshape.cur{fill:var(--pri);opacity:.6}
+.gline{fill:none;stroke:currentColor;stroke-width:64;stroke-linecap:round;stroke-linejoin:round;opacity:.14}
+.gline.seen{stroke:var(--pri);opacity:.3}
+.gline.cur{stroke:var(--pri);opacity:.6}
+.gtext{fill:currentColor;opacity:.14;font-family:"Noto Serif KR","Batang","Songti SC",serif}
+.order polyline{fill:none;stroke:var(--pri);stroke-width:10;stroke-dasharray:22 16;opacity:.85}
+.order polygon{fill:var(--pri)}
+.order circle{fill:var(--pri)}
+.order text{fill:var(--pri-ink);font-size:40px;font-weight:700}
+.wbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.wbtns button{padding:8px 14px;border-radius:999px;background:var(--bg);border:2px solid var(--line);font-weight:500}
+.wbtns button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}
+.wbtns button:disabled{opacity:.4}
+.stepn{font-weight:700;min-width:44px;text-align:center}
+.wnote{text-align:center;margin:0}
+
+/* ── 영어 테마(쨍한 주황) · 교과서 선택 ── */
+.app[data-subject=eng]{--pri:#ff8a1f;--pri2:#ffbd73;--pri-ink:#2b1500;--soft:#fff0dc;--pri-text:#c25a00}
+@media (prefers-color-scheme:dark){.app[data-subject=eng]{--pri:#ffa04d;--pri2:#ffc88f;--pri-ink:#2b1500;--soft:#3d2a14;--pri-text:#ffb877}}
+.app[data-subject=eng] :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true]){color:var(--pri-text)}
+.eds{display:flex;flex-wrap:wrap;gap:6px}
+.eds button{padding:8px 12px;border-radius:999px;background:var(--bg);border:2px solid transparent;font-weight:500;font-size:.9rem}
+.eds button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink);font-weight:700}
+.grades button:disabled{opacity:.35}
+
+/* 도덕: 버튼·배너 글자색은 흰색 */
+.app[data-subject=mor]{--pri-ink:#fff}
+
+/* ── 하루한자(빨강)·과학상식(보라) 전용 테마 ── */
+.app[data-subject=hanja]{--pri:#ef3e56;--pri2:#ff8a96;--pri-ink:#fff;--soft:#ffe3e7;--pri-text:#c8203a}
+.app[data-subject=sci]{--pri:#8b5cf6;--pri2:#b79bff;--pri-ink:#fff;--soft:#efe8ff;--pri-text:#6b3fd6}
+@media (prefers-color-scheme:dark){
+  .app[data-subject=hanja]{--pri:#ff6b7f;--pri2:#ff9aa8;--pri-ink:#2a0710;--soft:#44202a;--pri-text:#ff9aa8}
+  .app[data-subject=sci]{--pri:#a98bff;--pri2:#c6b3ff;--pri-ink:#150a33;--soft:#2c2447;--pri-text:#c6b3ff}
+}
+.app[data-subject=hanja] :is(.best,.hist strong,.tags span,.ulist span,.lv,.tabbar button[aria-current=true]),
+.app[data-subject=sci] :is(.best,.hist strong,.tags span,.ulist span,.tabbar button[aria-current=true]){color:var(--pri-text)}
+.app[data-subject=hanja] .lv{color:var(--pri-ink)}
+.ab-title{margin:0;font-size:1.25rem;font-weight:700}
+
+/* 하루한자·과학상식에서는 과목 탭을 항상 숨김 */
+.app[data-subject=hanja] .subj,.app[data-subject=sci] .subj{display:none}
