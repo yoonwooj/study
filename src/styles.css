@@ -300,3 +300,35 @@ h1,h2,h3,p{margin:0}
 /* 카드 안의 O/X 버튼(과학상식 등)은 연한 보더로 구분 */
 .card .ox-b:not(.right):not(.wrong){border-color:var(--line)}
 .card .ox-b:not(.right):not(.wrong):hover:not(:disabled){border-color:var(--pri)}
+
+/* ── 로그인 ── */
+.login-form{gap:12px}
+.field{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--sub)}
+.field input,.field select{font:inherit;font-size:1rem;font-weight:400;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%}
+.login-sel{background:var(--bg)}
+.login-sel .grades button,.login-sel .seg{background:var(--card)}
+.err{color:var(--no);font-weight:700;margin:0}
+.logout{margin-top:auto;padding:14px;border-radius:14px;background:var(--bg);color:var(--no);font-weight:700}
+
+
+/* Supabase 교과서 카탈로그 선택 */
+.subject-pills{display:flex;flex-wrap:wrap;gap:6px}
+.subject-pills button{padding:8px 13px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.88rem}
+.subject-pills button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink);font-weight:700}
+.field{display:grid;gap:6px;font-size:.84rem;font-weight:700;color:var(--sub)}
+.field select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
+.unit-heading{display:flex;align-items:center;justify-content:space-between}
+.unit-heading span{font-size:.78rem;color:var(--sub)}
+.catalog-units{display:grid;gap:8px}
+.catalog-unit{display:flex;align-items:center;gap:12px;width:100%;padding:13px;border-radius:13px;background:var(--bg);border:2px solid transparent;text-align:left}
+.catalog-unit.selected{background:var(--soft);border-color:var(--pri)}
+.catalog-unit:disabled{opacity:.45}
+.catalog-check{display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;background:var(--card);color:var(--pri);font-weight:800}
+.catalog-unit.selected .catalog-check{border-color:var(--pri);background:var(--pri);color:var(--pri-ink)}
+.catalog-unit-copy{display:grid;gap:3px;min-width:0}
+.catalog-unit-copy b{font-size:.96rem}
+.catalog-unit-copy small{font-size:.72rem;color:var(--sub);line-height:1.4}
+.catalog-empty{padding:14px 0}
+.daily-status p{display:grid;gap:3px}
+.daily-status small{font-size:.78rem;color:var(--sub)}
+.catalog-error{margin:0 16px 12px;padding:12px;border-radius:12px;background:var(--nobg);color:var(--no);font-size:.86rem}

@@ -8,7 +8,7 @@ const ITEMS = [
 ]
 
 // 열리면 뒤쪽 화면이 어두워지는(딤 처리) 오른쪽 메뉴
-export default function SideMenu({ open, onClose, onGo, name }) {
+export default function SideMenu({ open, onClose, onGo, onLogout, name }) {
   useEffect(() => {
     if (!open) return undefined
     const h = (e) => { if (e.key === 'Escape') onClose() }
@@ -27,6 +27,7 @@ export default function SideMenu({ open, onClose, onGo, name }) {
             <button key={it.k} onClick={() => onGo(it.k)}><span>{it.icon}</span>{it.label}<i>›</i></button>
           ))}
         </nav>
+        <button className="logout" onClick={onLogout}>로그아웃</button>
       </aside>
     </>
   )

@@ -5,7 +5,7 @@ export default function RecordsPage({ subj, records, coreBest, onClear }) {
   return (
     <main className="page">
       <section className="card">
-        <h2>{SUBJECTS[subj]} · 학기 핵심 문제 최고 점수</h2>
+        <h2>{SUBJECTS[subj] || ({ soc: '사회', sci: '과학', eth: '도덕' }[subj] || '통합')} · 학기 핵심 문제 최고 점수</h2>
         <div className="grid">
           {(subj === 'eng' ? [3, 4, 5, 6].map((g) => [g, 1]) : [1, 2, 3, 4, 5, 6].flatMap((g) => [[g, 1], [g, 2]])).map(([g, s]) => (
             <div key={g + '-' + s} className="cell"><small>{subj === 'eng' ? `${g}학년` : `${g}-${s}`}</small><b>{coreBest(g, s) < 0 ? '-' : coreBest(g, s)}</b></div>

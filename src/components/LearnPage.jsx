@@ -2,7 +2,7 @@ import { SUBJECTS, unitsOf, editionLabel } from '../curriculum.js'
 import { CORE_N, bankOf, gsLabel } from '../lib/quiz.js'
 import UnitCarousel from './UnitCarousel.jsx'
 
-export default function LearnPage({ subj, grade, sem, ed, editions, mode, picked, coreBest, streak, doneToday, onDaily, onGrade, onSem, onEdition, onMode, onToggle, onStartCore, onStartUnits }) {
+export default function LearnPage({ subj, grade, sem, ed, editions, mode, picked, coreBest, streak, doneToday, onDaily, focusUnit, onGrade, onSem, onEdition, onMode, onToggle, onStartCore, onStartUnits }) {
   const eng = subj === 'eng'
   const units = unitsOf(subj, grade, sem, ed)
   const counts = units.map((_, i) => bankOf(subj, grade, sem, i, ed).length)
@@ -54,7 +54,7 @@ export default function LearnPage({ subj, grade, sem, ed, editions, mode, picked
             {best >= 0 && <p className="best">🏅 최고 점수 {best}/{CORE_N}</p>}
           </section>
         ) : (
-          <UnitCarousel key={`${subj}-${grade}-${sem}-${ed}`} units={units} counts={counts} picked={picked} onToggle={onToggle} />
+          <UnitCarousel key={`${subj}-${grade}-${sem}-${ed}`} units={units} counts={counts} picked={picked} onToggle={onToggle} focus={focusUnit} />
         )}
       </main>
       <div className="cta"><div className="cta-in">

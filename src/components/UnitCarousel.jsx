@@ -1,12 +1,20 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MAX_UNITS, PER_SLIDE } from '../lib/quiz.js'
 
 // 한 슬라이드에 단원 3개씩, 옆으로 밀어서 전체 단원 보기
-export default function UnitCarousel({ units, counts, picked, onToggle }) {
+export default function UnitCarousel({ units, counts, picked, onToggle, focus = -1 }) {
   const ref = useRef(null)
   const [idx, setIdx] = useState(0)
   const pages = Math.ceil(units.length / PER_SLIDE)
   const n = picked.length
+  // 로그인에서 고른 단원이 있으면 그 단원이 있는 슬라이드로 바로 이동
+  useEffect(() => {
+    if (focus >= 0 && ref.current) {
+      const p = Math.floor(focus / PER_SLIDE)
+      ref.current.scrollLeft = p * ref.current.clientWidth
+      setIdx(p)
+    }
+  }, [focus])
   const onScroll = (e) => setIdx(Math.min(pages - 1, Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth)))
   const go = (p) => ref.current && ref.current.children[p].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
   return (

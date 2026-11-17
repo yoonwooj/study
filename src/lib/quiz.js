@@ -17,9 +17,9 @@ export const shuffle = (a) => {
 }
 export const isRight = (q, v) => (q.t === 's' ? q.a.some((x) => norm(x) === norm(v)) : v === q.a)
 export const answerText = (q) => (q.t === 'c' ? `${'①②③④'[q.a]} ${q.o[q.a]}` : q.t === 'ox' ? (q.a ? 'O' : 'X') : q.a[0])
-const NAMES = { ...SUBJECTS, eng: '영어' } // 숨긴 과목의 기록 표시용
+const NAMES = { ...SUBJECTS, eng: '영어', soc: '사회', sci: '과학', eth: '도덕' } // 숨긴 과목의 기록 표시용
 export const gsLabel = (sj, g, s) => (sj === 'eng' ? `${g}학년` : `${g}학년 ${s}학기`)
-export const recTitle = (r) => (r.kind === 'daily' ? `오늘의 학습 ${r.g}학년` : `${NAMES[r.subj || 'kor']} ${gsLabel(r.subj || 'kor', r.g, r.s)}`)
+export const recTitle = (r) => (r.kind === 'daily' ? `오늘의 학습 ${r.g}학년` : `${r.subj === 'mor' && r.g < 3 ? '통합' : (NAMES[r.subj || 'kor'] || '국어')} ${gsLabel(r.subj || 'kor', r.g, r.s)}`)
 export const fmt = (at) => new Date(at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
 
 // 4지선다는 풀 때마다 보기 순서를 섞고 정답 번호를 다시 계산해요.

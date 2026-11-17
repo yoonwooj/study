@@ -7,13 +7,14 @@ import { unitsOf, editionsOf } from './curriculum.js'
 import AppBar from './components/AppBar.jsx'
 import SideMenu from './components/SideMenu.jsx'
 import TabBar from './components/TabBar.jsx'
-import LearnPage from './components/LearnPage.jsx'
+import CatalogLearnPage from './components/CatalogLearnPage.jsx'
 import NotesPage from './components/NotesPage.jsx'
 import RecordsPage from './components/RecordsPage.jsx'
 import WeekPage from './components/WeekPage.jsx'
 import HanjaPage from './components/HanjaPage.jsx'
 import SciencePage from './components/SciencePage.jsx'
 import DailyPage from './components/DailyPage.jsx'
+import LoginPage from './components/LoginPage.jsx'
 import QuizScreen from './components/QuizScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
 import NoticeModal from './components/NoticeModal.jsx'
@@ -25,7 +26,8 @@ const today = () => new Date().toDateString()
 export default function App() {
   const [tab, setTab] = useState('learn') // learn | note | rec | week | hanja | sci
   const [menuOpen, setMenuOpen] = useState(false)
-  const [name, setName] = useState(() => load(KEYS.name, '친구'))
+  const [auth, setAuth] = useState(() => load(KEYS.auth, null)) // 로그인한 사용자 { user }
+  const [focusUnit, setFocusUnit] = useState(-1)
   const [subj, setSubj] = useState('kor')
   const [grade, setGrade] = useState(1)
   const [edition, setEdition] = useState('')
@@ -45,7 +47,7 @@ export default function App() {
   const editions = subj === 'eng' ? editionsOf(grade) : []
   const ed = subj === 'eng' ? (editions.find((e) => e.id === edition) || editions[0] || {}).id : undefined
   const coreBest = (g, s) => records.filter((r) => r.subj === subj && r.g === g && r.s === s && r.kind === 'core' && r.ed === ed).reduce((m, r) => Math.max(m, r.score), -1)
-  const reset = () => { setPicked([]); setRun(null); setText('') }
+  const reset = () => { setPicked([]); setRun(null); setText(''); setFocusUnit(-1) }
   const pickSubj = (sj) => {
     setSubj(sj)
     if (sj === 'eng') { setSem(1); setGrade((g) => (g < 3 ? 3 : g)) }
@@ -55,10 +57,15 @@ export default function App() {
   const pickSem = (s) => { setSem(s); reset() }
   const pickMode = (m) => { setMode(m); if (m === 'core') setPicked([]) }
   const toggle = (i) => setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : p.length < MAX_UNITS ? [...p, i] : p))
-  const editName = () => {
-    const v = window.prompt('이름(닉네임)을 입력하세요', name)
-    if (v && v.trim()) { const n = v.trim().slice(0, 8); setName(n); save(KEYS.name, n) }
+  const name = auth ? auth.user : ''
+  const handleLogin = ({ user, subj: sj, grade: g, sem: sm, unit }) => {
+    const a = { user }
+    setAuth(a); save(KEYS.auth, a)
+    setSubj(sj); setGrade(g); setSem(sm); setDailyGrade(g); setEdition('')
+    setMode('unit'); setPicked(unit >= 0 ? [unit] : []); setFocusUnit(unit)
+    setRun(null); setTab('learn'); setMenuOpen(false)
   }
+  const logout = () => { setAuth(null); save(KEYS.auth, null); setMenuOpen(false); setRun(null); setTab('learn') }
   const goMenu = (k) => { setTab(k); setMenuOpen(false); window.scrollTo(0, 0) }
 
   const begin = (qs, label, kind, retry = false, extra = {}) => {
@@ -66,6 +73,13 @@ export default function App() {
     setRun({ qs, i: 0, ans: null, ok: null, score: 0, wrongs: [], finished: false, retry, saved: false, label, kind, ...extra })
   }
   const startDaily = (g) => begin(dailyQs(g), `${g}학년`, 'daily', false, { dgrade: g })
+  const startCatalog = (qs, label, meta) => {
+    setGrade(meta.grade)
+    setSem(meta.semester)
+    const subjectKey = ({ '국어': 'kor', '통합': 'mor', '사회': 'soc', '과학': 'sci', '도덕': 'eth' })[meta.subject] || 'kor'
+    setSubj(subjectKey)
+    begin(qs, label, 'unit', false, { catalogMeta: meta })
+  }
   const startCore = () => begin(coreQs(subj, grade, sem, ed), '학기 핵심 문제', 'core')
   const startUnits = () => {
     const units = unitsOf(subj, grade, sem, ed)
@@ -107,6 +121,8 @@ export default function App() {
   const clearAll = () => { if (window.confirm('저장된 점수 기록을 모두 지울까요?')) { setRecords([]); save(KEYS.records, []) } }
   const hideNoticeToday = () => { save(KEYS.notice, today()); setNotice(false) }
 
+  if (!auth) return <LoginPage onLogin={handleLogin} />
+
   if (run && !run.finished) {
     return <QuizScreen run={run} subj={subj} text={text} onText={setText} onSubmit={submit} onNext={next} onQuit={quit} />
   }
@@ -120,12 +136,10 @@ export default function App() {
 
   return (
     <div className="app" data-subject={theme}>
-      <AppBar subj={subj} onSubj={pickSubj} name={name} onName={editName} onMenu={() => setMenuOpen(true)} hideSubj={!!special[tab]} title={SHOW_PAGE_TITLE ? special[tab] : undefined} />
+      <AppBar subj={subj} onSubj={pickSubj} name={name} onName={() => setMenuOpen(true)} onMenu={() => setMenuOpen(true)} hideSubj title={special[tab] || '단원별 학습'} />
 
       {tab === 'learn' && (
-        <LearnPage subj={subj} grade={grade} sem={sem} ed={ed} editions={editions} mode={mode} picked={picked} coreBest={coreBest}
-          streak={streak} doneToday={!!daily[`${ymd()}|${grade}`]} onDaily={() => { setDailyGrade(grade); setTab('daily') }}
-          onGrade={pickGrade} onSem={pickSem} onEdition={(id) => { setEdition(id); reset() }} onMode={pickMode} onToggle={toggle} onStartCore={startCore} onStartUnits={startUnits} />
+        <CatalogLearnPage initialGrade={grade} initialSemester={sem} onStart={startCatalog} />
       )}
       {tab === 'note' && <NotesPage subj={subj} notes={notes} noteGrade={noteGrade} onNoteGrade={setNoteGrade} onDelete={delNote} onStart={startNotes} />}
       {tab === 'rec' && <RecordsPage subj={subj} records={records} coreBest={coreBest} onClear={clearAll} />}
@@ -135,7 +149,7 @@ export default function App() {
       {tab === 'sci' && <SciencePage />}
 
       <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />
-      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} name={name} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} onLogout={logout} name={name} />
       {notice && <NoticeModal onHideToday={hideNoticeToday} onClose={() => setNotice(false)} />}
     </div>
   )

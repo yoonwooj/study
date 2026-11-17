@@ -7,7 +7,7 @@ export default function NotesPage({ subj, notes, noteGrade, onNoteGrade, onDelet
   return (
     <>
       <main className="page">
-        <section className="hero"><small>{SUBJECTS[subj]} 오답노트</small><b>틀린 문제 {mine.length}개</b></section>
+        <section className="hero"><small>{SUBJECTS[subj] || ({ soc: '사회', sci: '과학', eth: '도덕' }[subj] || '통합')} 오답노트</small><b>틀린 문제 {mine.length}개</b></section>
         <div className="grades nf" role="group" aria-label="학년 필터">
           {['all', 1, 2, 3, 4, 5, 6].map((g) => (
             <button key={g} aria-pressed={noteGrade === g} onClick={() => onNoteGrade(g)}>{g === 'all' ? <b>전체</b> : <><b>{g}</b><small>학년</small></>}</button>

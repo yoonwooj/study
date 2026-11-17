@@ -34,3 +34,54 @@
 - 영어는 학기 구분 없이 학년 전체로 보여줘요. 학년에 판이 여러 개면 화면의 "교과서" 줄에서 고를 수 있어요.
 - 나중에 로그인으로 학교 교과서를 저장하면, `App.jsx`의 `edition` 상태를 그 값으로 채우면 돼요.
 - 주관식 정답은 대소문자와 마침표·물음표를 무시하고 비교해요.
+
+
+---
+
+## Supabase + OpenAI 일일 단원 문제 연결
+
+### 1. 환경 변수
+프로젝트 루트에서 `.env.example`을 복사해 `.env` 파일을 만들고 값을 확인합니다.
+
+```env
+VITE_SUPABASE_URL=https://bcrpgtvrvlqfadiqryif.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_...
+```
+
+브라우저에는 publishable(anon) 키만 사용합니다. `service_role`, Supabase secret key, OpenAI API 키는 절대로 `.env`의 `VITE_` 변수로 넣지 마세요.
+
+### 2. 현재 연결된 기능
+- 학년·학기·과목·출판사·단원 선택
+- Supabase `textbook_units`에서 확인된 단원 목록 불러오기
+- 매일 생성된 문제 중 선택 단원 문제를 모아 20문제 출제
+- 기존 퀴즈 화면, 정답 확인, 해설, 오답노트, 결과 기록 재사용
+- 한 번에 최대 3개 단원 선택
+
+### 3. 매일 문제 생성
+Supabase Cron이 매일 한국 시간 오전 4시에 `generate-daily-questions` Edge Function을 호출합니다. 활성 단원별로 OpenAI가 20문제씩 생성하고 `questions`에 저장합니다.
+
+Supabase Dashboard → Edge Functions → Secrets에서 아래 값을 등록해야 합니다.
+
+- `OPENAI_API_KEY`: OpenAI API 키 (필수)
+- `OPENAI_MODEL`: 선택 사항. 미설정 시 `gpt-4o-mini`
+
+함수와 Cron은 배포되어 있지만, `OPENAI_API_KEY`는 소유자만 입력할 수 있으므로 이 값을 등록하기 전까지 실제 문제 생성은 실행되지 않습니다.
+
+### 4. 실행
+```bash
+npm install
+npm run dev
+```
+
+배포 전에는 `.env`를 준비하고 `npm run build`를 실행합니다.
+
+### 5. 교과서 데이터 범위
+현재 Supabase 카탈로그에서 단원으로 변환한 것은 총 20개입니다.
+- 1학년 1·2학기 통합
+- 2학년 1·2학기 통합
+- 3학년 1학기 사회: 비상교육, 아이스크림미디어
+
+1~6학년의 모든 과목·출판사 단원이 등록된 것은 아닙니다. 목차가 추가되면 React 선택 목록에 자동으로 반영됩니다. 세부 학습목표가 확인되지 않은 단원은 등록된 검증 메모를 OpenAI 프롬프트에 전달해, 확인되지 않은 교과서 내용을 사실처럼 출제하지 않도록 제한합니다.
+
+### 6. 보안 메모
+현재 프로젝트의 로그인은 기존 데모용 로컬 로그인입니다. 실제 학생 계정·개인별 학습기록을 서비스하려면 Supabase Auth와 사용자별 RLS 정책을 추가해야 합니다. 또한 현재 퀴즈 판정은 브라우저에서 수행하므로 정답 데이터가 네트워크 응답에서 확인될 수 있습니다. 상용 서비스 전에는 서버 측 채점으로 전환하는 것이 좋습니다.
