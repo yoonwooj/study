@@ -36,9 +36,9 @@ export default function FindIdPage() {
       </label>
       <button style={styles.button} type="submit" disabled={!code.trim() || loading}>{loading ? '확인 중…' : '아이디 확인하기'}</button>
     </form>
-    {email && <p role="status" style={styles.message}>가입 이메일(아이디)은 <strong>{email}</strong> 입니다.<br />보안을 위해 복구 코드는 이번 조회로 사용 완료되었습니다.</p>}
+    {email && <p role="status" style={styles.message}>가입 이메일(아이디)은 <strong>{email}</strong> 입니다.<br />복구 코드는 새 코드를 발급하기 전까지 다시 사용할 수 있습니다.</p>}
     {error && <p role="alert" style={styles.error}>{error}</p>}
-    <p style={styles.desc}>복구 코드는 한 번만 사용할 수 있습니다. 아이디를 확인한 뒤 로그인하면 계정 메뉴에서 새 코드를 발급받을 수 있습니다.</p>
+    <p style={styles.desc}>복구 코드는 새 코드를 발급하기 전까지 계속 사용할 수 있습니다. 로그인 후 계정 메뉴에서 새 코드를 발급하면 기존 코드는 무효화됩니다.</p>
     <a style={styles.link} href="/">로그인으로 돌아가기</a>
   </section></main>
 }
