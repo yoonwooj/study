@@ -1,5 +1,4 @@
 import { SUBJECTS, unitsOf, keyOf } from '../curriculum.js'
-import { BANK } from '../bank/index.js'
 
 export const MAX_UNITS = 3
 export const CORE_N = 20
@@ -28,7 +27,7 @@ export const prep = (q, unit) => {
   const opts = shuffle(q.o.map((text, i) => ({ text, ok: i === q.a })))
   return { ...q, unit, o: opts.map((o) => o.text), a: opts.findIndex((o) => o.ok) }
 }
-export const bankOf = (sj, g, s, i, ed) => BANK[keyOf(sj, g, s, i, ed)] || []
+export const bankOf = () => []
 export const unitQs = (sj, g, s, i, ed) => shuffle(bankOf(sj, g, s, i, ed)).map((q) => prep(q, unitsOf(sj, g, s, ed)[i]))
 export const coreQs = (sj, g, s, ed) => {
   const lists = unitsOf(sj, g, s, ed).map((_, i) => unitQs(sj, g, s, i, ed)).filter((l) => l.length)
