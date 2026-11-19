@@ -315,6 +315,9 @@ h1,h2,h3,p{margin:0}
 
 /* ── 로그인 ── */
 .login-form{gap:12px}
+.remember-id{display:flex;align-items:center;gap:8px;align-self:flex-start;color:var(--sub);font-size:.85rem;font-weight:600;cursor:pointer;user-select:none}
+.remember-id input{width:17px;height:17px;margin:0;accent-color:var(--pri)}
+.remember-id span{line-height:1.4}
 .field{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--sub)}
 .field input,.field select{font:inherit;font-size:1rem;font-weight:400;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%}
 .login-sel{background:var(--bg)}
