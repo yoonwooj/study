@@ -43,6 +43,22 @@ async function sessionAction(accessToken, action) {
   }
   return data
 }
+export async function requestPasswordReset(email) {
+  config()
+  const redirectTo = `${window.location.origin}/reset-password`
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: String(email).trim() }),
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(data.msg || data.message || data.error_description || '재설정 메일을 요청하지 못했습니다.')
+    error.status = response.status
+    throw error
+  }
+  return true
+}
 export async function signIn(email, password) {
   const session = normalizeSession(await authRequest('token?grant_type=password', { email: String(email).trim(), password }))
   const access = await sessionAction(session.access_token, 'claim')
