@@ -513,7 +513,7 @@ export default function App() {
       {tab === 'sci' && <SciencePage />}
       {tab === 'recovery' && <RecoveryCodePage accessToken={auth.access_token} />}
 
-      <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />
+      {tab !== 'recovery' && <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />}
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} onLogout={logout} name={name} />
       {notice && <NoticeModal onHideToday={hideNoticeToday} onClose={() => setNotice(false)} />}
     </div>
