@@ -41,7 +41,26 @@ Deno.serve(async (req) => {
       { onConflict: "user_id" },
     );
     if (error) return json({ error: "기기 로그인 등록에 실패했습니다." }, 500);
-    return json({ ok: true });
+
+    const { data: existingProfile, error: profileError } = await db
+      .from("member_profiles")
+      .select("grade")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (profileError) return json({ error: "학년 정보를 확인하지 못했습니다." }, 500);
+
+    let grade = existingProfile?.grade ?? null;
+    if (!existingProfile) {
+      const metadataGrade = Number(authData.user.user_metadata?.grade);
+      grade = [1, 2, 3, 4, 5, 6].includes(metadataGrade) ? metadataGrade : null;
+      const { error: createProfileError } = await db.from("member_profiles").upsert({
+        user_id: userId,
+        grade,
+        updated_at: new Date().toISOString(),
+      });
+      if (createProfileError) return json({ error: "학년 정보를 저장하지 못했습니다." }, 500);
+    }
+    return json({ ok: true, profile: { grade } });
   }
 
   if (body.action === "check") {
