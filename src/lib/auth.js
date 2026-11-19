@@ -31,7 +31,7 @@ export function createRecoveryCode() {
 }
 export async function hashRecoveryCode(code) {
   const normalized = String(code || '').toUpperCase().replace(/[^A-Z2-9]/g, '')
-  if (normalized.length !== 32) throw new Error('복구 코드 32자리를 정확히 입력해 주세요.')
+  if (normalized.length !== 32) throw new Error('복구 코드 32자를 정확히 입력해 주세요.')
   const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized))
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('')
 }
