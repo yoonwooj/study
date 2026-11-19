@@ -5,6 +5,7 @@ import { ymd, streakFrom } from './lib/date.js'
 import { dailyQs } from './lib/daily.js'
 import { editionsOf } from './curriculum.js'
 import { SUBJECT_THEME } from './lib/theme.js'
+import { defaultSubject } from './lib/subjects.js'
 import AppBar from './components/AppBar.jsx'
 import SideMenu from './components/SideMenu.jsx'
 import TabBar from './components/TabBar.jsx'
@@ -44,7 +45,7 @@ export default function App() {
   const [, setFocusUnit] = useState(-1)
   const [subj, setSubj] = useState('kor')
   const [catSubject, setCatSubject] = useState(initialSettings?.subject || '') // 테마색용
-  const [dailySubject, setDailySubject] = useState('국어')
+  const [dailySubject, setDailySubject] = useState(() => defaultSubject(initialSettings?.grade ? Number(initialSettings.grade) : 1))
   const onCatSel = useCallback((s) => setCatSubject(s.subject), [])
   const [grade, setGrade] = useState(initialSettings?.grade ? Number(initialSettings.grade) : 1)
   const [edition, setEdition] = useState('')
@@ -118,17 +119,17 @@ export default function App() {
     const a = { user, settings: nextSettings }
     setAuth(a)
     save(KEYS.auth, a)
-    if (nextSettings) {
-      setGrade(nextSettings.grade)
-      setSem(nextSettings.semester)
-      setDailyGrade(nextSettings.grade)
-      setDailySem(nextSettings.semester)
-      setDailyUnitName(nextSettings.unitName)
-      setCatSubject(nextSettings.subject || '')
-    } else {
-      setDailySem(null)
-      setDailyUnitName('')
-    }
+    const nextGrade = nextSettings?.grade || 1
+    const nextSubject = nextSettings?.subject || defaultSubject(nextGrade)
+    setGrade(nextGrade)
+    setSem(nextSettings?.semester || 1)
+    setDailyGrade(nextGrade)
+    setDailySem(nextSettings ? nextSettings.semester : null)
+    setDailyUnitName(nextSettings?.unitName || '')
+    setDailySubject(nextSubject)
+    setCatSubject(nextSubject)
+    setSubj(SUBJECT_CODE_BY_NAME[nextSubject] || 'kor')
+    setEdition('')
     setRun(null)
     setTab('learn')
     setMenuOpen(false)
@@ -138,6 +139,13 @@ export default function App() {
     save(KEYS.auth, null)
     setDailySem(null)
     setDailyUnitName('')
+    setDailyGrade(1)
+    setGrade(1)
+    setSem(1)
+    setDailySubject(defaultSubject(1))
+    setCatSubject(defaultSubject(1))
+    setSubj('kor')
+    setEdition('')
     setMenuOpen(false)
     setRun(null)
     setTab('learn')
