@@ -45,16 +45,20 @@ async function sessionAction(accessToken, action) {
 }
 export async function signIn(email, password) {
   const session = normalizeSession(await authRequest('token?grant_type=password', { email: String(email).trim(), password }))
-  await sessionAction(session.access_token, 'claim')
-  return session
+  const access = await sessionAction(session.access_token, 'claim')
+  return { ...session, profile: access.profile || null }
 }
-export async function signUp(email, password) {
+export async function signUp(email, password, grade) {
   const redirect = encodeURIComponent(window.location.origin)
-  const data = await authRequest(`signup?redirect_to=${redirect}`, { email: String(email).trim(), password })
+  const data = await authRequest(`signup?redirect_to=${redirect}`, {
+    email: String(email).trim(),
+    password,
+    data: { grade: Number(grade) },
+  })
   if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
-  await sessionAction(session.access_token, 'claim')
-  return { session }
+  const access = await sessionAction(session.access_token, 'claim')
+  return { session: { ...session, profile: access.profile || null } }
 }
 let refreshPromise = null
 export async function refreshSessionIfNeeded(session) {
