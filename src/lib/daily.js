@@ -41,9 +41,28 @@ const pool = (subj, g, sem = null, unitName = '') => {
 }
 
 // 학년(및 선택 학기·단원) 기준 오늘의 20문제 구성
-export function dailyQs(grade, day = dayIndex(), semester = null, unitName = '') {
+export function dailyQs(grade, day = dayIndex(), semester = null, unitName = '', subjectName = '') {
   const g = Number(grade) || 1
   const s = semester ? Number(semester) : null
+  const subjectCode = {
+    국어: 'kor',
+    통합: 'mor',
+    바른생활: 'mor',
+    사회: 'soc',
+    과학: 'sci',
+  }[subjectName]
+
+  // 과목이 지정되면 해당 과목의 문제만 구성합니다.
+  if (subjectCode) {
+    const list = seededShuffle(pool(subjectCode, g, s, unitName), g * 1000 + subjectCode.length + (s || 0) * 100)
+    const picks = Array.from(
+      { length: Math.min(DAILY_N, list.length) },
+      (_, i) => list[(day * DAILY_N + i) % list.length]
+    )
+    return seededShuffle(picks, day * 7 + g + subjectCode.length + (s || 0))
+      .map((x) => ({ ...prep(x.q, x.unit), _ctx: x.ctx }))
+  }
+
   const half = DAILY_N / 2
   const picks = ['kor', 'mor'].flatMap((sj, k) => {
     const list = seededShuffle(pool(sj, g, s, unitName), g * 1000 + k + (s || 0) * 100)
