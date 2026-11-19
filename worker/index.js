@@ -80,10 +80,10 @@ async function startQuiz(body, user, env) {
     `id=in.(${targetIds.join(",")})`,
     `grade=eq.${grade}`,
     `subject=eq.${encodeURIComponent(subject)}`,
-    "publisher=not.in.(TEST-SEED,테스트용(임시))",
   ];
   if (semester !== null) unitFilters.push(`semester=eq.${semester}`);
-  const units = await supabase(env, `textbook_units?${unitFilters.join("&")}`);
+  const allUnits = await supabase(env, `textbook_units?${unitFilters.join("&")}`);
+  const units = (allUnits || []).filter((unit) => !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher));
   if (!units?.length) return json({ error: `${grade}학년 ${semester ? semester + "학기 " : ""}${subject} 과목은 아직 검증된 문제 배포 단원이 준비되지 않았습니다.` }, 404);
 
   let selectedUnits = units;
@@ -247,7 +247,7 @@ async function generateDaily(env) {
   const ids = [...new Set((targets || []).map((target) => target.unit_id))];
   if (!ids.length) return { status: "skipped", reason: "no_active_targets", generation_date: date };
   const units = await supabase(env,
-    `textbook_units?select=id,grade,semester,subject,publisher,unit_number,unit_name,learning_goal,verification_status,source_note&id=in.(${ids.join(",")})&publisher=not.in.(TEST-SEED,테스트용(임시))&order=grade.asc,semester.asc,subject.asc,unit_number.asc`);
+    `textbook_units?select=id,grade,semester,subject,publisher,unit_number,unit_name,learning_goal,verification_status,source_note&id=in.(${ids.join(",")})&order=grade.asc,semester.asc,subject.asc,unit_number.asc`);
   if (!units?.length) return { status: "skipped", reason: "no_verified_units", generation_date: date };
 
   if (run?.id) {
@@ -262,7 +262,7 @@ async function generateDaily(env) {
     const created = await supabase(env, "generation_runs?select=id", {
       method: "POST", headers: { prefer: "return=representation" },
       body: JSON.stringify({
-        generation_date: date, status: "running", requested_count: units.length * 20,
+        generation_date: date, status: "running", requested_count: verifiedUnits.length * 20,
         generated_count: 0, started_at: new Date().toISOString(),
       }),
     });
