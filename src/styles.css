@@ -356,7 +356,7 @@ h1,h2,h3,p{margin:0}
 
 .app[data-subject=kor]{--pri:#2f6df6;--pri2:#6ea6ff;--soft:#e8f0ff;--pri-text:#1f56d8;--pri-ink:#fff}
 .app[data-subject=int]{--pri:#ef4f91;--pri2:#ff8fbd;--soft:#ffe6f1;--pri-text:#c42b72;--pri-ink:#fff}
-.app[data-subject=soc]{--pri:#f2780c;--pri2:#ffae5c;--soft:#fff0e0;--pri-text:#b85200;--pri-ink:#fff}
+.app[data-subject=soc]{--pri:#d66d5b;--pri2:#f39a8b;--soft:#ffeae5;--pri-text:#b84f40;--pri-ink:#fff}
 .app[data-subject=sci]{--pri:#7b4dff;--pri2:#b196ff;--soft:#efe9ff;--pri-text:#5b32d6;--pri-ink:#fff}
 .app[data-subject=eth],
 .app[data-subject=mor]{--pri:#12a55a;--pri2:#55d68f;--soft:#def7e9;--pri-text:#0b7a40;--pri-ink:#fff}
@@ -382,7 +382,7 @@ h1,h2,h3,p{margin:0}
 /* 오답노트·기록 페이지: 선택 과목 테마를 페이지 내부에 적용 */
 .page[data-subject=kor]{--pri:#2f6df6;--pri2:#6ea6ff;--soft:#e8f0ff;--pri-text:#1f56d8;--pri-ink:#fff}
 .page[data-subject=int]{--pri:#ef4f91;--pri2:#ff8fbd;--soft:#ffe6f1;--pri-text:#c42b72;--pri-ink:#fff}
-.page[data-subject=soc]{--pri:#f2780c;--pri2:#ffae5c;--soft:#fff0e0;--pri-text:#b85200;--pri-ink:#fff}
+.page[data-subject=soc]{--pri:#d66d5b;--pri2:#f39a8b;--soft:#ffeae5;--pri-text:#b84f40;--pri-ink:#fff}
 .page[data-subject=sci]{--pri:#7b4dff;--pri2:#b196ff;--soft:#efe9ff;--pri-text:#5b32d6;--pri-ink:#fff}
 .page[data-subject=eth],.page[data-subject=mor]{--pri:#12a55a;--pri2:#55d68f;--soft:#def7e9;--pri-text:#0b7a40;--pri-ink:#fff}
 .page[data-subject=eng]{--pri:#0ea5b7;--pri2:#4fd1e0;--soft:#dcf6fa;--pri-text:#0a7a89;--pri-ink:#fff}
@@ -467,7 +467,7 @@ h1,h2,h3,p{margin:0}
 }
 .subject-pills button[data-theme=kor]{--pc:#2f6df6}
 .subject-pills button[data-theme=int]{--pc:#ef4f91}
-.subject-pills button[data-theme=soc]{--pc:#f2780c}
+.subject-pills button[data-theme=soc]{--pc:#d66d5b}
 .subject-pills button[data-theme=sci]{--pc:#7b4dff}
 .subject-pills button[data-theme=eth]{--pc:#12a55a}
 .subject-pills button[data-theme=eng]{--pc:#0ea5b7}
