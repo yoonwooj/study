@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { BANK } from "./bank/index.js";
-import { CUR } from "./curriculum.js";
+import { BANK } from "https://raw.githubusercontent.com/yoonwooj/study/a1bfd143648da8d7e584968c1dab03b3ce55e9f0/supabase/functions/student-daily-quiz/bank/index.js";
+import { CUR } from "https://raw.githubusercontent.com/yoonwooj/study/a1bfd143648da8d7e584968c1dab03b3ce55e9f0/supabase/functions/student-daily-quiz/curriculum.js";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
