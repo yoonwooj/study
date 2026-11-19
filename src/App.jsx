@@ -184,7 +184,7 @@ export default function App() {
     const activeUnit = auth?.settings?.unitName ?? uName ?? ''
     const label = `${activeGrade}학년${activeSem ? ` ${activeSem}학기` : ''}${activeUnit ? ` · ${activeUnit}` : subjName ? ` · ${subjName}` : ''}`
     begin(
-      dailyQs(activeGrade, undefined, activeSem, activeUnit),
+      dailyQs(activeGrade, undefined, activeSem, activeUnit, subjName),
       label,
       'daily',
       false,
@@ -254,7 +254,10 @@ export default function App() {
       save(KEYS.records, r)
       saved = true
       if (isDaily) {
-        const k = activeSem ? `${ymd()}|${run.dgrade}|${activeSem}` : `${ymd()}|${run.dgrade}`
+        const subjectName = run.dsubject || dailySubject
+        const k = activeSem
+          ? `${ymd()}|${run.dgrade}|${activeSem}|${subjectName}`
+          : `${ymd()}|${run.dgrade}|${subjectName}`
         const d = {
           ...daily,
           [k]: { score: Math.max(daily[k] ? daily[k].score : 0, run.score), total: run.qs.length },
