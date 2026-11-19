@@ -56,17 +56,22 @@ export default function DailyPage({
     if (onSubject) onSubject(subjName)
   }
 
-  const grades = onlyGrade ? [onlyGrade] : [1, 2, 3, 4, 5, 6]
   const day = dayIndex()
-  const plan = useMemo(() => dailyQs(activeGrade, day, activeSem), [activeGrade, day, activeSem])
+  const plan = useMemo(
+    () => dailyQs(activeGrade, day, activeSem, '', activeSubject),
+    [activeGrade, day, activeSem, activeSubject]
+  )
   const today = ymd()
   const recKey = activeSem
     ? `${today}|${activeGrade}|${activeSem}|${activeSubject}`
     : `${today}|${activeGrade}|${activeSubject}`
-  const rec = daily[recKey] || daily[`${today}|${activeGrade}`]
-  const doneCount = grades.filter((g) =>
-    activeSem ? (daily[`${today}|${g}|${activeSem}`] || daily[`${today}|${g}`]) : daily[`${today}|${g}`]
-  ).length
+  const rec = daily[recKey]
+  const doneCount = gradeSubjects.filter((subjName) => {
+    const key = activeSem
+      ? `${today}|${activeGrade}|${activeSem}|${subjName}`
+      : `${today}|${activeGrade}|${subjName}`
+    return Boolean(daily[key])
+  }).length
   const showSemesterRow = !onlySemester && typeof onSemester === 'function'
 
   return (
@@ -78,7 +83,7 @@ export default function DailyPage({
         </section>
 
         <section className="card streak">
-          <div><b>🔥 {streak}일 연속</b><small>오늘 완료한 학년 {doneCount}/{grades.length}</small></div>
+          <div><b>🔥 {streak}일 연속</b><small>오늘 완료한 과목 {doneCount}/{gradeSubjects.length}</small></div>
         </section>
 
         <section className="sel">
