@@ -117,7 +117,7 @@ async function startQuiz(body, user, env) {
       a: options.indexOf(row.answer),
       e: row.explanation || "",
       unit: selectedUnits.find((unit) => unit.id === row.unit_id)?.unit_name || "",
-      _ctx: { subj: subject, g: grade, s: semester || selectedUnits.find((unit) => unit.id === row.unit_id)?.semester || 1 },
+      _ctx: { subj: ({ "국어": "kor", "통합": "mor", "바른생활": "mor", "도덕": "mor", "사회": "soc", "과학": "sci" })[subject] || "kor", g: grade, s: semester || selectedUnits.find((unit) => unit.id === row.unit_id)?.semester || 1 },
     };
   });
   const inserted = await supabase(env, "student_quiz_sessions?select=id", {
@@ -332,6 +332,13 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/student-daily-quiz") return handleApi(request, env);
     if (url.pathname === "/api/health") return json({ status: "ok", service: "study-worker" });
+    if (url.pathname === "/api/generation-status" && request.method === "GET") {
+      try {
+        envCheck(env);
+        const rows = await supabase(env, "generation_runs?select=generation_date,status,requested_count,generated_count,finished_at&order=generation_date.desc&limit=1");
+        return json(rows?.[0] || null);
+      } catch (error) { return json({ error: error.message || "생성 상태 조회 실패" }, 500); }
+    }
     return env.ASSETS.fetch(request);
   },
   async scheduled(_event, env, ctx) {
