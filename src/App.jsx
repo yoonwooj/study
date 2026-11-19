@@ -17,6 +17,7 @@ import HanjaPage from './components/HanjaPage.jsx'
 import SciencePage from './components/SciencePage.jsx'
 import DailyPage from './components/DailyPage.jsx'
 import LoginPage from './components/LoginPage.jsx'
+import SignupPage from './components/SignupPage.jsx'
 import QuizScreen from './components/QuizScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
 import NoticeModal from './components/NoticeModal.jsx'
@@ -116,14 +117,17 @@ export default function App() {
   }
   const name = auth ? (typeof auth.user === 'string' ? auth.user : auth.user?.email || '') : ''
   const handleLogin = async ({ user, settings, session }) => {
+    const assignedGrade = Number(session?.profile?.grade || session?.user?.user_metadata?.grade) || null
     const nextSettings = settings
       ? {
           ...settings,
-          grade: Number(settings.grade) || 1,
-          semester: settings.semester != null ? Number(settings.semester) : 1,
+          grade: Number(settings.grade) || assignedGrade || 1,
+          semester: settings.semester != null ? Number(settings.semester) : null,
           unitName: settings.unitName || '',
         }
-      : null
+      : assignedGrade
+        ? { grade: assignedGrade, semester: null, unitName: '', subject: defaultSubject(assignedGrade) }
+        : null
     const a = { user, settings: nextSettings, ...session }
     setRecords(loadUser(KEYS.records, session.user.id, []))
     setNotes(loadUser(KEYS.notes, session.user.id, []))
@@ -378,8 +382,9 @@ export default function App() {
   if (recoveryParams.get('type') === 'recovery') return <PasswordRecoveryPage />
 
   // 관리자 페이지는 학생용 임시 로그인과 분리해 Supabase Auth로 인증합니다.
-  const isAdminRoute = window.location.pathname.replace(/\/+$/, '') === '/admin'
-  if (isAdminRoute) return <AdminPage />
+  const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
+  if (currentPath === '/admin') return <AdminPage />
+  if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
 
