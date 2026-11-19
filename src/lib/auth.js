@@ -19,12 +19,21 @@ function normalizeSession(data) {
   if (!data?.access_token || !data?.refresh_token || !data?.user) throw new Error('로그인 세션을 만들지 못했습니다.')
   return { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: data.expires_at || Math.floor(Date.now() / 1000) + Number(data.expires_in || 3600), user: data.user }
 }
+function getDeviceId() {
+  let id = window.localStorage.getItem('study_device_id')
+  if (!id) {
+    id = window.crypto.randomUUID()
+    window.localStorage.setItem('study_device_id', id)
+  }
+  return id
+}
+
 async function sessionAction(accessToken, action) {
   config()
   const response = await fetch(`${SUPABASE_URL}/functions/v1/student-session`, {
     method: 'POST',
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action }),
+    body: JSON.stringify({ action, device_id: getDeviceId() }),
   })
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
