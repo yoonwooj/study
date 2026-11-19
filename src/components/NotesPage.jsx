@@ -119,7 +119,7 @@ export default function NotesPage({ subj, grade = 1, notes, onDelete, onStart, o
         )}
       </main>
 
-      <div className="cta">
+      <div className="cta" data-subject={selectedSubj}>
         <div className="cta-in">
           <button
             type="button"
