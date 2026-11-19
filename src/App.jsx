@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { checkStudentSession, refreshSessionIfNeeded, releaseStudentSession } from './lib/auth.js'
 import { CORE_N, shuffle, prep, isRight } from './lib/quiz.js'
-import { KEYS, load, save } from './lib/storage.js'
+import { KEYS, load, save, loadUser, saveUser, migrateLegacyUserData } from './lib/storage.js'
+import { startStudentDailyQuiz, submitStudentDailyAnswer } from './lib/supabase.js'
 import { ymd, streakFrom } from './lib/date.js'
-import { dailyQs } from './lib/daily.js'
 import { editionsOf } from './curriculum.js'
 import { SUBJECT_THEME } from './lib/theme.js'
 import { defaultSubject } from './lib/subjects.js'
@@ -39,6 +39,7 @@ const SUBJECT_CODE_BY_NAME = {
 export default function App() {
   const storedAuth = load(KEYS.auth, null)
   const initialAuth = storedAuth?.access_token ? storedAuth : null
+  if (initialAuth?.user?.id) migrateLegacyUserData(initialAuth.user.id)
   const initialSettings = initialAuth?.settings || null
 
   const [tab, setTab] = useState('learn') // learn | note | rec | week | hanja | sci | daily
@@ -56,9 +57,13 @@ export default function App() {
   const [, setPicked] = useState([])
   const [run, setRun] = useState(null)
   const [text, setText] = useState('')
-  const [records, setRecords] = useState(() => load(KEYS.records, []))
-  const [notes, setNotes] = useState(() => load(KEYS.notes, []))
-  const [daily, setDaily] = useState(() => load(KEYS.daily, {}))
+  const [records, setRecords] = useState(() => loadUser(KEYS.records, initialAuth?.user?.id, []))
+  const [notes, setNotes] = useState(() => loadUser(KEYS.notes, initialAuth?.user?.id, []))
+  const [daily, setDaily] = useState(() => loadUser(KEYS.daily, initialAuth?.user?.id, {}))
+  const [quizLoading, setQuizLoading] = useState(false)
+  const [quizError, setQuizError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [dailyGrade, setDailyGrade] = useState(initialSettings?.grade ? Number(initialSettings.grade) : 1)
   const [dailySem, setDailySem] = useState(initialSettings?.semester ? Number(initialSettings.semester) : null)
   const [dailyUnitName, setDailyUnitName] = useState(initialSettings?.unitName || '')
@@ -120,6 +125,9 @@ export default function App() {
         }
       : null
     const a = { user, settings: nextSettings, ...session }
+    setRecords(loadUser(KEYS.records, session.user.id, []))
+    setNotes(loadUser(KEYS.notes, session.user.id, []))
+    setDaily(loadUser(KEYS.daily, session.user.id, {}))
     setAuth(a)
     setLoginNotice('')
     save(KEYS.auth, a)
@@ -142,6 +150,7 @@ export default function App() {
     await releaseStudentSession(auth?.access_token)
     setAuth(null)
     save(KEYS.auth, null)
+    setRecords([]); setNotes([]); setDaily({})
     setDailySem(null)
     setDailyUnitName('')
     setDailyGrade(1)
@@ -195,6 +204,7 @@ export default function App() {
 
   const begin = (qs, label, kind, retry = false, extra = {}) => {
     setText('')
+    setSubmitError('')
     setRun({
       qs,
       i: 0,
@@ -210,7 +220,7 @@ export default function App() {
       ...extra,
     })
   }
-  const startDaily = (g, s = dailySem, subjName = dailySubject, uName = dailyUnitName) => {
+  const startDaily = async (g, s = dailySem, subjName = dailySubject, uName = dailyUnitName) => {
     const activeGrade = Number(auth?.settings?.grade ?? g) || 1
     const activeSem =
       auth?.settings?.semester != null
@@ -220,13 +230,21 @@ export default function App() {
           : null
     const activeUnit = auth?.settings?.unitName ?? uName ?? ''
     const label = `${activeGrade}학년${activeSem ? ` ${activeSem}학기` : ''}${activeUnit ? ` · ${activeUnit}` : subjName ? ` · ${subjName}` : ''}`
-    begin(
-      dailyQs(activeGrade, undefined, activeSem, activeUnit, subjName),
-      label,
-      'daily',
-      false,
-      { dgrade: activeGrade, dsem: activeSem, dsubject: subjName, dunitName: activeUnit }
-    )
+    setQuizLoading(true)
+    setQuizError('')
+    try {
+      const result = await startStudentDailyQuiz(auth.access_token, {
+        grade: activeGrade, semester: activeSem, subject: subjName, unitName: activeUnit,
+      })
+      begin(result.questions, label, 'daily', false, {
+        dgrade: activeGrade, dsem: activeSem, dsubject: subjName, dunitName: activeUnit,
+        serverBacked: true, serverSessionId: result.session_id,
+      })
+    } catch (error) {
+      setQuizError(error.message || '문제를 불러오지 못했습니다.')
+    } finally {
+      setQuizLoading(false)
+    }
   }
   const startNotes = (list) =>
     begin(
@@ -240,24 +258,57 @@ export default function App() {
   const updateNotes = (fn) =>
     setNotes((p) => {
       const n = fn(p)
-      save(KEYS.notes, n)
+      saveUser(KEYS.notes, auth?.user?.id, n)
       return n
     })
   const delNote = (key) => updateNotes((p) => p.filter((x) => x.key !== key))
-  const submit = (v) => {
+  const submit = async (v) => {
     const q = run.qs[run.i]
+    if (run.serverBacked) {
+      setSubmitting(true)
+      setSubmitError('')
+      try {
+        const result = await submitStudentDailyAnswer(auth.access_token, {
+          sessionId: run.serverSessionId, questionIndex: run.i, answer: v,
+        })
+        const answeredQuestion = { ...q, a: result.correct_answer_value, e: result.explanation || '' }
+        const ctx = q._ctx || { subj, g: grade, s: sem, ed }
+        const key = `${ctx.subj}|${ctx.g}|${ctx.s}|${ctx.ed ? ctx.ed + '|' : ''}${q.q}`
+        const nextNotes = result.is_correct
+          ? notes.filter((item) => item.key !== key)
+          : notes.some((item) => item.key === key)
+            ? notes
+            : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: answeredQuestion.a, e: answeredQuestion.e } }, ...notes].slice(0, 300)
+        setNotes(nextNotes)
+        saveUser(KEYS.notes, auth?.user?.id, nextNotes)
+        setRun({
+          ...run,
+          ans: v,
+          ok: result.is_correct,
+          score: run.score + (result.is_correct ? 1 : 0),
+          wrongs: result.is_correct ? run.wrongs : [...run.wrongs, answeredQuestion],
+          correctAnswerIndex: result.correct_answer_index,
+          correctAnswerValue: result.correct_answer_value,
+          correctAnswerText: result.correct_answer_text,
+          explanation: result.explanation || '',
+        })
+      } catch (error) {
+        setSubmitError(error.message || '답안을 채점하지 못했습니다. 다시 시도해 주세요.')
+      } finally {
+        setSubmitting(false)
+      }
+      return
+    }
     const ok = isRight(q, v)
     const ctx = q._ctx || { subj, g: grade, s: sem, ed }
     const key = `${ctx.subj}|${ctx.g}|${ctx.s}|${ctx.ed ? ctx.ed + '|' : ''}${q.q}`
-    if (ok) {
-      updateNotes((p) => (p.some((x) => x.key === key) ? p.filter((x) => x.key !== key) : p))
-    } else {
-      updateNotes((p) =>
-        p.some((x) => x.key === key)
-          ? p
-          : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: q.a, e: q.e } }, ...p].slice(0, 300)
-      )
-    }
+    const nextNotes = ok
+      ? notes.filter((item) => item.key !== key)
+      : notes.some((item) => item.key === key)
+        ? notes
+        : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: q.a, e: q.e } }, ...notes].slice(0, 300)
+    setNotes(nextNotes)
+    saveUser(KEYS.notes, auth?.user?.id, nextNotes)
     setRun({
       ...run,
       ans: v,
@@ -268,7 +319,7 @@ export default function App() {
   }
   const next = () => {
     setText('')
-    if (run.i + 1 < run.qs.length) return setRun({ ...run, i: run.i + 1, ans: null, ok: null })
+    if (run.i + 1 < run.qs.length) return setRun({ ...run, i: run.i + 1, ans: null, ok: null, correctAnswerIndex: null, correctAnswerValue: null, correctAnswerText: '', explanation: '' })
     let saved = false
     if (!run.retry && run.kind !== 'note') {
       const isDaily = run.kind === 'daily'
@@ -288,7 +339,7 @@ export default function App() {
         },
       ]
       setRecords(r)
-      save(KEYS.records, r)
+      saveUser(KEYS.records, auth?.user?.id, r)
       saved = true
       if (isDaily) {
         const subjectName = run.dsubject || dailySubject
@@ -300,7 +351,7 @@ export default function App() {
           [k]: { score: Math.max(daily[k] ? daily[k].score : 0, run.score), total: run.qs.length },
         }
         setDaily(d)
-        save(KEYS.daily, d)
+        saveUser(KEYS.daily, auth?.user?.id, d)
       }
     }
     return setRun({ ...run, finished: true, saved })
@@ -311,7 +362,7 @@ export default function App() {
   const clearAll = () => {
     if (window.confirm('저장된 점수 기록을 모두 지울까요?')) {
       setRecords([])
-      save(KEYS.records, [])
+      saveUser(KEYS.records, auth?.user?.id, [])
     }
   }
   const hideNoticeToday = () => {
@@ -342,6 +393,8 @@ export default function App() {
         onSubmit={submit}
         onNext={next}
         onQuit={quit}
+        submitting={submitting}
+        submitError={submitError}
       />
     )
   }
@@ -399,6 +452,8 @@ export default function App() {
             setSem(nextS || 1)
           }}
           unitName={lockedUnitName}
+          loading={quizLoading}
+          error={quizError}
           onlyGrade={lockedGrade}
           onlySemester={lockedSemester}
           daily={daily}
