@@ -42,7 +42,7 @@ const seoulDate = () => new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
 }).format(new Date());
 const dayNumber = () => Math.floor(Date.parse(seoulDate() + "T00:00:00+09:00") / 86400000);
-const normalize = (value: unknown) => String(value ?? "").replace(/[\\s.,!?]/g, "").toLowerCase();
+const normalize = (value: unknown) => String(value ?? "").replace(/[\s.,!?]/g, "").toLowerCase();
 
 type BankQuestion = { t: "c" | "ox" | "s"; q: string; o?: string[]; a: number | boolean | string[]; e?: string };
 type PoolItem = { q: BankQuestion; unit: string; ctx: { subj: string; g: number; s: number } };
@@ -126,7 +126,7 @@ Deno.serve(async (req: Request) => {
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
   if (!url || !serviceKey || !anonKey) return json({ error: "서버 인증 설정이 없습니다." }, 500);
 
-  const token = (req.headers.get("Authorization") || "").replace(/^Bearer\\s+/i, "");
+  const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return json({ error: "로그인이 필요합니다." }, 401);
   const authClient = createClient(url, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: authData, error: authError } = await authClient.auth.getUser(token);
