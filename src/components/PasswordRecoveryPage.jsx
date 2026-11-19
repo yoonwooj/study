@@ -62,7 +62,7 @@ export default function PasswordRecoveryPage() {
       setDone(true)
       setPassword('')
       setConfirmPassword('')
-      setMessage('비밀번호가 변경되었습니다. 관리자 로그인 화면으로 이동해 주세요.')
+      setMessage('비밀번호가 변경되었습니다. 로그인 화면으로 이동해 주세요.')
     } catch (error) {
       setMessage(error.message || '비밀번호 변경 중 오류가 발생했습니다.')
     } finally {
@@ -86,9 +86,9 @@ export default function PasswordRecoveryPage() {
   return (
     <main style={styles.page}>
       <section style={styles.card}>
-        <div style={styles.eyebrow}>STUDY ADMIN</div>
+        <div style={styles.eyebrow}>STUDY</div>
         <h1 style={styles.title}>새 비밀번호 설정</h1>
-        <p style={styles.desc}>관리자 계정에서 사용할 새 비밀번호를 입력해 주세요.</p>
+        <p style={styles.desc}>새로 사용할 비밀번호를 입력해 주세요.</p>
         {!done && accessToken && (
           <form onSubmit={submit}>
             <label style={styles.label}>새 비밀번호
@@ -101,8 +101,8 @@ export default function PasswordRecoveryPage() {
           </form>
         )}
         {message && <p role="status" style={styles.message}>{message}</p>}
-        {done && <a style={styles.link} href="/admin">관리자 로그인으로 이동</a>}
-        {!accessToken && <a style={styles.link} href="/admin">관리자 로그인으로 돌아가기</a>}
+        {done && <a style={styles.link} href="/">로그인 화면으로 이동</a>}
+        {!accessToken && <a style={styles.link} href="/">로그인 화면으로 돌아가기</a>}
       </section>
     </main>
   )
