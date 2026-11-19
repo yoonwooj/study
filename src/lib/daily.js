@@ -53,7 +53,7 @@ export function dailyQs(grade, day = dayIndex(), semester = null, unitName = '',
   }[subjectName]
 
   // 과목이 지정되면 해당 과목의 문제만 구성합니다.
-  if (subjectCode) {
+  if (subjectCode && CUR[subjectCode]?.[g]) {
     const list = seededShuffle(pool(subjectCode, g, s, unitName), g * 1000 + subjectCode.length + (s || 0) * 100)
     const picks = Array.from(
       { length: Math.min(DAILY_N, list.length) },
