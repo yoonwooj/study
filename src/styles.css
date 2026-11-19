@@ -594,3 +594,9 @@ h1,h2,h3,p{margin:0}
   .cta[data-subject=eng]{--pri:#3fd0e0;--pri2:#7fe3ee;--soft:#12363c;--pri-text:#7fe3ee;--pri-ink:#04262c}
   .cta[data-subject=hanja]{--pri:#ff6b7f;--pri2:#ff9aa8;--soft:#44202a;--pri-text:#ff9aa8;--pri-ink:#2a0710}
 }
+
+
+/* 로그인 계정 도움말 */
+.login-help-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px;color:var(--sub);font-size:.84rem}
+.login-help-links a{color:var(--pri-text,var(--pri));font-weight:700;text-decoration:none}
+.login-help-links a:focus-visible{outline:2px solid var(--pri);outline-offset:3px;border-radius:4px}
