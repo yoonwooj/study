@@ -19,6 +19,7 @@ import QuizScreen from './components/QuizScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
 import NoticeModal from './components/NoticeModal.jsx'
 import AdminPage from './components/AdminPage.jsx'
+import PasswordRecoveryPage from './components/PasswordRecoveryPage.jsx'
 
 const SHOW_NOTICE = false // 안내 팝업 임시 비활성화 (다시 켜려면 true)
 const today = () => new Date().toDateString()
@@ -269,6 +270,10 @@ export default function App() {
     save(KEYS.notice, today())
     setNotice(false)
   }
+
+  // Supabase 비밀번호 복구 메일의 URL hash를 감지해 학습 화면 대신 재설정 화면을 표시합니다.
+  const recoveryParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  if (recoveryParams.get('type') === 'recovery') return <PasswordRecoveryPage />
 
   // 관리자 페이지는 학생용 임시 로그인과 분리해 Supabase Auth로 인증합니다.
   const isAdminRoute = window.location.pathname.replace(/\/+$/, '') === '/admin'
