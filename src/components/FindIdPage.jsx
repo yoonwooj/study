@@ -29,7 +29,7 @@ export default function FindIdPage() {
   }
   return <main style={styles.page}><section style={styles.card}>
     <div style={styles.eyebrow}>ACCOUNT HELP</div><h1 style={styles.title}>아이디 찾기</h1>
-    <p style={styles.desc}>회원가입 때 발급받아 보관한 복구 코드를 입력해 주세요.</p>
+    <p style={styles.desc}>회원가입 때 발급받아 보관한 복구 코드를 입력해 주세요. 기존 회원은 로그인 후 메뉴에서 먼저 복구 코드를 발급할 수 있습니다.</p>
     <form onSubmit={submit}>
       <label style={styles.label}>복구 코드
         <input style={styles.input} value={code} onChange={(e) => { setCode(e.target.value); setError(''); setEmail('') }} placeholder="예: ABCD-EFGH-..." autoCapitalize="characters" autoComplete="off" required />
