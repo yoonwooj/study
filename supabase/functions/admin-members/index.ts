@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     const ids = authUsers.users.map((u) => u.id);
     const [{ data: profiles }, { data: subscriptions }] = await Promise.all([
       db.from("member_profiles").select("user_id,display_name,grade,created_at").in("user_id", ids),
-      db.from("subscriptions").select("id,user_id,plan_months,starts_at,ends_at,status,payment_status,amount_krw,memo,created_at").in("user_id", ids).order("created_at", { ascending: false }),
+      db.from("subscriptions").select("id,user_id,plan_months,is_trial,starts_at,ends_at,status,payment_status,amount_krw,memo,created_at").in("user_id", ids).order("created_at", { ascending: false }),
     ]);
     const profileMap = new Map((profiles || []).map((p) => [p.user_id, p]));
     const subMap = new Map<string, any>();
@@ -54,15 +54,16 @@ Deno.serve(async (req) => {
   }
 
   if (body.action === "save_subscription") {
-    const { user_id, plan_months, starts_at, status, payment_status, amount_krw, memo } = body;
-    if (typeof user_id !== "string" || ![3, 6, 12].includes(Number(plan_months))) return json({ error: "회원 또는 구독 기간 값이 올바르지 않습니다." }, 400);
+    const { user_id, plan_months, is_trial, starts_at, status, payment_status, amount_krw, memo } = body;
+    if (typeof user_id !== "string" || (!is_trial && ![3, 6, 12].includes(Number(plan_months)))) return json({ error: "회원 또는 구독 기간 값이 올바르지 않습니다." }, 400);
     if (!["active", "paused", "canceled"].includes(status || "active")) return json({ error: "구독 상태가 올바르지 않습니다." }, 400);
     if (!["paid", "pending", "refunded", "manual"].includes(payment_status || "manual")) return json({ error: "결제 상태가 올바르지 않습니다." }, 400);
     const start = starts_at ? new Date(starts_at) : new Date();
     if (Number.isNaN(start.getTime())) return json({ error: "시작일이 올바르지 않습니다." }, 400);
     const end = new Date(start);
-    end.setMonth(end.getMonth() + Number(plan_months));
-    const payload = { user_id, plan_months: Number(plan_months), starts_at: start.toISOString(), ends_at: end.toISOString(), status: status || "active", payment_status: payment_status || "manual", amount_krw: amount_krw === "" || amount_krw == null ? null : Number(amount_krw), memo: memo || null, updated_at: new Date().toISOString() };
+    if (is_trial) end.setDate(end.getDate() + 14);
+    else end.setMonth(end.getMonth() + Number(plan_months));
+    const payload = { user_id, plan_months: Number(plan_months), is_trial: !!is_trial, starts_at: start.toISOString(), ends_at: end.toISOString(), status: status || "active", payment_status: payment_status || "manual", amount_krw: amount_krw === "" || amount_krw == null ? null : Number(amount_krw), memo: memo || null, updated_at: new Date().toISOString() };
     if (payload.amount_krw !== null && (!Number.isInteger(payload.amount_krw) || payload.amount_krw < 0)) return json({ error: "결제 금액은 0 이상의 정수여야 합니다." }, 400);
     const { data, error } = await db.from("subscriptions").insert(payload).select().single();
     if (error) return json({ error: error.message }, 500);
