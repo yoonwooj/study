@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
-import { dailyQs, DAILY_N } from '../lib/daily.js'
-import { dayIndex, todayLabel, ymd } from '../lib/date.js'
+import { useEffect, useState } from 'react'
+import { todayLabel, ymd } from '../lib/date.js'
+
+const DAILY_N = 20
 import { SUBJECT_THEME } from '../lib/theme.js'
 
 const SUBJECTS_BY_GRADE = {
@@ -31,6 +32,9 @@ export default function DailyPage({
   onStart,
   onlyGrade,
   onlySemester,
+  unitName = '',
+  loading = false,
+  error = '',
 }) {
   const activeGrade = onlyGrade ?? grade
   const activeSem = onlySemester ?? semester
@@ -56,11 +60,6 @@ export default function DailyPage({
     if (onSubject) onSubject(subjName)
   }
 
-  const day = dayIndex()
-  const plan = useMemo(
-    () => dailyQs(activeGrade, day, activeSem, '', activeSubject),
-    [activeGrade, day, activeSem, activeSubject]
-  )
   const today = ymd()
   const recKey = activeSem
     ? `${today}|${activeGrade}|${activeSem}|${activeSubject}`
@@ -120,16 +119,17 @@ export default function DailyPage({
         </section>
 
         <section className="card">
-          <h2>오늘의 {activeSubject} {Math.min(plan.length, DAILY_N)}문제</h2>
+          <h2>오늘의 {activeSubject} {DAILY_N}문제</h2>
           <ul className="ulist">
             <li>
               <span>{activeSubject.slice(0, 1)}</span>
               {activeSubject}
-              <em>{Math.min(plan.length, DAILY_N)}문제</em>
+              <em>{DAILY_N}문제</em>
             </li>
           </ul>
           <p className="sub">날짜가 바뀌면 새 문제가 나와요. 틀린 문제는 오답노트에 모여요.</p>
           {rec && <p className="best">🏅 오늘 최고 점수 {rec.score}/{rec.total}</p>}
+          {error && <p className="err" role="alert">{error}</p>}
         </section>
       </main>
 
@@ -138,14 +138,12 @@ export default function DailyPage({
           <button
             type="button"
             className="btn block"
-            disabled={plan.length === 0}
-            onClick={() => onStart(activeGrade, activeSem, activeSubject)}
+            disabled={loading}
+            onClick={() => onStart(activeGrade, activeSem, activeSubject, unitName)}
           >
-            {plan.length === 0
-              ? '문제 준비 중'
-              : rec
-                ? `다시 풀기 (${Math.min(plan.length, DAILY_N)}문제)`
-                : `오늘의 학습 시작 (${Math.min(plan.length, DAILY_N)}문제)`}
+            {loading ? '문제 준비 중…' : rec
+              ? `다시 풀기 (${DAILY_N}문제)`
+              : `오늘의 학습 시작 (${DAILY_N}문제)`}
           </button>
         </div>
       </div>
