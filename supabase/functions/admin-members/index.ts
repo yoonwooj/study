@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     if (usersError) return json({ error: usersError.message }, 500);
     const ids = authUsers.users.map((u) => u.id);
     const [{ data: profiles }, { data: subscriptions }] = await Promise.all([
-      db.from("member_profiles").select("user_id,display_name,grade,created_at").in("user_id", ids),
+      db.from("member_profiles").select("user_id,display_name,grade,is_test,created_at").in("user_id", ids),
       db.from("subscriptions").select("id,user_id,plan_months,is_trial,starts_at,ends_at,status,payment_status,amount_krw,memo,created_at").in("user_id", ids).order("created_at", { ascending: false }),
     ]);
     const profileMap = new Map((profiles || []).map((p) => [p.user_id, p]));
@@ -47,10 +47,50 @@ Deno.serve(async (req) => {
       email_confirmed: !!u.email_confirmed_at,
       profile: profileMap.get(u.id) || null,
       subscription: subMap.get(u.id) || null,
+      is_test: !!profileMap.get(u.id)?.is_test,
     }));
     const now = Date.now();
     const active = members.filter((m) => m.subscription?.status === "active" && new Date(m.subscription.ends_at).getTime() >= now).length;
     return json({ members, summary: { total: members.length, active, expired: members.filter((m) => m.subscription && new Date(m.subscription.ends_at).getTime() < now).length, no_subscription: members.filter((m) => !m.subscription).length } });
+  }
+
+
+  if (body.action === "create_test_user") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const password = String(body.password || "");
+    const display_name = String(body.display_name || "").trim();
+    const grade = Number(body.grade);
+    if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return json({ error: "올바른 이메일 주소를 입력해 주세요." }, 400);
+    if (password.length < 8) return json({ error: "비밀번호는 8자 이상이어야 합니다." }, 400);
+    if (![1,2,3,4,5,6].includes(grade)) return json({ error: "학년을 선택해 주세요." }, 400);
+    const { data: created, error: createError } = await db.auth.admin.createUser({
+      email, password, email_confirm: true,
+      user_metadata: { is_test_account: true, display_name, grade },
+    });
+    if (createError || !created.user) return json({ error: createError?.message || "테스트 계정을 생성하지 못했습니다." }, 400);
+    const userId = created.user.id;
+    const now = new Date();
+    const end = new Date(now);
+    end.setMonth(end.getMonth() + 12);
+    const { error: profileError } = await db.from("member_profiles").upsert({
+      user_id: userId, display_name: display_name || null, grade, is_test: true, updated_at: now.toISOString(),
+    });
+    if (profileError) {
+      await db.auth.admin.deleteUser(userId);
+      return json({ error: "테스트 계정 프로필 저장 실패: " + profileError.message }, 500);
+    }
+    const { error: subscriptionError } = await db.from("subscriptions").insert({
+      user_id: userId, plan_months: 12, is_trial: false,
+      starts_at: now.toISOString(), ends_at: end.toISOString(),
+      status: "active", payment_status: "manual", amount_krw: 0,
+      memo: "관리자 페이지에서 생성한 테스트 계정",
+    });
+    if (subscriptionError) {
+      await db.from("member_profiles").delete().eq("user_id", userId);
+      await db.auth.admin.deleteUser(userId);
+      return json({ error: "테스트 계정 이용권 생성 실패: " + subscriptionError.message }, 500);
+    }
+    return json({ user: { id: userId, email, display_name, grade }, message: "테스트 계정이 생성되었습니다." });
   }
 
   if (body.action === "save_subscription") {
