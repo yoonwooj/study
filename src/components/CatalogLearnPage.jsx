@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchCatalogUnits, fetchDailyQuestions, fetchTodayGeneration } from '../lib/supabase.js'
+import { SUBJECT_THEME } from '../lib/theme.js'
+import { subjectsFor, defaultSubject, dbSubject } from '../lib/subjects.js'
 
-const subjectsFor = (grade) => grade <= 2
-  ? ['국어', '통합', '도덕']
-  : ['국어', '사회', '과학', '도덕']
-
-export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1, onStart, onSelectionChange }) {
-  const [grade, setGrade] = useState(initialGrade)
-  const [semester, setSemester] = useState(initialSemester)
-  const [subject, setSubject] = useState(initialGrade <= 2 ? '통합' : '국어')
+// lock: 로그인 설정 { grade, semester, subject, unitId, unitName } — 있으면 그 값만 보여줘요.
+export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1, lock = null, onStart, onSelectionChange }) {
+  const [grade, setGrade] = useState(lock ? lock.grade : initialGrade)
+  const [semester, setSemester] = useState(lock ? lock.semester : initialSemester)
+  const [subject, setSubject] = useState(lock ? lock.subject : defaultSubject(initialGrade))
   const [publisher, setPublisher] = useState('')
   const [allUnits, setAllUnits] = useState([])
   const [selected, setSelected] = useState([])
@@ -22,10 +21,11 @@ export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1
     setLoading(true)
     setError('')
     setSelected([])
-    fetchCatalogUnits({ grade, semester, subject })
+    fetchCatalogUnits({ grade, semester, subject: dbSubject(subject) })
       .then((rows) => {
         if (!alive) return
         setAllUnits(rows)
+        if (lock && lock.unitId && rows.some((r) => r.id === lock.unitId)) setSelected([lock.unitId])
         const publishers = [...new Set(rows.map((row) => row.publisher).filter(Boolean))]
         setPublisher((current) => publishers.includes(current) ? current : (publishers[0] || ''))
       })
@@ -45,12 +45,14 @@ export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1
   }, [grade, semester, subject, onSelectionChange])
 
   const publishers = useMemo(() => [...new Set(allUnits.map((row) => row.publisher).filter(Boolean))], [allUnits])
-  const units = useMemo(() => allUnits.filter((row) => !publisher || row.publisher === publisher), [allUnits, publisher])
+  const units = useMemo(() => allUnits
+    .filter((row) => !publisher || row.publisher === publisher)
+    .filter((row) => !(lock && lock.unitId) || row.id === lock.unitId), [allUnits, publisher, lock])
 
   const changeGrade = (value) => {
     const next = Number(value)
     setGrade(next)
-    setSubject(next <= 2 ? '통합' : '국어')
+    setSubject(defaultSubject(next))
     setPublisher('')
     setSelected([])
   }
@@ -78,10 +80,13 @@ export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1
     <>
       <main className="page">
         <section className="hero">
-          <small>Supabase 교과서 단원 데이터 · 매일 AI 신규 출제</small>
-          <b>오늘의 단원별 학습</b>
+          <small>{lock ? '로그인에서 설정한 학습 범위' : 'Supabase 교과서 단원 데이터 · 매일 AI 신규 출제'}</small>
+          <b>{lock ? `${subject} · ${grade}학년 ${semester}학기` : '오늘의 단원별 학습'}</b>
         </section>
         <section className="card">
+          {lock ? (
+            <div className="lock-chips"><span>{grade}학년</span><span>{semester}학기</span><span data-theme={SUBJECT_THEME[subject]}>{subject}</span>{lock.unitName && <span>{lock.unitName}</span>}</div>
+          ) : (<>
           <div className="sel-row"><span className="lbl">학년</span>
             <div className="grades">
               {[1, 2, 3, 4, 5, 6].map((g) => <button key={g} aria-pressed={g === grade} onClick={() => changeGrade(g)}><b>{g}</b><small>학년</small></button>)}
@@ -94,9 +99,10 @@ export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1
           </div>
           <div className="sel-row"><span className="lbl">과목</span>
             <div className="subject-pills">
-              {subjectsFor(grade).map((s) => <button key={s} aria-pressed={subject === s} onClick={() => { setSubject(s); setPublisher(''); setSelected([]) }}>{s}</button>)}
+              {subjectsFor(grade).map((s) => <button key={s} data-theme={SUBJECT_THEME[s]} aria-pressed={subject === s} onClick={() => { setSubject(s); setPublisher(''); setSelected([]) }}>{s}</button>)}
             </div>
           </div>
+          </>)}
           {publishers.length > 0 && (
             <label className="field">출판사
               <select value={publisher} onChange={(e) => { setPublisher(e.target.value); setSelected([]) }}>

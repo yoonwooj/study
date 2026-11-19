@@ -2,24 +2,25 @@ import { useMemo } from 'react'
 import { dailyQs, DAILY_N } from '../lib/daily.js'
 import { dayIndex, todayLabel, ymd } from '../lib/date.js'
 
-export default function DailyPage({ grade, onGrade, daily, streak, onStart }) {
+export default function DailyPage({ grade, onGrade, daily, streak, onStart, onlyGrade }) {
+  const grades = onlyGrade ? [onlyGrade] : [1, 2, 3, 4, 5, 6]
   const day = dayIndex()
   const plan = useMemo(() => dailyQs(grade, day), [grade, day])
   const today = ymd()
   const rec = daily[`${today}|${grade}`]
-  const doneCount = [1, 2, 3, 4, 5, 6].filter((g) => daily[`${today}|${g}`]).length
+  const doneCount = grades.filter((g) => daily[`${today}|${g}`]).length
   const cnt = (sj) => plan.filter((q) => q._ctx.subj === sj).length
   return (
     <>
       <main className="page">
         <section className="hero"><small>{todayLabel()}</small><b>⭐ 오늘의 학습 · {grade}학년</b></section>
         <section className="card streak">
-          <div><b>🔥 {streak}일 연속</b><small>오늘 완료한 학년 {doneCount}/6</small></div>
+          <div><b>🔥 {streak}일 연속</b><small>오늘 완료한 학년 {doneCount}/{grades.length}</small></div>
         </section>
         <section className="sel">
           <div className="sel-row"><span className="lbl">학년</span>
             <div className="grades" role="group" aria-label="학년 선택">
-              {[1, 2, 3, 4, 5, 6].map((g) => (
+              {grades.map((g) => (
                 <button key={g} aria-pressed={g === grade} onClick={() => onGrade(g)}><b>{g}</b><small>{daily[`${today}|${g}`] ? '✓완료' : '학년'}</small></button>
               ))}
             </div>

@@ -20,7 +20,7 @@ h1,h2,h3,p{margin:0}
 /* 앱바 */
 .appbar{position:sticky;top:0;z-index:5;display:flex;align-items:baseline;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 10px;background:var(--bg)}
 .appbar h1{font-size:1.4rem;font-weight:700}
-.page{padding:4px 16px 0;display:grid;gap:12px}
+.page{padding:16px 16px 0;display:grid;gap:12px}
 
 /* 학년/학기/방식 선택 */
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
@@ -332,3 +332,60 @@ h1,h2,h3,p{margin:0}
 .daily-status p{display:grid;gap:3px}
 .daily-status small{font-size:.78rem;color:var(--sub)}
 .catalog-error{margin:0 16px 12px;padding:12px;border-radius:12px;background:var(--nobg);color:var(--no);font-size:.86rem}
+
+
+/* ═══════════════════════════════════════════════════════════
+   과목별 테마 v2 — 밝고 세련된 팔레트
+   --pri 대표색 · --pri2 그라데이션 끝색 · --soft 연한 배경 · --pri-text 글자용 진한색 · --pri-ink 대표색 위 글자
+   ═══════════════════════════════════════════════════════════ */
+:root{--bg:#f6f7fb;--ink:#172033;--sub:#667085;--line:#e9ecf3;--ok:#16a34a;--okbg:#e5f6ec;--no:#ef4444;--nobg:#fdecec;--shadow:0 8px 24px -12px rgba(23,32,51,.28)}
+.app[data-subject=kor]{--pri:#2f6df6;--pri2:#6ea6ff;--soft:#e8f0ff;--pri-text:#1f56d8;--pri-ink:#fff}
+.app[data-subject=int]{--pri:#ef4f91;--pri2:#ff8fbd;--soft:#ffe6f1;--pri-text:#c42b72;--pri-ink:#fff}
+.app[data-subject=soc]{--pri:#f2780c;--pri2:#ffae5c;--soft:#fff0e0;--pri-text:#b85200;--pri-ink:#fff}
+.app[data-subject=sci]{--pri:#7b4dff;--pri2:#b196ff;--soft:#efe9ff;--pri-text:#5b32d6;--pri-ink:#fff}
+.app[data-subject=eth],.app[data-subject=mor]{--pri:#12a55a;--pri2:#55d68f;--soft:#def7e9;--pri-text:#0b7a40;--pri-ink:#fff}
+.app[data-subject=eng]{--pri:#0ea5b7;--pri2:#4fd1e0;--soft:#dcf6fa;--pri-text:#0a7a89;--pri-ink:#fff}
+.app[data-subject=hanja]{--pri:#e5384b;--pri2:#ff7a88;--soft:#ffe4e8;--pri-text:#bf1f33;--pri-ink:#fff}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f131a;--card:#181e28;--ink:#f1f4f9;--sub:#9aa5b5;--line:#2a3240;--ok:#3ccf91;--okbg:#17352a;--no:#ff7a7f;--nobg:#3a1f22;--shadow:0 8px 24px -12px rgba(0,0,0,.6)}
+  .app[data-subject=kor]{--pri:#6ea0ff;--pri2:#9cc0ff;--soft:#1c2a4d;--pri-text:#9cc0ff;--pri-ink:#07142e}
+  .app[data-subject=int]{--pri:#ff7fb2;--pri2:#ffa8cb;--soft:#42202f;--pri-text:#ffa8cb;--pri-ink:#2a0a18}
+  .app[data-subject=soc]{--pri:#ff9a45;--pri2:#ffc085;--soft:#40281a;--pri-text:#ffbd80;--pri-ink:#2a1400}
+  .app[data-subject=sci]{--pri:#a58aff;--pri2:#c6b6ff;--soft:#2b2448;--pri-text:#c6b6ff;--pri-ink:#150a33}
+  .app[data-subject=eth],.app[data-subject=mor]{--pri:#3fdc8a;--pri2:#7aeab0;--soft:#163a28;--pri-text:#7aeab0;--pri-ink:#04210f}
+  .app[data-subject=eng]{--pri:#3fd0e0;--pri2:#7fe3ee;--soft:#12363c;--pri-text:#7fe3ee;--pri-ink:#04262c}
+  .app[data-subject=hanja]{--pri:#ff6b7f;--pri2:#ff9aa8;--soft:#44202a;--pri-text:#ff9aa8;--pri-ink:#2a0710}
+}
+/* 글자로 쓰이는 강조색은 모든 테마에서 같은 규칙(--pri-text)을 따라요 */
+.app :is(.best,.hist strong,.seg.alt button[aria-pressed=true],.tags span,.ulist span,.unit:not(.on) .check,.tabbar button[aria-current=true],.catalog-check){color:var(--pri-text,var(--pri))}
+.app .catalog-unit.selected .catalog-check,.app .unit.on .check{color:var(--pri-ink)}
+/* 배너·카드를 조금 더 세련되게 */
+.hero{border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);box-shadow:0 10px 24px -12px color-mix(in srgb,var(--pri) 60%,transparent);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.16);pointer-events:none}
+.hero b{font-size:1.35rem;letter-spacing:-.01em}
+.card,.sel{border:1px solid var(--line);box-shadow:var(--shadow)}
+.btn{box-shadow:0 6px 16px -8px color-mix(in srgb,var(--pri) 70%,transparent)}
+.tabbar{box-shadow:0 -6px 20px -14px rgba(23,32,51,.4)}
+/* 단원 선택의 과목 버튼: 과목마다 자기 색의 점, 선택하면 그 색으로 채움 */
+.subject-pills button{--pc:var(--pri);display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--card)}
+.subject-pills button::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--pc)}
+.subject-pills button[data-theme=kor]{--pc:#2f6df6}
+.subject-pills button[data-theme=int]{--pc:#ef4f91}
+.subject-pills button[data-theme=soc]{--pc:#f2780c}
+.subject-pills button[data-theme=sci]{--pc:#7b4dff}
+.subject-pills button[data-theme=eth]{--pc:#12a55a}
+.subject-pills button[data-theme=eng]{--pc:#0ea5b7}
+.subject-pills button[aria-pressed=true]{background:var(--pc);border-color:var(--pc);color:#fff;font-weight:700}
+.subject-pills button[aria-pressed=true]::before{background:#fff}
+
+/* ── 메뉴 아이콘 · 로그인 설정 · 고정 범위 ── */
+.burger{display:grid;place-items:center;color:var(--pri-text,var(--ink))}
+.login-set-btn{padding:12px;border-radius:12px;background:var(--bg);border:1px dashed var(--line);color:var(--sub);font-weight:700}
+.login-set-btn[aria-expanded=true]{color:var(--pri-text);border-color:var(--pri)}
+.login-applied{margin:0;padding:10px 12px;border-radius:12px;background:var(--soft);color:var(--pri-text);font-size:.88rem;font-weight:500;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.login-applied button{color:var(--no);font-weight:700;white-space:nowrap}
+.login-panel{display:grid;gap:12px;padding:14px;border-radius:14px;background:var(--bg)}
+.login-panel .grades button,.login-panel .seg{background:var(--card)}
+.login-panel-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lock-chips{display:flex;flex-wrap:wrap;gap:8px}
+.lock-chips span{padding:8px 14px;border-radius:999px;background:var(--soft);color:var(--pri-text);font-weight:700}

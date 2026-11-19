@@ -59,7 +59,7 @@ export async function fetchDailyQuestions(unitIds, unitRows = []) {
   return shuffled.slice(0, 20).map((row) => {
     const options = Array.isArray(row.options) ? row.options : []
     const unitInfo = unitRows.find((u) => u.id === row.unit_id)
-    const subjectKey = ({ '국어': 'kor', '통합': 'mor', '사회': 'soc', '과학': 'sci', '도덕': 'eth' })[unitInfo?.subject] || 'kor'
+    const subjectKey = ({ '국어': 'kor', '통합': 'mor', '사회': 'soc', '과학': 'sci', '도덕': 'eth', '바른생활': 'eth' })[unitInfo?.subject] || 'kor'
     return {
       t: 'c',
       q: row.question,

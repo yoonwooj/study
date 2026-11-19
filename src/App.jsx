@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { MAX_UNITS, CORE_N, shuffle, prep, isRight, coreQs, unitQs } from './lib/quiz.js'
 import { KEYS, load, save } from './lib/storage.js'
 import { ymd, streakFrom } from './lib/date.js'
 import { dailyQs } from './lib/daily.js'
 import { unitsOf, editionsOf } from './curriculum.js'
+import { SUBJECT_THEME } from './lib/theme.js'
 import AppBar from './components/AppBar.jsx'
 import SideMenu from './components/SideMenu.jsx'
 import TabBar from './components/TabBar.jsx'
@@ -29,6 +30,8 @@ export default function App() {
   const [auth, setAuth] = useState(() => load(KEYS.auth, null)) // 로그인한 사용자 { user }
   const [focusUnit, setFocusUnit] = useState(-1)
   const [subj, setSubj] = useState('kor')
+  const [catSubject, setCatSubject] = useState('') // 카탈로그에서 고른 과목 이름 (테마색용)
+  const onCatSel = useCallback((s) => setCatSubject(s.subject), [])
   const [grade, setGrade] = useState(1)
   const [edition, setEdition] = useState('')
   const [sem, setSem] = useState(1)
@@ -58,11 +61,10 @@ export default function App() {
   const pickMode = (m) => { setMode(m); if (m === 'core') setPicked([]) }
   const toggle = (i) => setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : p.length < MAX_UNITS ? [...p, i] : p))
   const name = auth ? auth.user : ''
-  const handleLogin = ({ user, subj: sj, grade: g, sem: sm, unit }) => {
-    const a = { user }
+  const handleLogin = ({ user, settings }) => {
+    const a = { user, settings: settings || null } // settings: 로그인 화면의 ⚙ 설정 (학년·학기·과목·단원)
     setAuth(a); save(KEYS.auth, a)
-    setSubj(sj); setGrade(g); setSem(sm); setDailyGrade(g); setEdition('')
-    setMode('unit'); setPicked(unit >= 0 ? [unit] : []); setFocusUnit(unit)
+    if (settings) { setGrade(settings.grade); setSem(settings.semester); setDailyGrade(settings.grade); setCatSubject(settings.subject) }
     setRun(null); setTab('learn'); setMenuOpen(false)
   }
   const logout = () => { setAuth(null); save(KEYS.auth, null); setMenuOpen(false); setRun(null); setTab('learn') }
@@ -76,7 +78,7 @@ export default function App() {
   const startCatalog = (qs, label, meta) => {
     setGrade(meta.grade)
     setSem(meta.semester)
-    const subjectKey = ({ '국어': 'kor', '통합': 'mor', '사회': 'soc', '과학': 'sci', '도덕': 'eth' })[meta.subject] || 'kor'
+    const subjectKey = ({ '국어': 'kor', '통합': 'mor', '사회': 'soc', '과학': 'sci', '도덕': 'eth', '바른생활': 'eth' })[meta.subject] || 'kor'
     setSubj(subjectKey)
     begin(qs, label, 'unit', false, { catalogMeta: meta })
   }
@@ -123,27 +125,30 @@ export default function App() {
 
   if (!auth) return <LoginPage onLogin={handleLogin} />
 
+  // 문제 풀이·결과 화면의 테마: 카탈로그에서 시작했으면 그 과목 색, 아니면 기존 과목 키
+  const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
+
   if (run && !run.finished) {
-    return <QuizScreen run={run} subj={subj} text={text} onText={setText} onSubmit={submit} onNext={next} onQuit={quit} />
+    return <QuizScreen run={run} subj={subj} theme={runTheme} text={text} onText={setText} onSubmit={submit} onNext={next} onQuit={quit} />
   }
   if (run && run.finished) {
-    return <ResultScreen run={run} subj={subj} grade={grade} sem={sem} onRetryWrong={() => begin(shuffle(run.wrongs), run.label, run.kind, true)} onHome={() => setRun(null)} />
+    return <ResultScreen run={run} subj={subj} theme={runTheme} grade={grade} sem={sem} onRetryWrong={() => begin(shuffle(run.wrongs), run.label, run.kind, true)} onHome={() => setRun(null)} />
   }
 
   // 하루한자·과학상식은 과목과 별개의 테마색을 쓰고, 상단의 과목 탭 대신 제목을 보여줘요.
   const special = { hanja: '📜 하루한자', sci: '🔬 과학상식' }
-  const theme = special[tab] ? tab : subj
+  const theme = special[tab] ? tab : (SUBJECT_THEME[catSubject] || subj)
 
   return (
     <div className="app" data-subject={theme}>
       <AppBar subj={subj} onSubj={pickSubj} name={name} onName={() => setMenuOpen(true)} onMenu={() => setMenuOpen(true)} hideSubj title={special[tab] || '단원별 학습'} />
 
       {tab === 'learn' && (
-        <CatalogLearnPage initialGrade={grade} initialSemester={sem} onStart={startCatalog} />
+        <CatalogLearnPage initialGrade={grade} initialSemester={sem} lock={auth.settings || null} onStart={startCatalog} onSelectionChange={onCatSel} />
       )}
       {tab === 'note' && <NotesPage subj={subj} notes={notes} noteGrade={noteGrade} onNoteGrade={setNoteGrade} onDelete={delNote} onStart={startNotes} />}
       {tab === 'rec' && <RecordsPage subj={subj} records={records} coreBest={coreBest} onClear={clearAll} />}
-      {tab === 'daily' && <DailyPage grade={dailyGrade} onGrade={setDailyGrade} daily={daily} streak={streak} onStart={startDaily} />}
+      {tab === 'daily' && <DailyPage grade={dailyGrade} onGrade={setDailyGrade} onlyGrade={auth.settings ? auth.settings.grade : undefined} daily={daily} streak={streak} onStart={startDaily} />}
       {tab === 'week' && <WeekPage records={records} />}
       {tab === 'hanja' && <HanjaPage />}
       {tab === 'sci' && <SciencePage />}
