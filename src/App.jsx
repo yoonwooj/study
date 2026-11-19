@@ -23,6 +23,8 @@ import ResultScreen from './components/ResultScreen.jsx'
 import NoticeModal from './components/NoticeModal.jsx'
 import AdminPage from './components/AdminPage.jsx'
 import PasswordRecoveryPage from './components/PasswordRecoveryPage.jsx'
+import FindIdPage from './components/FindIdPage.jsx'
+import PasswordResetRequestPage from './components/PasswordResetRequestPage.jsx'
 
 const SHOW_NOTICE = false // 안내 팝업 임시 비활성화 (다시 켜려면 true)
 const today = () => new Date().toDateString()
@@ -385,6 +387,9 @@ export default function App() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
   if (currentPath === '/admin') return <AdminPage />
   if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
+  if (currentPath === '/find-id') return <FindIdPage />
+  if (currentPath === '/forgot-password') return <PasswordResetRequestPage />
+  if (currentPath === '/reset-password') return <PasswordRecoveryPage />
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
   if (auth.settings?.grade == null) {
