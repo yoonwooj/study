@@ -151,6 +151,7 @@ export default function App() {
     setAuth(null)
     save(KEYS.auth, null)
     setRecords([]); setNotes([]); setDaily({})
+    setQuizError(''); setSubmitError(''); setQuizLoading(false); setSubmitting(false)
     setDailySem(null)
     setDailyUnitName('')
     setDailyGrade(1)
@@ -180,12 +181,14 @@ export default function App() {
         if (!alive || active) return
         save(KEYS.auth, null)
         setAuth(null)
+        setRecords([]); setNotes([]); setDaily({}); setRun(null)
         setLoginNotice('다른 기기에서 같은 계정으로 로그인하여 현재 기기의 접속이 종료되었습니다.')
       } catch (error) {
         if (!alive) return
         if (error.status === 401) {
           save(KEYS.auth, null)
           setAuth(null)
+          setRecords([]); setNotes([]); setDaily({}); setRun(null)
           setLoginNotice('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.')
         } else console.warn('세션 확인을 일시적으로 완료하지 못했습니다.', error)
       }
