@@ -38,13 +38,14 @@ async function studentQuizRequest(accessToken, body) {
   return data
 }
 export async function fetchCatalogUnits({ grade, semester, subject }) {
-  return rest('textbook_units', {
+  const rows = await rest('textbook_units', {
     select: 'id,grade,semester,publisher,subject,unit_number,unit_name,learning_goal,verification_status,source_note,catalog_record_id',
     grade: `eq.${grade}`,
     semester: `eq.${semester}`,
     subject: `eq.${subject}`,
     order: 'publisher.asc,unit_number.asc'
   })
+  return rows.filter((row) => !['TEST-SEED', '테스트용(임시)'].includes(row.publisher))
 }
 export async function startStudentDailyQuiz(accessToken, { grade, semester, subject, unitName = '' }) {
   return studentQuizRequest(accessToken, { action: 'start', grade, semester, subject, unitName })
