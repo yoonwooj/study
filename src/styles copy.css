@@ -1,0 +1,49 @@
+/* 로그인 설정 패널 커스텀 */
+.login-panel .grades button,
+.login-panel .grades button[aria-pressed=true]{
+  background:var(--card);
+  border:2px solid var(--line);
+  color:var(--ink);
+  font-weight:400;
+}
+.login-panel .grades button small,
+.login-panel .grades button[aria-pressed=true] small{
+  color:var(--sub);
+  opacity:1;
+}
+
+.login-panel .seg{
+  background:var(--line);
+  border-radius:12px;
+  padding:3px;
+}
+.login-panel .seg button{
+  background:transparent;
+  color:var(--sub);
+  font-weight:500;
+}
+.login-panel .seg button[aria-pressed=true]{
+  background:var(--card);
+  color:var(--ink);
+  font-weight:700;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+
+.login-unit-row{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  align-items:center;
+  gap:8px;
+}
+.login-unit-select{
+  width:100%;
+  height:38px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1.5px solid var(--line);
+  background:#fff;
+  color:#172033;
+  font:inherit;
+  font-size:.88rem;
+}

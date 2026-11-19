@@ -14,7 +14,7 @@ export default function AppBar({ subj, onSubj, name, onName, onMenu, title, hide
       )}
       {/* .ab-right: 나중에 로그인하면 사용자 이름이 표시될 자리예요. 지금은 임시로 닉네임(눌러서 변경)을 보여줘요. */}
       <div className="ab-right">
-        <button className="name" onClick={onName} aria-label="이름 바꾸기">👤 {name}</button>
+        <button className="name" aria-label="이름 바꾸기">👤 {name}</button>
         <button className="burger" onClick={onMenu} aria-label="메뉴 열기">
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h16" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" /></svg>
         </button>
