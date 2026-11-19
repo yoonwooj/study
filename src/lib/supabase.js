@@ -58,3 +58,29 @@ export async function submitStudentDailyAnswer(accessToken, { sessionId, questio
     answer,
   })
 }
+
+ 
+// Supabase에 저장된 한자 사전(공개 읽기 전용)을 불러옵니다.
+export async function fetchHanjaDictionary() {
+  const rows = await rest('hanja_dictionary', {
+    select: 'character,meaning,reading,level,words,stroke_count,sort_order',
+    order: 'sort_order.asc',
+  })
+  return rows.map((row) => ({
+    c: row.character,
+    hun: row.meaning,
+    eum: row.reading,
+    level: row.level,
+    words: row.words || [],
+    stroke_count: row.stroke_count,
+  }))
+}
+
+export async function fetchHanjaStrokeData(character) {
+  const rows = await rest('hanja_dictionary', {
+    select: 'stroke_count,stroke_paths',
+    character: `eq.${character}`,
+    limit: 1,
+  })
+  return rows[0] || null
+}
