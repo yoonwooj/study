@@ -63,6 +63,13 @@ export default function LoginPage({ onLogin, notice = '' }) {
           {notice && <p className="sub" role="status">{notice}</p>}
           {err && <p className="err" role="alert">{err}</p>}
           <button className="btn block" type="submit" disabled={!id || !pw || loading}>{loading ? '로그인 중…' : '로그인'}</button>
+          <nav className="login-help-links" aria-label="계정 도움말">
+            <a href="/find-id">아이디 찾기</a>
+            <span aria-hidden="true">·</span>
+            <a href="/forgot-password">비밀번호 찾기</a>
+            <span aria-hidden="true">·</span>
+            <a href="/signup">회원가입</a>
+          </nav>
         </form>
       </main>
     </div>
