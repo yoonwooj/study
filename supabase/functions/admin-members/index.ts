@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     const password = String(body.password || "");
     const display_name = String(body.display_name || "").trim();
     const grade = Number(body.grade);
-    if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return json({ error: "올바른 이메일 주소를 입력해 주세요." }, 400);
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "올바른 이메일 주소를 입력해 주세요." }, 400);
     if (password.length < 8) return json({ error: "비밀번호는 8자 이상이어야 합니다." }, 400);
     if (![1,2,3,4,5,6].includes(grade)) return json({ error: "학년을 선택해 주세요." }, 400);
     const { data: created, error: createError } = await db.auth.admin.createUser({
