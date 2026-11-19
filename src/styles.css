@@ -575,3 +575,22 @@ h1,h2,h3,p{margin:0}
   opacity: 1;
 }
 
+
+
+/* 오답노트 하단 다시 풀기 버튼: Hero와 동일한 과목 테마 */
+.cta[data-subject=kor]{--pri:#2f6df6;--pri2:#6ea6ff;--soft:#e8f0ff;--pri-text:#1f56d8;--pri-ink:#fff}
+.cta[data-subject=int]{--pri:#ef4f91;--pri2:#ff8fbd;--soft:#ffe6f1;--pri-text:#c42b72;--pri-ink:#fff}
+.cta[data-subject=soc]{--pri:#d66d5b;--pri2:#f39a8b;--soft:#ffeae5;--pri-text:#b84f40;--pri-ink:#fff}
+.cta[data-subject=sci]{--pri:#7b4dff;--pri2:#b196ff;--soft:#efe9ff;--pri-text:#5b32d6;--pri-ink:#fff}
+.cta[data-subject=eth],.cta[data-subject=mor]{--pri:#12a55a;--pri2:#55d68f;--soft:#def7e9;--pri-text:#0b7a40;--pri-ink:#fff}
+.cta[data-subject=eng]{--pri:#0ea5b7;--pri2:#4fd1e0;--soft:#dcf6fa;--pri-text:#0a7a89;--pri-ink:#fff}
+.cta[data-subject=hanja]{--pri:#e5384b;--pri2:#ff7a88;--soft:#ffe4e8;--pri-text:#bf1f33;--pri-ink:#fff}
+@media (prefers-color-scheme:dark){
+  .cta[data-subject=kor]{--pri:#6ea0ff;--pri2:#9cc0ff;--soft:#1c2a4d;--pri-text:#9cc0ff;--pri-ink:#07142e}
+  .cta[data-subject=int]{--pri:#ff7fb2;--pri2:#ffa8cb;--soft:#42202f;--pri-text:#ffa8cb;--pri-ink:#2a0a18}
+  .cta[data-subject=soc]{--pri:#d66d5b;--pri2:#f39a8b;--soft:#442722;--pri-text:#ffb3a7;--pri-ink:#fff}
+  .cta[data-subject=sci]{--pri:#a58aff;--pri2:#c6b6ff;--soft:#2b2448;--pri-text:#c6b6ff;--pri-ink:#150a33}
+  .cta[data-subject=eth],.cta[data-subject=mor]{--pri:#3fdc8a;--pri2:#7aeab0;--soft:#163a28;--pri-text:#7aeab0;--pri-ink:#04210f}
+  .cta[data-subject=eng]{--pri:#3fd0e0;--pri2:#7fe3ee;--soft:#12363c;--pri-text:#7fe3ee;--pri-ink:#04262c}
+  .cta[data-subject=hanja]{--pri:#ff6b7f;--pri2:#ff9aa8;--soft:#44202a;--pri-text:#ff9aa8;--pri-ink:#2a0710}
+}
