@@ -387,6 +387,19 @@ export default function App() {
   if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
+  if (auth.settings?.grade == null) {
+    return (
+      <div className="app login" data-subject="kor">
+        <main className="page">
+          <section className="hero"><small>학습 이용 안내</small><b>학년 설정이 필요해요</b></section>
+          <section className="card login-form">
+            <p className="sub">관리자가 이 계정의 학습 허용 학년을 지정해야 학습을 시작할 수 있어요.</p>
+            <button className="btn block" type="button" onClick={logout}>로그아웃</button>
+          </section>
+        </main>
+      </div>
+    )
+  }
 
   const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
 
@@ -489,7 +502,7 @@ export default function App() {
           onSubjectChange={handleSubjThemeChange}
         />
       )}
-      {tab === 'week' && <WeekPage records={records} />}
+      {tab === 'week' && <WeekPage records={records.filter((r) => Number(r.g) === lockedGrade)} />}
       {tab === 'hanja' && <HanjaPage />}
       {tab === 'sci' && <SciencePage />}
 
