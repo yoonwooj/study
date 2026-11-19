@@ -114,7 +114,7 @@ export default function App() {
     setSubj(code)
     setCatSubject(code)
   }
-  const name = auth ? auth.user : ''
+  const name = auth ? (typeof auth.user === 'string' ? auth.user : auth.user?.email || '') : ''
   const handleLogin = async ({ user, settings, session }) => {
     const nextSettings = settings
       ? {
