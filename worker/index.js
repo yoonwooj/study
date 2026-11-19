@@ -319,7 +319,18 @@ async function handleApi(request, env) {
   let body;
   try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
   try {
-    if (body.action === "start") return await startQuiz(body, user, env);
+    if (body.action === "start") {
+      const profiles = await supabase(env,
+        `member_profiles?select=grade&user_id=eq.${encodeURIComponent(user.id)}&limit=1`);
+      const allowedGrade = profiles?.[0]?.grade == null ? null : Number(profiles[0].grade);
+      if (![1, 2, 3, 4, 5, 6].includes(allowedGrade)) {
+        return json({ error: "관리자가 학습 허용 학년을 아직 지정하지 않았습니다. 관리자에게 문의해 주세요." }, 403);
+      }
+      if (Number(body.grade) !== allowedGrade) {
+        return json({ error: `이 계정은 ${allowedGrade}학년 학습만 이용할 수 있습니다.` }, 403);
+      }
+      return await startQuiz(body, user, env);
+    }
     if (body.action === "submit") return await submitAnswer(body, user, env);
     return json({ error: "지원하지 않는 요청입니다." }, 400);
   } catch (error) {
