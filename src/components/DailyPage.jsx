@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { todayLabel, ymd } from '../lib/date.js'
+import { SUBJECT_THEME } from '../lib/theme.js'
 
 const DAILY_N = 20
-import { SUBJECT_THEME } from '../lib/theme.js'
 
 const SUBJECTS_BY_GRADE = {
   1: ['국어', '통합', '바른생활'],
