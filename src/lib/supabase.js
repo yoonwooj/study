@@ -19,9 +19,7 @@ async function rest(path, params = {}) {
 }
 async function studentQuizRequest(accessToken, body) {
   config()
-  const endpoint = import.meta.env.DEV
-    ? `${SUPABASE_URL}/functions/v1/student-daily-quiz`
-    : '/api/student-daily-quiz'
+  const endpoint = '/api/student-daily-quiz'
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
