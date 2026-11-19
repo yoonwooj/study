@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { checkStudentSession, refreshSessionIfNeeded, releaseStudentSession } from './lib/auth.js'
 import { CORE_N, shuffle, prep, isRight } from './lib/quiz.js'
 import { KEYS, load, save } from './lib/storage.js'
 import { ymd, streakFrom } from './lib/date.js'
@@ -36,12 +37,14 @@ const SUBJECT_CODE_BY_NAME = {
 }
 
 export default function App() {
-  const initialAuth = load(KEYS.auth, null)
+  const storedAuth = load(KEYS.auth, null)
+  const initialAuth = storedAuth?.access_token ? storedAuth : null
   const initialSettings = initialAuth?.settings || null
 
   const [tab, setTab] = useState('learn') // learn | note | rec | week | hanja | sci | daily
   const [menuOpen, setMenuOpen] = useState(false)
-  const [auth, setAuth] = useState(initialAuth) // 로그인한 사용자 { user, settings }
+  const [auth, setAuth] = useState(initialAuth) // Supabase Auth 사용자 세션
+  const [loginNotice, setLoginNotice] = useState(storedAuth && !storedAuth.access_token ? '로그인 방식이 변경되었습니다. Supabase 계정의 이메일과 비밀번호로 다시 로그인해 주세요.' : '')
   const [, setFocusUnit] = useState(-1)
   const [subj, setSubj] = useState('kor')
   const [catSubject, setCatSubject] = useState(initialSettings?.subject || '') // 테마색용
@@ -107,7 +110,7 @@ export default function App() {
     setCatSubject(code)
   }
   const name = auth ? auth.user : ''
-  const handleLogin = ({ user, settings }) => {
+  const handleLogin = async ({ user, settings, session }) => {
     const nextSettings = settings
       ? {
           ...settings,
@@ -116,8 +119,9 @@ export default function App() {
           unitName: settings.unitName || '',
         }
       : null
-    const a = { user, settings: nextSettings }
+    const a = { user, settings: nextSettings, ...session }
     setAuth(a)
+    setLoginNotice('')
     save(KEYS.auth, a)
     const nextGrade = nextSettings?.grade || 1
     const nextSubject = nextSettings?.subject || defaultSubject(nextGrade)
@@ -134,7 +138,8 @@ export default function App() {
     setTab('learn')
     setMenuOpen(false)
   }
-  const logout = () => {
+  const logout = async () => {
+    await releaseStudentSession(auth?.access_token)
     setAuth(null)
     save(KEYS.auth, null)
     setDailySem(null)
@@ -150,6 +155,38 @@ export default function App() {
     setRun(null)
     setTab('learn')
   }
+  useEffect(() => {
+    if (!auth?.access_token) return undefined
+    let alive = true
+    const validateSession = async () => {
+      try {
+        const refreshed = await refreshSessionIfNeeded(auth)
+        if (!alive) return
+        if (refreshed.access_token !== auth.access_token || refreshed.refresh_token !== auth.refresh_token) {
+          const updated = { ...auth, ...refreshed }
+          setAuth(updated)
+          save(KEYS.auth, updated)
+        }
+        const active = await checkStudentSession(refreshed.access_token)
+        if (!alive || active) return
+        save(KEYS.auth, null)
+        setAuth(null)
+        setLoginNotice('다른 기기에서 같은 계정으로 로그인하여 현재 기기의 접속이 종료되었습니다.')
+      } catch (error) {
+        if (!alive) return
+        if (error.status === 401) {
+          save(KEYS.auth, null)
+          setAuth(null)
+          setLoginNotice('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.')
+        } else console.warn('세션 확인을 일시적으로 완료하지 못했습니다.', error)
+      }
+    }
+    validateSession()
+    const timer = window.setInterval(validateSession, 12000)
+    window.addEventListener('focus', validateSession)
+    return () => { alive = false; window.clearInterval(timer); window.removeEventListener('focus', validateSession) }
+  }, [auth?.access_token])
+
   const goMenu = (k) => {
     setTab(k)
     setMenuOpen(false)
@@ -290,7 +327,7 @@ export default function App() {
   const isAdminRoute = window.location.pathname.replace(/\/+$/, '') === '/admin'
   if (isAdminRoute) return <AdminPage />
 
-  if (!auth) return <LoginPage onLogin={handleLogin} />
+  if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
 
   const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
 
