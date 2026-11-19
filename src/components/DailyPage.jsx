@@ -71,7 +71,7 @@ export default function DailyPage({
       : `${today}|${activeGrade}|${subjName}`
     return Boolean(daily[key])
   }).length
-  const showSemesterRow = !onlySemester && typeof onSemester === 'function'
+  const showSemesterRow = onlyGrade == null && !onlySemester && typeof onSemester === 'function'
 
   return (
     <>
