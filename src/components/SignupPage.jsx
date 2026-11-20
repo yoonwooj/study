@@ -20,6 +20,7 @@ export default function SignupPage({ onLogin }) {
       const result = await signUp(email, password)
       if (result.session) {
         await onLogin({ session: result.session, user: result.session.user.email })
+        window.location.replace('/payment')
       } else {
         setEmailConfirmation(true)
       }
