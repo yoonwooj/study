@@ -801,3 +801,15 @@ textarea:focus-visible){
 .daily-wisdom-hero.english-quote-hero small,
 .daily-wisdom-hero.english-quote-hero b,
 .daily-wisdom-hero.english-quote-hero p{color:#fff}
+
+/* 영어명언 음성 재생 */
+.quote-audio{width:100%;display:grid;gap:12px;margin-top:4px;padding:14px;border-radius:15px;background:var(--bg);text-align:left}
+.quote-audio-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.quote-audio-actions button{min-height:40px;padding:9px 13px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);font-size:.84rem;font-weight:700}
+.quote-audio-actions .quote-audio-play{background:#087f9f;border-color:#087f9f;color:#fff}
+.quote-audio-actions .quote-audio-repeat.active{background:#e0f5f6;border-color:#16a9bd;color:#087f9f}
+.quote-audio-actions button:disabled{opacity:.45;cursor:not-allowed}
+.quote-audio-rate{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.82rem;color:var(--sub)}
+.quote-audio-rate select{max-width:190px;min-height:38px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:inherit}
+.quote-audio-help{font-size:.74rem;color:var(--sub);text-align:center}
+@media(max-width:380px){.quote-audio-actions{display:grid;grid-template-columns:1fr 1fr}.quote-audio-actions .quote-audio-play{grid-column:1/-1}.quote-audio-rate{align-items:flex-start;flex-direction:column}.quote-audio-rate select{width:100%;max-width:none}}
