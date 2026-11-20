@@ -18,6 +18,7 @@ import SciencePage from './components/SciencePage.jsx'
 import DailyPage from './components/DailyPage.jsx'
 import LoginPage from './components/LoginPage.jsx'
 import SignupPage from './components/SignupPage.jsx'
+import TrialPage from './components/TrialPage.jsx'
 import PaymentPage from './components/PaymentPage.jsx'
 import QuizScreen from './components/QuizScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
@@ -400,6 +401,7 @@ export default function App() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
   if (currentPath === '/admin') return <AdminPage />
   if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
+  if (currentPath === '/trial') return <TrialPage onLogin={handleLogin} />
   if (currentPath === '/payment') return auth
     ? <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
     : <LoginPage onLogin={handleLogin} notice={loginNotice} />
