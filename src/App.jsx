@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { checkStudentSession, refreshSessionIfNeeded, releaseStudentSession } from './lib/auth.js'
+import { checkStudentSession, refreshSessionIfNeeded, releaseStudentSession, completeTrialSetup } from './lib/auth.js'
 import { CORE_N, shuffle, prep, isRight } from './lib/quiz.js'
 import { KEYS, load, save, loadUser, saveUser, migrateLegacyUserData } from './lib/storage.js'
 import { startStudentDailyQuiz, submitStudentDailyAnswer } from './lib/supabase.js'
@@ -122,7 +122,29 @@ export default function App() {
   }
   const name = auth ? (typeof auth.user === 'string' ? auth.user : auth.user?.email || '') : ''
   const handleLogin = async ({ user, settings, session }) => {
-    const assignedGrade = Number(session?.profile?.grade || session?.user?.user_metadata?.grade) || null
+    // 이메일 인증 후 로그인한 경우, 같은 브라우저에 임시 보관한 가입 정보를 인증된 세션으로 서버에 제출합니다.
+    let verifiedSession = session
+    try {
+      const rawDraft = window.sessionStorage.getItem('study.pending-signup-profile')
+      if (rawDraft && session?.access_token) {
+        const draft = JSON.parse(rawDraft)
+        const sessionEmail = String(session?.user?.email || user || '').trim().toLowerCase()
+        if (draft.email && draft.email === sessionEmail) {
+          const result = await completeTrialSetup(session.access_token, {
+            guardian_phone: draft.guardian_phone,
+            student_name: draft.student_name,
+            school_name: draft.school_name,
+            grade: Number(draft.grade),
+          })
+          verifiedSession = { ...session, profile: result.profile || null, subscription: result.subscription || null }
+          window.sessionStorage.removeItem('study.pending-signup-profile')
+          window.sessionStorage.removeItem('study.pending-guardian-phone')
+        }
+      }
+    } catch (error) {
+      throw new Error(error.message || '회원가입 정보 등록에 실패했습니다. 다시 로그인해 주세요.')
+    }
+    const assignedGrade = Number(verifiedSession?.profile?.grade || verifiedSession?.user?.user_metadata?.grade) || null
     const nextSettings = settings
       ? {
           ...settings,
@@ -133,7 +155,7 @@ export default function App() {
       : assignedGrade
         ? { grade: assignedGrade, semester: null, unitName: '', subject: defaultSubject(assignedGrade) }
         : null
-    const a = { user, settings: nextSettings, ...session }
+    const a = { user, settings: nextSettings, ...verifiedSession }
     setRecords(loadUser(KEYS.records, session.user.id, []))
     setNotes(loadUser(KEYS.notes, session.user.id, []))
     setDaily(loadUser(KEYS.daily, session.user.id, {}))
