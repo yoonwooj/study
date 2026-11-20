@@ -63,13 +63,12 @@ export default function SignupPage({ onLogin }) {
         <section className="hero signup-hero">
           <small>GUARDIAN ACCOUNT</small>
           <b>보호자 회원가입</b>
-          <p>먼저 계정을 만들고, 다음 단계에서 자녀 정보와 무료 체험을 등록해요.</p>
-          <div className="signup-trial"><strong>14일 무료 체험</strong><span>카드 등록 없이 시작</span></div>
+          <p>보호자 계정을 만들고 안전하게 학습 서비스를 시작해 보세요.</p>
         </section>
 
         <form className="card login-form signup-card" onSubmit={submit}>
           <div className="signup-section-title signup-grid-full">
-            <span>01</span><div><strong>보호자 계정</strong><small>로그인 정보와 보호자 연락처를 입력해 주세요.</small></div>
+            <span>01</span><div><strong>보호자 계정</strong><small>로그인에 사용할 이메일과 비밀번호, 보호자 연락처를 입력해 주세요.</small></div>
           </div>
           <div className="signup-form-grid">
             <label className="field">보호자 이메일
@@ -78,11 +77,11 @@ export default function SignupPage({ onLogin }) {
             <label className="field">비밀번호
               <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} autoComplete="new-password" minLength={8} placeholder="8자 이상 입력" required />
             </label>
-            <label className="field">보호자 휴대폰 번호
-              <input type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/[^0-9-]/g, '').slice(0, 13)); setError('') }} placeholder="010-0000-0000" required />
-            </label>
             <label className="field">비밀번호 확인
               <input type="password" value={passwordConfirm} onChange={(e) => { setPasswordConfirm(e.target.value); setError('') }} autoComplete="new-password" minLength={8} placeholder="비밀번호를 한 번 더 입력" required />
+            </label>
+            <label className="field">보호자 휴대폰 번호
+              <input type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/[^0-9-]/g, '').slice(0, 13)); setError('') }} placeholder="010-0000-0000" required />
             </label>
           </div>
 
