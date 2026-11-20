@@ -75,7 +75,7 @@ export default function SignupPage({ onLogin }) {
           <b>보호자 회원가입</b>
           <p>보호자 계정 하나로 자녀의 학습을 관리해요.</p>
           <div className="signup-trial"><strong>14일 무료 체험</strong><span>보호자 계정당 최초 1회</span></div>
-          <p className="signup-trial-caption">무료 체험 자동 발급과 중복 발급 제한은 서버 적용 작업이 완료된 뒤 활성화됩니다.</p>
+          <p className="signup-trial-caption">이메일 인증을 완료하고 첫 로그인하면 14일 체험이 시작됩니다. 보호자 계정당 1회만 제공돼요.</p>
         </section>
 
         <form className="card login-form signup-card" onSubmit={submit}>
@@ -92,7 +92,7 @@ export default function SignupPage({ onLogin }) {
           <label className="field">보호자 휴대폰 번호
             <input type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/[^0-9-]/g, '').slice(0, 13)); setError('') }} placeholder="010-0000-0000" minLength={10} required />
           </label>
-          <p className="signup-note">휴대폰 번호는 계정 중복 가입 이력 확인 및 향후 본인 인증·알림 기능을 위해 수집합니다. 현재 SMS 본인인증은 진행하지 않습니다.</p>
+          <p className="signup-note">휴대폰 번호는 무료 체험 중복 확인을 위해 서버에서 암호화·해시 처리합니다. 현재 SMS 본인인증은 하지 않으므로 입력한 번호 자체의 실제 소유 여부까지 확인하는 것은 아닙니다.</p>
 
           <div className="signup-divider" />
           <div className="signup-section-title"><span>02</span><div><strong>자녀 정보</strong><small>첫 번째 자녀의 학습 정보를 입력해 주세요.</small></div></div>
@@ -110,9 +110,9 @@ export default function SignupPage({ onLogin }) {
 
           <label className="signup-consent">
             <input type="checkbox" checked={privacyAgreed} onChange={(e) => { setPrivacyAgreed(e.target.checked); setError('') }} />
-            <span><strong>(필수)</strong> 회원가입 및 계정 관리, 중복 가입 확인을 위한 개인정보 수집·이용에 동의합니다.</span>
+            <span><strong>(필수)</strong> 회원가입·계정 관리 및 무료 체험 중복 방지를 위해 보호자 이메일과 휴대폰 번호를 수집·이용하는 데 동의합니다. 무료 체험 이력의 해시 정보는 탈퇴 후에도 중복 발급 방지를 위해 서비스 운영 기간 동안 보관됩니다.</span>
           </label>
-          <p className="signup-legal">입력한 휴대폰 번호는 아직 본인 인증된 번호가 아닙니다. 번호 수집만으로 동일인의 재가입을 완벽히 확인할 수는 없으며, 무료 체험 중복 여부는 서버 측 이력 확인 기능과 함께 적용되어야 합니다.</p>
+          <p className="signup-legal">같은 보호자 이메일 또는 휴대폰 번호로 이미 무료 체험을 이용한 이력이 있으면 추가 체험이 발급되지 않습니다. 이메일 인증이 끝난 뒤 첫 로그인 시 서버에서 중복 여부를 확인하고 체험 기간을 등록합니다. 번호 미인증 상태이므로 다른 사람의 번호를 입력하는 행위까지 완전히 차단하지는 못합니다.</p>
 
           {error && <p className="err" role="alert">{error}</p>}
           <button className="btn block signup-submit" type="submit" disabled={!email || password.length < 8 || password !== passwordConfirm || phone.replace(/[^0-9]/g, '').length < 10 || !studentName.trim() || !schoolName.trim() || !privacyAgreed || loading}>
