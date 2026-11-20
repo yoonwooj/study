@@ -36,8 +36,10 @@ function supabaseUrl(env) {
   return env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
 }
 function envCheck(env) {
-  for (const key of ["SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) {
-    if (!env[key]) throw new Error(`Cloudflare Worker Secret ${key}가 등록되지 않았습니다.`);
+  // Database-only endpoints use the server-side key; user authentication
+  // checks SUPABASE_ANON_KEY separately in authenticate().
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Cloudflare Worker Secret SUPABASE_SERVICE_ROLE_KEY가 등록되지 않았습니다.");
   }
 }
 async function supabase(env, path, options = {}) {
@@ -53,6 +55,9 @@ async function supabase(env, path, options = {}) {
   return data;
 }
 async function authenticate(request, env) {
+  if (!env.SUPABASE_ANON_KEY) {
+    throw new Error("Cloudflare Worker Secret SUPABASE_ANON_KEY가 등록되지 않았습니다.");
+  }
   const token = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return null;
   const response = await fetch(`${supabaseUrl(env)}/auth/v1/user`, {
