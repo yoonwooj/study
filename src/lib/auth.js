@@ -4,6 +4,27 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 function config() {
   if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Supabase 환경변수가 설정되지 않았습니다.')
 }
+async function usernameAuth(body) {
+  config()
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/username-auth`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.error || '요청을 처리하지 못했습니다.')
+  return data
+}
+export async function checkLoginId(loginId) {
+  return usernameAuth({ action: 'check_login_id', login_id: String(loginId).trim().toLowerCase() })
+}
+export async function reserveLoginId(loginId, email) {
+  return usernameAuth({ action: 'reserve_login_id', login_id: String(loginId).trim().toLowerCase(), email: String(email).trim().toLowerCase() })
+}
+export async function checkTrialEligibility(email, phone) {
+  return usernameAuth({ action: 'trial_check', email, phone })
+}
+
 async function authRequest(path, body) {
   config()
   const response = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, { method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -109,19 +130,34 @@ export async function requestPasswordReset(email) {
   }
   return true
 }
-export async function signIn(email, password) {
-  const session = normalizeSession(await authRequest('token?grant_type=password', { email: String(email).trim(), password }))
+export async function signIn(identifier, password) {
+  const value = String(identifier).trim()
+  const data = value.includes('@')
+    ? await authRequest('token?grant_type=password', { email: value, password })
+    : await usernameAuth({ action: 'login', login_id: value.toLowerCase(), password })
+  const session = normalizeSession(data.session || data)
   const access = await sessionAction(session.access_token, 'claim')
   const safeSession = stripGuardianPhone(session)
   return { ...safeSession, profile: access.profile || null, subscription: access.subscription || null }
 }
-export async function signUp(email, password) {
+export async function signUp(email, password, loginId = '') {
+  const normalizedEmail = String(email).trim().toLowerCase()
+  const normalizedLoginId = String(loginId).trim().toLowerCase()
+  if (normalizedLoginId) await reserveLoginId(normalizedLoginId, normalizedEmail)
   const redirect = encodeURIComponent(window.location.origin)
-  const data = await authRequest(`signup?redirect_to=${redirect}`, {
-    email: String(email).trim(),
-    password,
-    data: { account_type: 'guardian' },
-  })
+  let data
+  try {
+    data = await authRequest(`signup?redirect_to=${redirect}`, {
+      email: normalizedEmail,
+      password,
+      data: { account_type: 'guardian', ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}) },
+    })
+  } catch (error) {
+    if (normalizedLoginId) {
+      try { await usernameAuth({ action: 'release_login_id', login_id: normalizedLoginId, email: normalizedEmail }) } catch {}
+    }
+    throw error
+  }
   if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
   const access = await sessionAction(session.access_token, 'claim')
