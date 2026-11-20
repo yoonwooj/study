@@ -63,6 +63,12 @@ function normalizeSession(data) {
   if (!data?.access_token || !data?.refresh_token || !data?.user) throw new Error('로그인 세션을 만들지 못했습니다.')
   return { access_token: data.access_token, refresh_token: data.refresh_token, expires_at: data.expires_at || Math.floor(Date.now() / 1000) + Number(data.expires_in || 3600), user: data.user }
 }
+function stripGuardianPhone(session) {
+  const metadata = session?.user?.user_metadata
+  if (!metadata || !Object.prototype.hasOwnProperty.call(metadata, 'guardian_phone')) return session
+  const { guardian_phone: _phone, ...safeMetadata } = metadata
+  return { ...session, user: { ...session.user, user_metadata: safeMetadata } }
+}
 function getDeviceId() {
   let id = window.localStorage.getItem('study_device_id')
   if (!id) {
@@ -106,7 +112,8 @@ export async function requestPasswordReset(email) {
 export async function signIn(email, password) {
   const session = normalizeSession(await authRequest('token?grant_type=password', { email: String(email).trim(), password }))
   const access = await sessionAction(session.access_token, 'claim')
-  return { ...session, profile: access.profile || null }
+  const safeSession = stripGuardianPhone(session)
+  return { ...safeSession, profile: access.profile || null }
 }
 export async function signUp(email, password, grade, guardianProfile = {}) {
   const redirect = encodeURIComponent(window.location.origin)
@@ -124,7 +131,8 @@ export async function signUp(email, password, grade, guardianProfile = {}) {
   if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
   const access = await sessionAction(session.access_token, 'claim')
-  return { session: { ...session, profile: access.profile || null } }
+  const safeSession = stripGuardianPhone(session)
+  return { session: { ...safeSession, profile: access.profile || null } }
 }
 let refreshPromise = null
 export async function refreshSessionIfNeeded(session) {
