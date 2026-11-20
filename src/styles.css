@@ -603,7 +603,8 @@ h1,h2,h3,p{margin:0}
 
 
 /* 보호자 회원가입 */
-/* 회원가입·체험 등록은 PC/태블릿에서 2열, 모바일에서 1열 */\n.signup-page{max-width:920px;width:100%;margin:0 auto;padding-bottom:40px}
+/* 회원가입·체험 등록은 PC/태블릿에서 2열, 모바일에서 1열 */
+.signup-page{max-width:920px;width:100%;margin:0 auto;padding-bottom:40px}
 .signup-hero{display:grid;gap:5px}
 .signup-hero>p{font-size:.88rem;opacity:.88}
 .signup-trial{display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 13px;border-radius:13px;background:rgba(255,255,255,.22);width:max-content;max-width:100%}
