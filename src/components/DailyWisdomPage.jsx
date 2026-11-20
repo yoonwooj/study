@@ -31,7 +31,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
 
   return (
     <main className="page daily-wisdom-page">
-      <section className="hero daily-wisdom-hero">
+      <section className={`hero daily-wisdom-hero ${isYoung ? 'proverb-hero' : 'english-quote-hero'}`}>
         <small>{todayLabel()}</small>
         <b>{isYoung ? '💬 오늘의 하루속담' : '🌍 오늘의 영어명언'}</b>
         <p>매일 하나씩, 하루에 한 가지 좋은 생각을 만나요.</p>
