@@ -677,3 +677,8 @@ h1,h2,h3,p{margin:0}
 .trial-hero{background:linear-gradient(135deg,#13a66b,#54c98f)}
 .trial-application-page{padding-bottom:40px}
 @media(max-width:480px){.public-top-nav{justify-content:center}.public-top-nav a{flex:1}}
+
+/* 로그인·회원가입 Hero를 무료 체험 페이지와 같은 그린 테마로 통일 */
+.app.login .hero:not(.trial-hero){
+  background:linear-gradient(135deg,#13a66b,#54c98f);
+}
