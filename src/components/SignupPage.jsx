@@ -23,6 +23,10 @@ export default function SignupPage({ onLogin }) {
       setError('비밀번호가 서로 일치하지 않습니다.')
       return
     }
+    if (!/^01[016789]\\d{7,8}$/.test(phone.replace(/[^0-9]/g, ''))) {
+      setError('휴대폰 번호를 010-0000-0000 형식으로 입력해 주세요.')
+      return
+    }
     if (!privacyAgreed) {
       setError('개인정보 수집 및 이용에 동의해 주세요.')
       return
