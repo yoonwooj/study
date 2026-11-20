@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { signUp, checkLoginId } from '../lib/auth.js'
+import SchoolPicker from './SchoolPicker.jsx'
 
 export default function SignupPage({ onLogin }) {
   const [email, setEmail] = useState('')
@@ -11,7 +12,7 @@ export default function SignupPage({ onLogin }) {
     try { return window.sessionStorage.getItem('study.pending-guardian-phone') || '' } catch { return '' }
   })
   const [studentName, setStudentName] = useState('')
-  const [schoolName, setSchoolName] = useState('')
+  const [school, setSchool] = useState(null)
   const [grade, setGrade] = useState('3')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -37,7 +38,7 @@ export default function SignupPage({ onLogin }) {
     setError('')
     if (!/^[a-z][a-z0-9]{3,15}$/.test(loginId) || !loginIdChecked) return setError('로그인 아이디 중복 확인을 완료해 주세요.')
     if (!/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, ''))) return setError('보호자 휴대폰 번호를 정확히 입력해 주세요.')
-    if (!studentName.trim() || !schoolName.trim()) return setError('자녀 이름과 학교를 입력해 주세요.')
+    if (!studentName.trim() || !school?.school_name) return setError('자녀 이름과 학교를 입력해 주세요.')
     if (password !== passwordConfirm) return setError('비밀번호가 서로 일치하지 않습니다.')
     if (!agreed) return setError('서비스 이용 및 개인정보 처리에 동의해 주세요.')
     setLoading(true)
@@ -45,10 +46,10 @@ export default function SignupPage({ onLogin }) {
       try {
         window.sessionStorage.setItem('study.pending-guardian-phone', phone.replace(/[^0-9]/g, ''))
         window.sessionStorage.setItem('study.pending-student-name', studentName.trim())
-        window.sessionStorage.setItem('study.pending-school-name', schoolName.trim())
+        window.sessionStorage.setItem('study.pending-school-name', school.school_name)
         window.sessionStorage.setItem('study.pending-grade', grade)
       } catch {}
-      const result = await signUp(email, password, loginId, 'member', { student_name: studentName.trim(), school_name: schoolName.trim(), grade })
+      const result = await signUp(email, password, loginId, 'member', { student_name: studentName.trim(), school_name: school.school_name, school_code: school.sd_schul_code, education_office: school.atpt_ofcdc_sc_nm, grade })
       if (result.session) {
         await onLogin({ session: result.session, user: result.session.user.email })
         window.location.replace('/payment?mode=member')
@@ -124,9 +125,7 @@ export default function SignupPage({ onLogin }) {
             <label className="field">학생 이름
               <input type="text" value={studentName} onChange={(e) => { setStudentName(e.target.value.slice(0, 20)); setError('') }} autoComplete="off" placeholder="학생 이름" maxLength={20} required />
             </label>
-            <label className="field">학교 이름
-              <input type="text" value={schoolName} onChange={(e) => { setSchoolName(e.target.value.slice(0, 50)); setError('') }} autoComplete="off" placeholder="예: 서울○○초등학교" maxLength={50} required />
-            </label>
+            <div className="field"><SchoolPicker value={school} onChange={(value) => { setSchool(value); setError('') }} /></div>
             <label className="field">현재 학년
               <select value={grade} onChange={(e) => { setGrade(e.target.value); setError('') }}>
                 {[1, 2, 3, 4, 5, 6].map((g) => <option key={g} value={g}>{g}학년</option>)}
@@ -139,7 +138,7 @@ export default function SignupPage({ onLogin }) {
             <span><strong>(필수)</strong> 회원가입 및 서비스 제공을 위한 보호자 이메일·휴대폰 번호와 자녀 이름·학교·학년의 수집·이용, 서비스 이용약관 및 개인정보 처리방침에 동의합니다. 무료 체험은 상단의 2주 체험 메뉴에서 별도로 신청할 수 있습니다.</span>
           </label>
           {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn block signup-submit" type="submit" disabled={!email || !loginIdChecked || !/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || !studentName.trim() || !schoolName.trim() || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
+          <button className="btn block signup-submit" type="submit" disabled={!email || !loginIdChecked || !/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || !studentName.trim() || !school?.school_name || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
             {loading ? '가입 처리 중…' : '회원가입'}
           </button>
         </form>
