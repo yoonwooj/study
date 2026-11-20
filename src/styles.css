@@ -757,3 +757,24 @@ h1,h2,h3,p{margin:0}
   outline:3px solid rgba(19,166,107,.28);
   outline-offset:3px;
 }
+
+
+/* 로그인·회원가입·무료 체험 입력 포커스: 공통 그린 포인트 */
+.app.login :is(input:not([type="checkbox"]):focus,
+input:not([type="checkbox"]):focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible){
+  border-color:#13a66b !important;
+  outline:0 !important;
+  box-shadow:0 0 0 3px rgba(19,166,107,.18) !important;
+}
+.app.login .school-search-row input:focus,
+.app.login .school-search-row input:focus-visible,
+.app.login .id-check-row input:focus,
+.app.login .id-check-row input:focus-visible{
+  border-color:#13a66b !important;
+  outline:0 !important;
+  box-shadow:0 0 0 3px rgba(19,166,107,.18) !important;
+}
