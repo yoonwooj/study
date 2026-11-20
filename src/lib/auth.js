@@ -143,7 +143,6 @@ export async function signIn(identifier, password) {
 export async function signUp(email, password, loginId = '') {
   const normalizedEmail = String(email).trim().toLowerCase()
   const normalizedLoginId = String(loginId).trim().toLowerCase()
-  if (normalizedLoginId) await reserveLoginId(normalizedLoginId, normalizedEmail)
   const redirect = encodeURIComponent(window.location.origin)
   let data
   try {
@@ -153,11 +152,9 @@ export async function signUp(email, password, loginId = '') {
       data: { account_type: 'guardian', ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}) },
     })
   } catch (error) {
-    if (normalizedLoginId) {
-      try { await usernameAuth({ action: 'release_login_id', login_id: normalizedLoginId, email: normalizedEmail }) } catch {}
-    }
     throw error
   }
+  if (normalizedLoginId) await reserveLoginId(normalizedLoginId, normalizedEmail)
   if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
   const access = await sessionAction(session.access_token, 'claim')
