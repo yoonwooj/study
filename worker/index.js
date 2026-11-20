@@ -358,6 +358,15 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/student-daily-quiz") return handleApi(request, env);
     if (url.pathname === "/api/health") return json({ status: "ok", service: "study-worker" });
+    if (url.pathname === "/api/env-check" && request.method === "GET") {
+      return json({
+        worker: "study",
+        hasSupabaseAnonKey: Boolean(env.SUPABASE_ANON_KEY),
+        hasSupabaseServiceRoleKey: Boolean(env.SUPABASE_SERVICE_ROLE_KEY),
+        hasSupabaseUrl: Boolean(env.SUPABASE_URL),
+        bindingNames: Object.keys(env).filter((key) => /SUPABASE|ASSETS/.test(key)).sort(),
+      });
+    }
     if (url.pathname === "/api/generation-status" && request.method === "GET") {
       try {
         envCheck(env);
