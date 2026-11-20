@@ -75,6 +75,7 @@ export default function SignupPage({ onLogin }) {
           <b>보호자 회원가입</b>
           <p>보호자 계정 하나로 자녀의 학습을 관리해요.</p>
           <div className="signup-trial"><strong>14일 무료 체험</strong><span>보호자 계정당 최초 1회</span></div>
+          <p className="signup-trial-caption">무료 체험 자동 발급과 중복 발급 제한은 서버 적용 작업이 완료된 뒤 활성화됩니다.</p>
         </section>
 
         <form className="card login-form signup-card" onSubmit={submit}>
