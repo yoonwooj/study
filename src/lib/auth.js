@@ -113,7 +113,7 @@ export async function signIn(email, password) {
   const session = normalizeSession(await authRequest('token?grant_type=password', { email: String(email).trim(), password }))
   const access = await sessionAction(session.access_token, 'claim')
   const safeSession = stripGuardianPhone(session)
-  return { ...safeSession, profile: access.profile || null }
+  return { ...safeSession, profile: access.profile || null, subscription: access.subscription || null }
 }
 export async function signUp(email, password) {
   const redirect = encodeURIComponent(window.location.origin)
@@ -126,7 +126,7 @@ export async function signUp(email, password) {
   const session = normalizeSession(data.session)
   const access = await sessionAction(session.access_token, 'claim')
   const safeSession = stripGuardianPhone(session)
-  return { session: { ...safeSession, profile: access.profile || null } }
+  return { session: { ...safeSession, profile: access.profile || null, subscription: access.subscription || null } }
 }
 let refreshPromise = null
 export async function refreshSessionIfNeeded(session) {
