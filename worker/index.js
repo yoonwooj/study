@@ -95,10 +95,21 @@ async function startQuiz(body, user, env) {
   const runs = await supabase(env,
     "generation_runs?select=id,generation_date,status&status=in.(completed,partial)&order=generation_date.desc,created_at.desc&limit=7");
   let pool = [];
-  for (const run of runs || []) {
-    const rows = await supabase(env,
-      `questions?select=id,unit_id,question,options,answer,explanation,difficulty&generation_run_id=eq.${run.id}&unit_id=in.(${unitIds.join(",")})&limit=500`);
-    if (rows?.length) { pool = rows; break; }
+  const runIds = (runs || []).map((run) => run.id).filter(Boolean);
+  if (runIds.length) {
+    // Fetch the recent generation runs' matching questions in one DB round trip.
+    const recentRows = await supabase(env,
+      `questions?select=id,unit_id,generation_run_id,question,options,answer,explanation,difficulty&generation_run_id=in.(${runIds.join(",")})&unit_id=in.(${unitIds.join(",")})&order=created_at.desc&limit=500`);
+    const rowsByRun = new Map();
+    for (const row of recentRows || []) {
+      if (!rowsByRun.has(row.generation_run_id)) rowsByRun.set(row.generation_run_id, []);
+      rowsByRun.get(row.generation_run_id).push(row);
+    }
+    // Preserve the existing rule: use the newest run that has matching questions.
+    for (const run of runs || []) {
+      const matchingRows = rowsByRun.get(run.id);
+      if (matchingRows?.length) { pool = matchingRows; break; }
+    }
   }
   const valid = (pool || []).filter((row) =>
     typeof row.question === "string" && Array.isArray(row.options) &&
@@ -139,24 +150,30 @@ async function startQuiz(body, user, env) {
 async function submitAnswer(body, user, env) {
   const sessionId = String(body.session_id || "");
   const index = Number(body.question_index);
-  if (!sessionId || !Number.isInteger(index) || index < 0) return json({ error: "답안 요청 정보가 올바르지 않습니다." }, 400);
-  const rows = await supabase(env,
-    `student_quiz_sessions?select=id,questions,current_index,expires_at& id=eq.${encodeURIComponent(sessionId)}&user_id=eq.${encodeURIComponent(user.id)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&limit=1`.replace("& id=", "&id="));
-  const session = rows?.[0];
-  if (!session) return json({ error: "학습 세션이 만료되었거나 존재하지 않습니다." }, 404);
-  if (session.current_index !== index) return json({ error: "이미 제출했거나 순서가 올바르지 않은 답안입니다." }, 409);
-  const q = session.questions?.[index];
-  if (!q) return json({ error: "문제를 찾을 수 없습니다." }, 404);
+  if (!sessionId || !Number.isInteger(index) || index < 0 || index >= 20) {
+    return json({ error: "답안 요청 정보가 올바르지 않습니다." }, 400);
+  }
+
+  // Atomically validate ownership/order/expiry and advance the session in one DB request.
+  const result = await supabase(env, "rpc/submit_student_answer", {
+    method: "POST",
+    body: JSON.stringify({
+      p_session_id: sessionId,
+      p_user_id: user.id,
+      p_question_index: index,
+    }),
+  });
+  if (!result?.ok) {
+    if (result?.reason === "invalid_index") return json({ error: "답안 순서가 올바르지 않습니다." }, 400);
+    if (result?.reason === "question_missing") return json({ error: "문제를 찾을 수 없습니다." }, 404);
+    return json({ error: "학습 세션이 만료되었거나 이미 제출한 답안입니다." }, 409);
+  }
+
+  const q = result.question;
   const correct = q.t === "s"
     ? (Array.isArray(q.a) ? q.a : [q.a]).some((value) => normalize(value) === normalize(body.answer))
     : body.answer === q.a;
-  const updated = await supabase(env,
-    `student_quiz_sessions?id=eq.${encodeURIComponent(sessionId)}&user_id=eq.${encodeURIComponent(user.id)}&current_index=eq.${index}`, {
-      method: "PATCH",
-      headers: { prefer: "return=representation" },
-      body: JSON.stringify({ current_index: index + 1 }),
-    });
-  if (!updated?.length) return json({ error: "이미 제출한 답안입니다. 다음 문제로 이동해 주세요." }, 409);
+
   return json({
     is_correct: correct,
     correct_answer_value: q.a,
