@@ -125,11 +125,11 @@ export default function App() {
     // 이메일 인증 후 로그인한 경우, 같은 브라우저에 임시 보관한 가입 정보를 인증된 세션으로 서버에 제출합니다.
     let verifiedSession = session
     try {
-      const rawDraft = window.sessionStorage.getItem('study.pending-signup-profile')
+      const rawDraft = window.localStorage.getItem('study.pending-signup-profile')
       if (rawDraft && session?.access_token) {
         const draft = JSON.parse(rawDraft)
         const sessionEmail = String(session?.user?.email || user || '').trim().toLowerCase()
-        if (draft.email && draft.email === sessionEmail) {
+        if (draft.expires_at > Date.now() && draft.email && draft.email === sessionEmail) {
           const result = await completeTrialSetup(session.access_token, {
             guardian_phone: draft.guardian_phone,
             student_name: draft.student_name,
@@ -137,8 +137,10 @@ export default function App() {
             grade: Number(draft.grade),
           })
           verifiedSession = { ...session, profile: result.profile || null, subscription: result.subscription || null }
-          window.sessionStorage.removeItem('study.pending-signup-profile')
+          window.localStorage.removeItem('study.pending-signup-profile')
           window.sessionStorage.removeItem('study.pending-guardian-phone')
+        } else if (draft.expires_at <= Date.now()) {
+          window.localStorage.removeItem('study.pending-signup-profile')
         }
       }
     } catch (error) {
