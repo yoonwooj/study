@@ -43,22 +43,30 @@ Deno.serve(async (req) => {
       if (!authData.user.email_confirmed_at) {
         return json({ error: "무료 체험을 시작하려면 먼저 보호자 이메일 인증을 완료해 주세요." }, 403);
       }
-      const guardianPhone = String(metadata.guardian_phone || "").replace(/[^0-9]/g, "");
       const { data: trial, error: trialError } = await db.rpc("claim_guardian_trial", {
         p_user_id: userId,
-        p_email: authData.user.email,
-        p_phone: guardianPhone,
       });
       if (trialError) {
         console.error("Guardian trial claim failed:", trialError);
         return json({ error: "무료 체험 등록을 처리하지 못했습니다. 잠시 후 다시 로그인해 주세요." }, 500);
       }
       if (trial?.status === "duplicate_identity") {
+        const { guardian_phone: _phone, ...safeMetadata } = metadata;
+        await db.auth.admin.updateUserById(userId, { user_metadata: safeMetadata });
         return json({
           error: "이 보호자 이메일 또는 휴대폰 번호로 무료 체험을 이미 이용한 이력이 있습니다. 기존 계정으로 로그인해 주세요.",
           code: "TRIAL_ALREADY_USED",
         }, 409);
       }
+      if (!["trial_issued", "existing_trial", "existing_subscription"].includes(trial?.status)) {
+        return json({ error: "무료 체험 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요." }, 500);
+      }
+      // 가입 직후 받은 원본 전화번호는 Auth 메타데이터에서 제거한다.
+      const { guardian_phone: _phone, ...safeMetadata } = metadata;
+      const { error: metadataCleanupError } = await db.auth.admin.updateUserById(userId, {
+        user_metadata: safeMetadata,
+      });
+      if (metadataCleanupError) console.error("Guardian phone metadata cleanup failed:", metadataCleanupError);
     }
 
     const { error } = await db.from("student_sessions").upsert(
