@@ -711,3 +711,22 @@ h1,h2,h3,p{margin:0}
 .school-picker-message{color:#d34b4b;font-size:.8rem}
 .school-picker-help{color:var(--sub);font-size:.76rem;line-height:1.45}
 @media(max-width:520px){.school-search-row{gap:6px}.school-search-button{padding:0 10px;font-size:.86rem}}
+
+
+/* 계정 화면·학교 검색 포인트 컬러를 로그인 Hero 그린으로 통일 */
+.app.login .login-form button.btn[type="submit"],
+.app.login .school-search-button,
+.app.login .school-search-button:focus-visible{
+  background:#13a66b;
+  color:#fff;
+}
+.app.login .login-form button.btn[type="submit"]:hover:not(:disabled),
+.app.login .school-search-button:hover:not(:disabled){
+  background:#108b59;
+}
+.app.login .login-form button.btn[type="submit"]:disabled,
+.app.login .school-search-button:disabled{
+  background:#b9dfce;
+  color:#fff;
+}
+.login-help-links a{color:#13a66b}
