@@ -411,7 +411,8 @@ export default function App() {
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
   if (auth.settings?.grade == null) {
-    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
+    const signupMode = auth.user?.user_metadata?.signup_mode
+    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} mode={signupMode === 'member' ? 'member' : undefined} />
   }
   const trialEndTime = auth.subscription?.is_trial ? new Date(auth.subscription.ends_at).getTime() : 0
   const trialDaysLeft = trialEndTime ? Math.ceil((trialEndTime - Date.now()) / 86400000) : null
