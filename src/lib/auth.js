@@ -78,12 +78,12 @@ function getDeviceId() {
   return id
 }
 
-async function sessionAction(accessToken, action) {
+async function sessionAction(accessToken, action, extra = {}) {
   config()
   const response = await fetch(`${SUPABASE_URL}/functions/v1/student-session`, {
     method: 'POST',
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, device_id: getDeviceId() }),
+    body: JSON.stringify({ action, device_id: getDeviceId(), ...extra }),
   })
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
@@ -115,18 +115,12 @@ export async function signIn(email, password) {
   const safeSession = stripGuardianPhone(session)
   return { ...safeSession, profile: access.profile || null }
 }
-export async function signUp(email, password, grade, guardianProfile = {}) {
+export async function signUp(email, password) {
   const redirect = encodeURIComponent(window.location.origin)
   const data = await authRequest(`signup?redirect_to=${redirect}`, {
     email: String(email).trim(),
     password,
-    data: {
-      grade: Number(grade),
-      account_type: 'guardian',
-      guardian_phone: String(guardianProfile.guardianPhone || '').replace(/[^0-9]/g, ''),
-      student_name: String(guardianProfile.studentName || '').trim(),
-      school_name: String(guardianProfile.schoolName || '').trim(),
-    },
+    data: { account_type: 'guardian' },
   })
   if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
@@ -149,4 +143,8 @@ export async function checkStudentSession(accessToken) {
 export async function releaseStudentSession(accessToken) {
   if (!accessToken) return
   try { await sessionAction(accessToken, 'release') } catch { /* 네트워크 오류여도 로컬 로그아웃은 진행 */ }
+}
+
+export async function completeTrialSetup(accessToken, profile) {
+  return sessionAction(accessToken, 'complete_trial', profile)
 }
