@@ -18,6 +18,7 @@ import SciencePage from './components/SciencePage.jsx'
 import DailyPage from './components/DailyPage.jsx'
 import LoginPage from './components/LoginPage.jsx'
 import SignupPage from './components/SignupPage.jsx'
+import PaymentPage from './components/PaymentPage.jsx'
 import QuizScreen from './components/QuizScreen.jsx'
 import ResultScreen from './components/ResultScreen.jsx'
 import NoticeModal from './components/NoticeModal.jsx'
@@ -72,6 +73,7 @@ export default function App() {
   const [dailySem, setDailySem] = useState(initialSettings?.semester ? Number(initialSettings.semester) : null)
   const [dailyUnitName, setDailyUnitName] = useState(initialSettings?.unitName || '')
   const [notice, setNotice] = useState(() => SHOW_NOTICE && load(KEYS.notice, '') !== today())
+  const [renewalDismissed, setRenewalDismissed] = useState(false)
 
   useEffect(() => {
     const s = auth?.settings
@@ -152,6 +154,15 @@ export default function App() {
     setRun(null)
     setTab('learn')
     setMenuOpen(false)
+  }
+  const handlePaymentComplete = (result) => {
+    const profile = result?.profile || {}
+    const grade = Number(profile.grade) || 1
+    const settings = { grade, semester: null, unitName: '', subject: defaultSubject(grade) }
+    const updated = { ...auth, settings, profile, subscription: result?.subscription || null }
+    setAuth(updated)
+    save(KEYS.auth, updated)
+    window.location.replace('/')
   }
   const logout = async () => {
     await releaseStudentSession(auth?.access_token)
@@ -388,23 +399,21 @@ export default function App() {
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
   if (currentPath === '/admin') return <AdminPage />
   if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
+  if (currentPath === '/payment') return auth
+    ? <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
+    : <LoginPage onLogin={handleLogin} notice={loginNotice} />
   if (currentPath === '/find-id') return <FindIdPage />
   if (currentPath === '/forgot-password') return <PasswordResetRequestPage />
   if (currentPath === '/reset-password') return <PasswordRecoveryPage />
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
   if (auth.settings?.grade == null) {
-    return (
-      <div className="app login" data-subject="kor">
-        <main className="page">
-          <section className="hero"><small>학습 이용 안내</small><b>학년 설정이 필요해요</b></section>
-          <section className="card login-form">
-            <p className="sub">관리자가 이 계정의 학습 허용 학년을 지정해야 학습을 시작할 수 있어요.</p>
-            <button className="btn block" type="button" onClick={logout}>로그아웃</button>
-          </section>
-        </main>
-      </div>
-    )
+    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
+  }
+  const trialEndTime = auth.subscription?.is_trial ? new Date(auth.subscription.ends_at).getTime() : 0
+  const trialDaysLeft = trialEndTime ? Math.ceil((trialEndTime - Date.now()) / 86400000) : null
+  if (auth.subscription?.is_trial && trialEndTime && trialEndTime <= Date.now()) {
+    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
   }
 
   const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
@@ -460,6 +469,15 @@ export default function App() {
         hideSubj
         title={special[tab] || '오늘의 학습'}
       />
+      {!renewalDismissed && auth.subscription?.is_trial && trialDaysLeft !== null && trialDaysLeft >= 0 && trialDaysLeft <= 2 && (
+        <section className="trial-renewal-notice" role="status">
+          <div><strong>무료 체험이 {trialDaysLeft === 0 ? '오늘' : trialDaysLeft + '일'} 후 종료돼요.</strong><p>학습을 계속하려면 이용권을 연장해 주세요.</p></div>
+          <div className="trial-renewal-actions">
+            <button type="button" onClick={() => window.location.assign('/payment?mode=extend')}>학습 연장</button>
+            <button type="button" className="trial-renewal-dismiss" onClick={() => setRenewalDismissed(true)}>연장 안 하기</button>
+          </div>
+        </section>
+      )}
 
       {showDaily && (
         <DailyPage
