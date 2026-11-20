@@ -8,6 +8,12 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [day, setDay] = useState(() => dayIndex())
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setDay(dayIndex()), 60 * 1000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     let alive = true
@@ -20,7 +26,6 @@ export default function DailyWisdomPage({ grade = 1 }) {
     return () => { alive = false }
   }, [category, grade])
 
-  const day = dayIndex()
   const item = items.length ? items[day % items.length] : null
   const dayNumber = (day % 100) + 1
 
