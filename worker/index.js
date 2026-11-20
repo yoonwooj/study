@@ -261,7 +261,10 @@ async function generateDaily(env) {
   if (!ids.length) return { status: "skipped", reason: "no_active_targets", generation_date: date };
   const allUnits = await supabase(env,
     `textbook_units?select=id,grade,semester,subject,publisher,unit_number,unit_name,learning_goal,verification_status,source_note&id=in.(${ids.join(",")})&order=grade.asc,semester.asc,subject.asc,unit_number.asc`);
-  const units = (allUnits || []).filter((unit) => !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher));
+  const units = (allUnits || []).filter((unit) =>
+    !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher) &&
+    !(Number(unit.grade) === 3 && Number(unit.semester) === 2 && unit.subject === "국어" && unit.publisher === "미래엔(국정)")
+  );
   if (!units.length) return { status: "skipped", reason: "no_verified_units", generation_date: date };
 
   if (run?.id) {
