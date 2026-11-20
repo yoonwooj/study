@@ -4,7 +4,7 @@ import { completeTrialSetup } from '../lib/auth.js'
 const GRADES = [1, 2, 3, 4, 5, 6]
 const isExtendMode = () => new URLSearchParams(window.location.search).get('mode') === 'extend'
 
-export default function PaymentPage({ auth, onComplete }) {
+export default function PaymentPage({ auth, onComplete, mode }) {
   const [phone, setPhone] = useState('')
   const [studentName, setStudentName] = useState('')
   const [schoolName, setSchoolName] = useState('')
@@ -12,7 +12,7 @@ export default function PaymentPage({ auth, onComplete }) {
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const extending = isExtendMode()
+  const extending = mode === 'extend' || isExtendMode()
 
   const submit = async (e) => {
     e.preventDefault()
