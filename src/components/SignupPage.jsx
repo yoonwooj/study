@@ -117,7 +117,7 @@ export default function SignupPage({ onLogin }) {
             <span><strong>(필수)</strong> 회원가입 및 서비스 제공을 위한 보호자 이메일·휴대폰 번호와 자녀 이름·학교·학년의 수집·이용, 서비스 이용약관 및 개인정보 처리방침에 동의합니다. 입력한 정보는 무료 체험 등록 화면에도 이어집니다.</span>
           </label>
           {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn block signup-submit" type="submit" disabled={!email || !/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
+          <button className="btn block signup-submit" type="submit" disabled={!email || !/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || !studentName.trim() || !schoolName.trim() || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
             {loading ? '가입 처리 중…' : '회원가입'}
           </button>
         </form>
