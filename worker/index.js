@@ -29,8 +29,14 @@ function answerText(q) {
   if (q.t === "ox") return q.a ? "O" : "X";
   return Array.isArray(q.a) ? String(q.a[0] ?? "") : String(q.a ?? "");
 }
+// Supabase project URL is a public endpoint, not a secret. Keep the known project URL
+// as a safe fallback so a missing Cloudflare variable does not block student requests.
+const DEFAULT_SUPABASE_URL = "https://bcrpgtvrvlqfadiqryif.supabase.co";
+function supabaseUrl(env) {
+  return env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
+}
 function envCheck(env) {
-  for (const key of ["SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) {
+  for (const key of ["SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) {
     if (!env[key]) throw new Error(`Cloudflare Worker Secret ${key}가 등록되지 않았습니다.`);
   }
 }
@@ -39,7 +45,7 @@ async function supabase(env, path, options = {}) {
   headers.set("apikey", env.SUPABASE_SERVICE_ROLE_KEY);
   headers.set("authorization", `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`);
   if (options.body && !headers.has("content-type")) headers.set("content-type", "application/json");
-  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, { ...options, headers });
+  const response = await fetch(`${supabaseUrl(env)}/rest/v1/${path}`, { ...options, headers });
   const raw = await response.text();
   let data = null;
   try { data = raw ? JSON.parse(raw) : null; } catch { data = raw; }
@@ -49,7 +55,7 @@ async function supabase(env, path, options = {}) {
 async function authenticate(request, env) {
   const token = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return null;
-  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+  const response = await fetch(`${supabaseUrl(env)}/auth/v1/user`, {
     headers: { apikey: env.SUPABASE_ANON_KEY, authorization: `Bearer ${token}` },
   });
   if (!response.ok) return null;
