@@ -152,7 +152,7 @@ export async function signUp(email, password, loginId = '', signupMode = 'member
     data = await authRequest(`signup?redirect_to=${redirect}`, {
       email: normalizedEmail,
       password,
-      data: { account_type: 'guardian', signup_mode: signupMode, ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}), ...(profile?.student_name ? { student_name: profile.student_name } : {}), ...(profile?.school_name ? { school_name: profile.school_name } : {}), ...(profile?.grade ? { grade: Number(profile.grade) } : {}) },
+      data: { account_type: 'guardian', signup_mode: signupMode, ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}), ...(profile?.student_name ? { student_name: profile.student_name } : {}), ...(profile?.school_name ? { school_name: profile.school_name } : {}), ...(profile?.school_code ? { school_code: profile.school_code } : {}), ...(profile?.education_office ? { education_office: profile.education_office } : {}), ...(profile?.grade ? { grade: Number(profile.grade) } : {}) },
     })
   } catch (error) {
     throw error
