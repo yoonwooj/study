@@ -778,3 +778,16 @@ textarea:focus-visible){
   outline:0 !important;
   box-shadow:0 0 0 3px rgba(19,166,107,.18) !important;
 }
+
+
+/* 하루속담 · 영어명언 */
+.daily-wisdom-page{gap:16px}
+.daily-wisdom-hero p{margin-top:5px;font-size:.82rem;opacity:.9}
+.daily-wisdom-card{min-height:260px;display:grid;align-content:center;justify-items:center;gap:16px;text-align:center;padding:28px 22px}
+.daily-wisdom-day{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--pri-text);font-size:.76rem;font-weight:800;letter-spacing:.04em}
+.daily-wisdom-title{font-size:1.35rem;line-height:1.6;letter-spacing:-.03em;word-break:keep-all}
+.daily-wisdom-meaning{font-size:1rem;line-height:1.8;color:var(--ink);word-break:keep-all}
+.daily-wisdom-example{width:100%;padding:14px 16px;border-radius:14px;background:var(--bg);color:var(--sub);font-size:.86rem;line-height:1.7;text-align:left}
+.daily-wisdom-author{color:var(--pri-text);font-size:.86rem;font-weight:800}
+.daily-wisdom-original{font-size:1.16rem;font-weight:750;line-height:1.7;letter-spacing:-.02em;word-break:normal}
+.daily-wisdom-loading,.daily-wisdom-error{padding:28px 16px;text-align:center;color:var(--sub)}
