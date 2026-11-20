@@ -413,7 +413,7 @@ export default function App() {
   const trialEndTime = auth.subscription?.is_trial ? new Date(auth.subscription.ends_at).getTime() : 0
   const trialDaysLeft = trialEndTime ? Math.ceil((trialEndTime - Date.now()) / 86400000) : null
   if (auth.subscription?.is_trial && trialEndTime && trialEndTime <= Date.now()) {
-    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
+    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} mode="extend" />
   }
 
   const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
