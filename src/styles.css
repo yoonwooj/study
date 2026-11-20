@@ -684,15 +684,3 @@ h1,h2,h3,p{margin:0}
 }
 
 
-/* 전체 서비스 포인트 컬러: 체험 신청 Hero의 그린 테마로 통일 */
-:root{--tab-active:#168354}
-.app[data-subject],
-.page[data-subject],
-.cta[data-subject]{
-  --pri:#13a66b;
-  --pri2:#54c98f;
-  --soft:#e5f7ee;
-  --pri-text:#168354;
-  --pri-ink:#fff;
-}
-.subject-pills button[data-theme]{--pc:#13a66b}
