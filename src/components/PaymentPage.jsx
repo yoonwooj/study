@@ -6,7 +6,8 @@ const GRADES = [1, 2, 3, 4, 5, 6]
 function pendingValue(key, fallback = '') {
   try { return window.sessionStorage.getItem(key) || fallback } catch { return fallback }
 }
-const isExtendMode = () => new URLSearchParams(window.location.search).get('mode') === 'extend'
+const paymentMode = () => new URLSearchParams(window.location.search).get('mode') || ''
+const isExtendMode = () => paymentMode() === 'extend'
 
 export default function PaymentPage({ auth, onComplete, mode }) {
   const [phone, setPhone] = useState(() => pendingValue('study.pending-guardian-phone'))
@@ -17,6 +18,8 @@ export default function PaymentPage({ auth, onComplete, mode }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const extending = mode === 'extend' || isExtendMode()
+  const memberSignup = mode === 'member' || paymentMode() === 'member'
+  const selectingPlan = extending || memberSignup
 
   const submit = async (e) => {
     e.preventDefault()
@@ -59,13 +62,13 @@ export default function PaymentPage({ auth, onComplete, mode }) {
     <div className="app login" data-subject="kor">
       <main className="page signup-page payment-page">
         <section className="hero signup-hero payment-hero">
-          <small>{extending ? 'MEMBERSHIP' : 'START YOUR FREE TRIAL'}</small>
-          <b>{extending ? '학습 이용권 연장' : '14일 무료 체험 등록'}</b>
-          <p>{extending ? '이용권을 선택해 학습을 이어갈 수 있어요.' : '보호자와 자녀 정보를 등록하면 오늘부터 14일 동안 자유롭게 학습할 수 있어요.'}</p>
-          {!extending && <div className="signup-trial"><strong>14일 무료</strong><span>자동 결제 없음 · 카드 등록 없음</span></div>}
+          <small>{selectingPlan ? 'MEMBERSHIP' : 'START YOUR FREE TRIAL'}</small>
+          <b>{memberSignup ? '정식 회원 이용권 선택' : extending ? '학습 이용권 연장' : '14일 무료 체험 등록'}</b>
+          <p>{selectingPlan ? '원하는 이용 기간을 선택해 학습을 시작해 주세요.' : '보호자와 자녀 정보를 등록하면 오늘부터 14일 동안 자유롭게 학습할 수 있어요.'}</p>
+          {!selectingPlan && <div className="signup-trial"><strong>14일 무료</strong><span>자동 결제 없음 · 카드 등록 없음</span></div>}
         </section>
 
-        {extending ? (
+        {selectingPlan ? (
           <section className="card signup-card">
             <div className="signup-section-title"><span>01</span><div><strong>이용권 선택</strong><small>원하는 학습 기간을 선택해 주세요.</small></div></div>
             <div className="payment-plan-grid">
@@ -73,7 +76,7 @@ export default function PaymentPage({ auth, onComplete, mode }) {
               <article className="payment-plan"><strong>3개월 이용권</strong><span>꾸준한 학습을 위한 선택</span></article>
               <article className="payment-plan"><strong>12개월 이용권</strong><span>장기 학습을 위한 선택</span></article>
             </div>
-            <p className="signup-note">현재 결제 대행사(PG)와 이용권 가격이 확정되지 않아 실제 결제는 아직 진행하지 않습니다. 결제 기능을 연결한 뒤 이 화면에서 안전하게 결제할 수 있도록 구성했습니다.</p>
+            <p className="signup-note">현재 결제 대행사(PG)와 이용권 가격이 확정되지 않아 실제 결제는 아직 진행하지 않습니다. 결제 기능 연결 후 이 화면에서 결제할 수 있습니다.</p>
             <button className="btn block" type="button" disabled>결제 기능 준비 중</button>
             <a className="login-help-links payment-back" href="/">학습 화면으로 돌아가기</a>
           </section>
