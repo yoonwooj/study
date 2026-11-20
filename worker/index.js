@@ -99,7 +99,7 @@ async function startQuiz(body, user, env) {
   if (runIds.length) {
     // Fetch the recent generation runs' matching questions in one DB round trip.
     const recentRows = await supabase(env,
-      `questions?select=id,unit_id,generation_run_id,question,options,answer,explanation,difficulty&generation_run_id=in.(${runIds.join(",")})&unit_id=in.(${unitIds.join(",")})&order=created_at.desc&limit=500`);
+      `questions?select=id,unit_id,generation_run_id,question,options,answer,explanation,difficulty&generation_run_id=in.(${runIds.join(",")})&unit_id=in.(${unitIds.join(",")})&order=created_at.desc.nullslast&limit=500`);
     const rowsByRun = new Map();
     for (const row of recentRows || []) {
       if (!rowsByRun.has(row.generation_run_id)) rowsByRun.set(row.generation_run_id, []);
