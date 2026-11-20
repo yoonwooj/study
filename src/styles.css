@@ -694,3 +694,20 @@ h1,h2,h3,p{margin:0}
   background:#13a66b;
   color:#fff;
 }
+
+
+/* NEIS 학교 검색 선택 */
+.school-picker{display:grid;gap:8px;width:100%}
+.school-picker>label{font-size:.92rem;font-weight:700;color:var(--ink)}
+.school-search-row{display:flex;gap:8px;align-items:stretch}
+.school-search-row input{flex:1;min-width:0}
+.school-search-button{flex:0 0 auto;padding:0 14px;border:0;border-radius:10px;background:var(--pri);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.school-search-button:disabled{opacity:.55;cursor:not-allowed}
+.school-search-results{display:grid;gap:6px;max-height:220px;overflow:auto;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.school-search-results button{display:grid;gap:4px;text-align:left;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);cursor:pointer}
+.school-search-results button.selected{border-color:var(--pri);background:var(--soft)}
+.school-search-results button span{font-size:.78rem;color:var(--sub);line-height:1.4}
+.school-selected{margin:0;color:#168354;font-size:.84rem;font-weight:700}
+.school-picker-message{color:#d34b4b;font-size:.8rem}
+.school-picker-help{color:var(--sub);font-size:.76rem;line-height:1.45}
+@media(max-width:520px){.school-search-row{gap:6px}.school-search-button{padding:0 10px;font-size:.86rem}}
