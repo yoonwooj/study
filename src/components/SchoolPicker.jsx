@@ -43,6 +43,6 @@ export default function SchoolPicker({ value, onChange }) {
     {value ? <p className="school-selected" role="status">✓ NEIS 등록 학교 확인: {value.school_name} ({value.atpt_ofcdc_sc_nm})</p> : null}
     {error && <small className="school-picker-message" role="status">{error}</small>}
     {searched && !schools.length && !value && !error && <small className="school-picker-message">검색 결과를 확인해 주세요.</small>}
-    <small className="school-picker-help">교육부 NEIS 학교 기본정보에 등록된 초등학교만 선택할 수 있습니다.</small>
+    <small className="school-picker-help">교육부 NEIS에 등록된 초등학교만 선택할 수 있습니다.</small>
   </div>
 }
