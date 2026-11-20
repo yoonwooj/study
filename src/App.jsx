@@ -467,7 +467,7 @@ export default function App() {
       />
       {!renewalDismissed && auth.subscription?.is_trial && trialDaysLeft !== null && trialDaysLeft <= 2 && (
         <section className="trial-renewal-notice" role="status">
-          <div><strong>{trialDaysLeft < 0 ? '무료 체험이 종료됐어요.' : trialDaysLeft === 0 ? '무료 체험이 오늘 종료돼요.' : '무료 체험이 ' + trialDaysLeft + '일 후 종료돼요.'}</strong><p>학습을 계속하려면 이용권을 연장해 주세요.</p></div>
+          <div><strong>{trialEndTime <= Date.now() ? '무료 체험이 종료됐어요.' : trialDaysLeft === 0 ? '무료 체험이 오늘 종료돼요.' : '무료 체험이 ' + trialDaysLeft + '일 후 종료돼요.'}</strong><p>학습을 계속하려면 이용권을 연장해 주세요.</p></div>
           <div className="trial-renewal-actions">
             <button type="button" onClick={() => window.location.assign('/payment?mode=extend')}>학습 연장</button>
             <button type="button" className="trial-renewal-dismiss" onClick={() => setRenewalDismissed(true)}>연장 안 하기</button>
