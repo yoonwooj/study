@@ -791,3 +791,13 @@ textarea:focus-visible){
 .daily-wisdom-author{color:var(--pri-text);font-size:.86rem;font-weight:800}
 .daily-wisdom-original{font-size:1.16rem;font-weight:750;line-height:1.7;letter-spacing:-.02em;word-break:normal}
 .daily-wisdom-loading,.daily-wisdom-error{padding:28px 16px;text-align:center;color:var(--sub)}
+
+
+/* 영어명언 Hero: 산뜻한 블루-민트 컬러 */
+.daily-wisdom-hero.english-quote-hero{
+  background:linear-gradient(135deg,#087f9f 0%,#16a9bd 55%,#49c9cf 100%);
+  color:#fff;
+}
+.daily-wisdom-hero.english-quote-hero small,
+.daily-wisdom-hero.english-quote-hero b,
+.daily-wisdom-hero.english-quote-hero p{color:#fff}
