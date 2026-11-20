@@ -42,7 +42,7 @@ export default function TrialPage({ onLogin }) {
       window.sessionStorage.setItem('study.pending-student-name',studentName.trim())
       window.sessionStorage.setItem('study.pending-school-name',schoolName.trim())
       window.sessionStorage.setItem('study.pending-grade',grade)
-      const result=await signUp(email,password,loginId)
+      const result=await signUp(email,password,loginId,'trial')
       await recordTrialApplication(email,normalizedPhone)
       if(result.session){
         await onLogin({session:result.session,user:result.session.user.email})
