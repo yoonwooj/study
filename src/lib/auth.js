@@ -143,7 +143,7 @@ export async function signIn(identifier, password) {
   const safeSession = stripGuardianPhone(session)
   return { ...safeSession, profile: access.profile || null, subscription: access.subscription || null }
 }
-export async function signUp(email, password, loginId = '', signupMode = 'member') {
+export async function signUp(email, password, loginId = '', signupMode = 'member', profile = {}) {
   const normalizedEmail = String(email).trim().toLowerCase()
   const normalizedLoginId = String(loginId).trim().toLowerCase()
   const redirect = encodeURIComponent(window.location.origin)
@@ -152,7 +152,7 @@ export async function signUp(email, password, loginId = '', signupMode = 'member
     data = await authRequest(`signup?redirect_to=${redirect}`, {
       email: normalizedEmail,
       password,
-      data: { account_type: 'guardian', signup_mode: signupMode, ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}) },
+      data: { account_type: 'guardian', signup_mode: signupMode, ...(normalizedLoginId ? { login_id: normalizedLoginId } : {}), ...(profile?.student_name ? { student_name: profile.student_name } : {}), ...(profile?.school_name ? { school_name: profile.school_name } : {}), ...(profile?.grade ? { grade: Number(profile.grade) } : {}) },
     })
   } catch (error) {
     throw error
