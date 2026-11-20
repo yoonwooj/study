@@ -14,7 +14,7 @@ import NotesPage from './components/NotesPage.jsx'
 import RecordsPage from './components/RecordsPage.jsx'
 import WeekPage from './components/WeekPage.jsx'
 import HanjaPage from './components/HanjaPage.jsx'
-import SciencePage from './components/SciencePage.jsx'
+import DailyWisdomPage from './components/DailyWisdomPage.jsx'
 import DailyPage from './components/DailyPage.jsx'
 import LoginPage from './components/LoginPage.jsx'
 import SignupPage from './components/SignupPage.jsx'
@@ -448,7 +448,7 @@ export default function App() {
     )
   }
 
-  const special = { hanja: '📜 하루한자', sci: '🔬 과학상식', rec: '과목별 학습', recovery: '아이디 복구 코드' }
+  const special = { hanja: '📜 하루한자', wisdom: lockedGrade <= 2 ? '💬 하루속담' : '💬 영어명언', rec: '과목별 학습', recovery: '아이디 복구 코드' }
   const theme =
     special[tab] && tab !== 'rec'
       ? tab
@@ -528,11 +528,11 @@ export default function App() {
       )}
       {tab === 'week' && <WeekPage records={records.filter((r) => Number(r.g) === lockedGrade)} />}
       {tab === 'hanja' && <HanjaPage />}
-      {tab === 'sci' && <SciencePage />}
+      {tab === 'wisdom' && <DailyWisdomPage grade={lockedGrade || dailyGrade} />}
       {tab === 'recovery' && <RecoveryCodePage accessToken={auth.access_token} />}
 
       {tab !== 'recovery' && <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />}
-      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} onLogout={logout} name={name} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} onLogout={logout} name={name} grade={lockedGrade || dailyGrade} />
       {notice && <NoticeModal onHideToday={hideNoticeToday} onClose={() => setNotice(false)} />}
     </div>
   )
