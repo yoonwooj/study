@@ -48,10 +48,10 @@ export default function SignupPage({ onLogin }) {
         window.sessionStorage.setItem('study.pending-school-name', schoolName.trim())
         window.sessionStorage.setItem('study.pending-grade', grade)
       } catch {}
-      const result = await signUp(email, password, loginId)
+      const result = await signUp(email, password, loginId, 'member')
       if (result.session) {
         await onLogin({ session: result.session, user: result.session.user.email })
-        window.location.replace('/')
+        window.location.replace('/payment?mode=member')
       } else {
         setEmailConfirmation(true)
       }
