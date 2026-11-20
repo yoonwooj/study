@@ -319,7 +319,8 @@ h1,h2,h3,p{margin:0}
 .remember-id input{width:17px;height:17px;margin:0;accent-color:var(--pri)}
 .remember-id span{line-height:1.4}
 .field{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--sub)}
-.field input,.field select{font:inherit;font-size:1rem;font-weight:400;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%}
+.field input:not([type=checkbox]),.field select{box-sizing:border-box;display:block;font-family:inherit;font-size:1rem;font-weight:400;line-height:normal;height:48px;min-height:48px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%;max-width:100%}
+.field select{-webkit-appearance:menulist;appearance:auto}
 .login-sel{background:var(--bg)}
 .login-sel .grades button,.login-sel .seg{background:var(--card)}
 .err{color:var(--no);font-weight:700;margin:0}
