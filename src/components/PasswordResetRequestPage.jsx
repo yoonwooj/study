@@ -25,14 +25,14 @@ export default function PasswordResetRequestPage() {
   const styles = {
     page: { minHeight: '100dvh', display: 'grid', placeItems: 'center', padding: 20, background: '#f4f6fb', color: '#182230', fontFamily: '"Noto Sans KR", sans-serif' },
     card: { width: '100%', maxWidth: 420, padding: 28, borderRadius: 20, background: '#fff', boxShadow: '0 12px 40px rgba(20,35,60,.10)' },
-    eyebrow: { color: '#3867e8', fontSize: 12, fontWeight: 800, letterSpacing: '.12em' },
+    eyebrow: { color: '#13a66b', fontSize: 12, fontWeight: 800, letterSpacing: '.12em' },
     title: { margin: '8px 0', fontSize: 25, fontWeight: 800 },
     desc: { margin: '0 0 22px', color: '#667085', fontSize: 14, lineHeight: 1.6 },
     label: { display: 'grid', gap: 7, marginBottom: 14, fontSize: 13, fontWeight: 700 },
     input: { width: '100%', boxSizing: 'border-box', padding: '13px 14px', border: '1px solid #dce2eb', borderRadius: 11, fontSize: 15 },
-    button: { width: '100%', padding: 14, border: 0, borderRadius: 11, background: '#3867e8', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer' },
+    button: { width: '100%', padding: 14, border: 0, borderRadius: 11, background: '#13a66b', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer' },
     message: { margin: '14px 0 0', color: '#087a4b', fontSize: 13, lineHeight: 1.6 },
-    link: { display: 'block', marginTop: 16, textAlign: 'center', color: '#3867e8', fontSize: 14, fontWeight: 700, textDecoration: 'none' },
+    link: { display: 'block', marginTop: 16, textAlign: 'center', color: '#13a66b', fontSize: 14, fontWeight: 700, textDecoration: 'none' },
   }
   return (
     <main style={styles.page}>
