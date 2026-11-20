@@ -36,14 +36,17 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const quoteText = !isYoung && item?.content ? String(item.content).trim() : ''
 
   useEffect(() => {
-    currentTextRef.current = quoteText
     repeatRef.current = repeat
+  }, [repeat])
+
+  useEffect(() => {
+    currentTextRef.current = quoteText
     if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     setSpeaking(false)
     return () => {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     }
-  }, [quoteText, repeat])
+  }, [quoteText])
 
   const stopSpeaking = () => {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel()
