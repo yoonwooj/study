@@ -29,7 +29,8 @@ export default function SignupPage({ onLogin }) {
     setLoading(true)
     try {
       try {
-        window.sessionStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify({
+        window.localStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify({
+          expires_at: Date.now() + 24 * 60 * 60 * 1000,
           email: email.trim().toLowerCase(),
           guardian_phone: phone.replace(/[^0-9]/g, ''),
           student_name: studentName.trim(),
@@ -64,7 +65,7 @@ export default function SignupPage({ onLogin }) {
             <div className="signup-success-icon" aria-hidden="true">✉</div>
             <h2>인증 메일을 보냈어요</h2>
             <p className="sub"><strong>{email}</strong> 주소로 발송된 인증 링크를 눌러 가입을 완료해 주세요.</p>
-            <p className="signup-note">이메일 인증을 완료한 뒤 이 화면에서 입력한 이메일과 비밀번호로 로그인해 주세요. 저장한 보호자·자녀 정보로 14일 무료 체험 등록이 자동 진행됩니다. 같은 브라우저에서 로그인해 주세요.</p>
+            <p className="signup-note">이메일 인증을 완료한 뒤 이 화면에서 입력한 이메일과 비밀번호로 로그인해 주세요. 저장한 보호자·자녀 정보로 14일 무료 체험 등록이 자동 진행됩니다. 24시간 안에 같은 브라우저에서 로그인해 주세요.</p>
             <a className="btn block signup-link" href="/">로그인 화면으로 이동</a>
           </section>
         </main>
