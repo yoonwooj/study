@@ -448,7 +448,7 @@ export default function App() {
     )
   }
 
-  const special = { hanja: '📜 하루한자', wisdom: lockedGrade <= 2 ? '💬 하루속담' : '💬 영어명언', rec: '과목별 학습', recovery: '아이디 복구 코드' }
+  const special = { hanja: '📜 하루한자', wisdom: Number(auth.settings?.grade || dailyGrade) <= 2 ? '💬 하루속담' : '💬 영어명언', rec: '과목별 학습', recovery: '아이디 복구 코드' }
   const theme =
     special[tab] && tab !== 'rec'
       ? tab
