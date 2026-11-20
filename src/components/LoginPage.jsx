@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { signIn } from '../lib/auth.js'
 
-const REMEMBER_ID_KEY = 'study.remembered-email'
+const REMEMBER_ID_KEY = 'study.remembered-login'
 
 function readRememberedEmail() {
   try { return window.localStorage.getItem(REMEMBER_ID_KEY) || '' } catch { return '' }
@@ -31,10 +31,14 @@ export default function LoginPage({ onLogin, notice = '' }) {
   return (
     <div className="app login" data-subject="kor">
       <main className="page">
+        <nav className="public-top-nav" aria-label="주요 메뉴">
+          <a href="/signup">회원가입</a>
+          <a className="trial-nav-link" href="/trial">2주 체험</a>
+        </nav>
         <section className="hero"><small>초등 학습</small><b>로그인</b></section>
         <form className="card login-form" onSubmit={submit}>
-          <label className="field">이메일
-            <input type="email" value={id} onChange={(e) => {
+          <label className="field">아이디 또는 이메일
+            <input type="text" value={id} onChange={(e) => {
               const value = e.target.value
               setId(value)
               setErr('')
@@ -58,7 +62,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
                 else window.localStorage.removeItem(REMEMBER_ID_KEY)
               } catch {}
             }} />
-            <span>아이디(이메일) 기억하기</span>
+            <span>아이디 기억하기</span>
           </label>
           {notice && <p className="sub" role="status">{notice}</p>}
           {err && <p className="err" role="alert">{err}</p>}
