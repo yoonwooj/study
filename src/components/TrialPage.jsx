@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { signUp, checkLoginId, checkTrialEligibility, recordTrialApplication } from '../lib/auth.js'
+import SchoolPicker from './SchoolPicker.jsx'
 
 export default function TrialPage({ onLogin }) {
   const [loginId,setLoginId]=useState('')
@@ -9,7 +10,7 @@ export default function TrialPage({ onLogin }) {
   const [email,setEmail]=useState('')
   const [phone,setPhone]=useState('')
   const [studentName,setStudentName]=useState('')
-  const [schoolName,setSchoolName]=useState('')
+  const [school,setSchool]=useState(null)
   const [grade,setGrade]=useState('3')
   const [password,setPassword]=useState('')
   const [passwordConfirm,setPasswordConfirm]=useState('')
@@ -31,7 +32,7 @@ export default function TrialPage({ onLogin }) {
     const normalizedPhone=phone.replace(/[^0-9]/g,'')
     if(!loginIdChecked)return setError('로그인 아이디 중복 확인을 완료해 주세요.')
     if(!/^01[016789]\d{7,8}$/.test(normalizedPhone))return setError('휴대폰 번호를 정확히 입력해 주세요.')
-    if(!studentName.trim()||!schoolName.trim())return setError('자녀 이름과 학교를 입력해 주세요.')
+    if(!studentName.trim()||!school?.school_name)return setError('자녀 이름과 학교를 입력해 주세요.')
     if(password.length<8||password!==passwordConfirm)return setError('비밀번호를 8자 이상 입력하고 확인란과 일치시켜 주세요.')
     if(!agreed)return setError('무료 체험 및 개인정보 처리에 동의해 주세요.')
     setLoading(true)
@@ -40,9 +41,9 @@ export default function TrialPage({ onLogin }) {
       if(!eligibility.eligible)return setError('이 이메일 또는 휴대폰 번호로 이미 2주 체험을 신청한 이력이 있습니다. 기존 계정으로 로그인해 주세요.')
       window.sessionStorage.setItem('study.pending-guardian-phone',normalizedPhone)
       window.sessionStorage.setItem('study.pending-student-name',studentName.trim())
-      window.sessionStorage.setItem('study.pending-school-name',schoolName.trim())
+      window.sessionStorage.setItem('study.pending-school-name',school.school_name)
       window.sessionStorage.setItem('study.pending-grade',grade)
-      const result=await signUp(email,password,loginId,'trial',{student_name:studentName.trim(),school_name:schoolName.trim(),grade})
+      const result=await signUp(email,password,loginId,'trial',{student_name:studentName.trim(),school_name:school.school_name,school_code:school.sd_schul_code,education_office:school.atpt_ofcdc_sc_nm,grade})
       await recordTrialApplication(email,normalizedPhone)
       if(result.session){
         await onLogin({session:result.session,user:result.session.user.email})
@@ -79,13 +80,13 @@ export default function TrialPage({ onLogin }) {
         <div className="signup-section-title signup-grid-full"><span>02</span><div><strong>학생 정보</strong><small>학습에 참여할 자녀의 정보를 입력해 주세요.</small></div></div>
         <div className="signup-form-grid">
           <label className="field">학생 이름<input type="text" value={studentName} onChange={e=>setStudentName(e.target.value.slice(0,20))} maxLength={20} placeholder="학생 이름" required/></label>
-          <label className="field">학교 이름<input type="text" value={schoolName} onChange={e=>setSchoolName(e.target.value.slice(0,50))} maxLength={50} placeholder="예: 서울○○초등학교" required/></label>
+          <div className="field"><SchoolPicker value={school} onChange={setSchool}/></div>
           <label className="field">현재 학년<select value={grade} onChange={e=>setGrade(e.target.value)}>{[1,2,3,4,5,6].map(g=><option key={g} value={g}>{g}학년</option>)}</select></label>
         </div>
         <p className="signup-note">이메일과 휴대폰 번호는 기존 체험 이력 확인에 사용됩니다. 이미 체험 이력이 확인되면 신청이 제한됩니다.</p>
         <label className="signup-consent"><input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)}/><span><strong>(필수)</strong> 14일 무료 체험 제공, 계정 관리 및 학습 서비스 제공을 위한 보호자 이메일·휴대폰 번호와 자녀 정보의 수집·이용에 동의합니다. 체험 중복 방지를 위한 이력은 안전하게 암호화·해시 처리하여 보관합니다.</span></label>
         {error&&<p className="err" role="alert">{error}</p>}
-        <button className="btn block signup-submit" type="submit" disabled={!email||!loginIdChecked||!phone||!studentName.trim()||!schoolName.trim()||password.length<8||password!==passwordConfirm||!agreed||loading}>{loading?'신청 처리 중…':'14일 무료 체험 신청하기'}</button>
+        <button className="btn block signup-submit" type="submit" disabled={!email||!loginIdChecked||!phone||!studentName.trim()||!school?.school_name||password.length<8||password!==passwordConfirm||!agreed||loading}>{loading?'신청 처리 중…':'14일 무료 체험 신청하기'}</button>
         <p className="signup-trial-caption">체험은 보호자 이메일 또는 휴대폰 번호 기준 최초 1회만 제공됩니다. 14일 후 자동 결제되지 않습니다.</p>
       </form>}
     </main>
