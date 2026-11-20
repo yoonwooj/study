@@ -410,10 +410,10 @@ export default function App() {
   if (currentPath === '/reset-password') return <PasswordRecoveryPage />
 
   if (!auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
-  if (auth.settings?.grade == null) {
-    const signupMode = auth.user?.user_metadata?.signup_mode
-    return <PaymentPage auth={auth} onComplete={handlePaymentComplete} mode={signupMode === 'member' ? 'member' : undefined} />
-  }
+  const signupMode = auth.user?.user_metadata?.signup_mode
+  if (signupMode === 'trial' && !auth.subscription) return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
+  if (signupMode === 'member' && !auth.subscription) return <PaymentPage auth={auth} onComplete={handlePaymentComplete} mode="member" />
+  if (auth.settings?.grade == null) return <PaymentPage auth={auth} onComplete={handlePaymentComplete} />
   const trialEndTime = auth.subscription?.is_trial ? new Date(auth.subscription.ends_at).getTime() : 0
   const trialDaysLeft = trialEndTime ? Math.ceil((trialEndTime - Date.now()) / 86400000) : null
   const runTheme = (run && run.catalogMeta && SUBJECT_THEME[run.catalogMeta.subject]) || subj
