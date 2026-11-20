@@ -600,3 +600,28 @@ h1,h2,h3,p{margin:0}
 .login-help-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px;color:var(--sub);font-size:.84rem}
 .login-help-links a{color:var(--pri-text,var(--pri));font-weight:700;text-decoration:none}
 .login-help-links a:focus-visible{outline:2px solid var(--pri);outline-offset:3px;border-radius:4px}
+
+
+/* 보호자 회원가입 */
+.signup-page{max-width:480px;margin:0 auto;padding-bottom:36px}
+.signup-hero{display:grid;gap:5px}
+.signup-hero>p{font-size:.88rem;opacity:.88}
+.signup-trial{display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 13px;border-radius:13px;background:rgba(255,255,255,.22);width:max-content;max-width:100%}
+.signup-trial strong{font-size:1rem}
+.signup-trial span{font-size:.78rem;opacity:.9}
+.signup-card{gap:13px}
+.signup-section-title{display:flex;align-items:center;gap:10px;margin:4px 0 2px}
+.signup-section-title>span{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--soft);color:var(--pri-text,var(--pri));font-size:.78rem;font-weight:800}
+.signup-section-title>div{display:grid;gap:1px}
+.signup-section-title strong{font-size:.98rem}
+.signup-section-title small{color:var(--sub);font-size:.76rem;font-weight:400}
+.signup-note,.signup-legal{padding:10px 12px;border-radius:12px;background:var(--bg);color:var(--sub);font-size:.77rem;line-height:1.6}
+.signup-divider{height:1px;background:var(--line);margin:5px 0}
+.signup-consent{display:flex;align-items:flex-start;gap:9px;padding:12px 10px;border:1px solid var(--line);border-radius:12px;font-size:.8rem;line-height:1.5;cursor:pointer}
+.signup-consent input{width:17px;height:17px;flex:0 0 auto;margin:2px 0 0;accent-color:var(--pri)}
+.signup-consent strong{color:var(--pri-text,var(--pri))}
+.signup-submit{margin-top:2px}
+.signup-link{display:block;text-align:center;text-decoration:none}
+.signup-success-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:var(--soft);color:var(--pri-text,var(--pri));font-size:1.7rem;margin:8px auto}
+.signup-card>h2{text-align:center}
+.signup-card>.sub{text-align:center;line-height:1.7}
