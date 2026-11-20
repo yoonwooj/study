@@ -44,23 +44,24 @@ Deno.serve(async (req) => {
 
     const { data: existingProfile, error: profileError } = await db
       .from("member_profiles")
-      .select("grade")
+      .select("grade, display_name, school_name")
       .eq("user_id", userId)
       .maybeSingle();
-    if (profileError) return json({ error: "학년 정보를 확인하지 못했습니다." }, 500);
+    if (profileError) return json({ error: "회원 정보를 확인하지 못했습니다." }, 500);
 
-    let grade = existingProfile?.grade ?? null;
-    if (!existingProfile) {
-      const metadataGrade = Number(authData.user.user_metadata?.grade);
-      grade = [1, 2, 3, 4, 5, 6].includes(metadataGrade) ? metadataGrade : null;
-      const { error: createProfileError } = await db.from("member_profiles").upsert({
-        user_id: userId,
-        grade,
-        updated_at: new Date().toISOString(),
-      });
-      if (createProfileError) return json({ error: "학년 정보를 저장하지 못했습니다." }, 500);
-    }
-    return json({ ok: true, profile: { grade } });
+    const metadata = authData.user.user_metadata || {};
+    const metadataGrade = Number(metadata.grade);
+    const grade = existingProfile?.grade ?? ([1, 2, 3, 4, 5, 6].includes(metadataGrade) ? metadataGrade : null);
+    const profile = {
+      user_id: userId,
+      grade,
+      display_name: existingProfile?.display_name || String(metadata.student_name || "").trim() || null,
+      school_name: existingProfile?.school_name || String(metadata.school_name || "").trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    const { error: saveProfileError } = await db.from("member_profiles").upsert(profile);
+    if (saveProfileError) return json({ error: "회원 정보를 저장하지 못했습니다." }, 500);
+    return json({ ok: true, profile: { grade, display_name: profile.display_name, school_name: profile.school_name } });
   }
 
   if (body.action === "check") {
