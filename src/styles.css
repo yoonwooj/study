@@ -625,3 +625,5 @@ h1,h2,h3,p{margin:0}
 .signup-success-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:var(--soft);color:var(--pri-text,var(--pri));font-size:1.7rem;margin:8px auto}
 .signup-card>h2{text-align:center}
 .signup-card>.sub{text-align:center;line-height:1.7}
+
+.signup-trial-caption{margin:2px 0 0;font-size:.75rem;line-height:1.5;opacity:.88}
