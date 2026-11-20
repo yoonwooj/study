@@ -66,7 +66,6 @@ export default function SignupPage({ onLogin }) {
     return (
       <div className="app login" data-subject="kor">
         <main className="page signup-page">
-          <nav className="public-top-nav" aria-label="주요 메뉴"><a href="/signup" aria-current="page">회원가입</a><a className="trial-nav-link" href="/trial">2주 체험</a></nav>
           <section className="hero signup-hero">
             <small>WELCOME</small>
             <b>이메일을 확인해 주세요</b>
@@ -87,7 +86,6 @@ export default function SignupPage({ onLogin }) {
   return (
     <div className="app login" data-subject="kor">
       <main className="page signup-page">
-        <nav className="public-top-nav" aria-label="주요 메뉴"><a href="/signup" aria-current="page">회원가입</a><a className="trial-nav-link" href="/trial">2주 체험</a></nav>
         <section className="hero signup-hero">
           <small>GUARDIAN ACCOUNT</small>
           <b>보호자 회원가입</b>
