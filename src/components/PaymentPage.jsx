@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { completeTrialSetup } from '../lib/auth.js'
 
-const GRADES = [1, 2, 3, 4, 5, 6]\n\nfunction pendingGuardianPhone() {\n  try { return window.sessionStorage.getItem('study.pending-guardian-phone') || '' } catch { return '' }\n}
+const GRADES = [1, 2, 3, 4, 5, 6]
+
+function pendingGuardianPhone() {
+  try { return window.sessionStorage.getItem('study.pending-guardian-phone') || '' } catch { return '' }
+}
 const isExtendMode = () => new URLSearchParams(window.location.search).get('mode') === 'extend'
 
 export default function PaymentPage({ auth, onComplete, mode }) {
@@ -37,7 +41,8 @@ export default function PaymentPage({ auth, onComplete, mode }) {
         school_name: schoolName.trim(),
         grade: Number(grade),
       })
-      try { window.sessionStorage.removeItem('study.pending-guardian-phone') } catch {}\n      await onComplete(result)
+      try { window.sessionStorage.removeItem('study.pending-guardian-phone') } catch {}
+      await onComplete(result)
     } catch (e) {
       setError(e.message || '무료 체험 등록을 완료하지 못했습니다.')
     } finally {
