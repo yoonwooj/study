@@ -84,3 +84,18 @@ export async function fetchHanjaStrokeData(character) {
   })
   return rows[0] || null
 }
+
+
+// 학년별 하루 콘텐츠(속담/영어명언)를 Supabase에서 불러옵니다.
+export async function fetchDailyWisdom(category, grade) {
+  const rows = await rest('daily_wisdom', {
+    select: 'id,category,title,content,meaning,attribution,display_order',
+    category: `eq.${category}`,
+    grade_min: `lte.${grade}`,
+    grade_max: `gte.${grade}`,
+    is_active: 'eq.true',
+    order: 'display_order.asc',
+    limit: 100,
+  })
+  return rows
+}
