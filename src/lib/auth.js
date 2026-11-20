@@ -108,19 +108,23 @@ export async function signIn(email, password) {
   const access = await sessionAction(session.access_token, 'claim')
   return { ...session, profile: access.profile || null }
 }
-export async function signUp(email, password, grade) {
+export async function signUp(email, password, grade, guardianProfile = {}) {
   const redirect = encodeURIComponent(window.location.origin)
-  const recoveryCode = createRecoveryCode()
-  const recoveryCodeHash = await hashRecoveryCode(recoveryCode)
   const data = await authRequest(`signup?redirect_to=${redirect}`, {
     email: String(email).trim(),
     password,
-    data: { grade: Number(grade), recovery_code_hash: recoveryCodeHash },
+    data: {
+      grade: Number(grade),
+      account_type: 'guardian',
+      guardian_phone: String(guardianProfile.guardianPhone || '').replace(/[^0-9]/g, ''),
+      student_name: String(guardianProfile.studentName || '').trim(),
+      school_name: String(guardianProfile.schoolName || '').trim(),
+    },
   })
-  if (!data.session) return { needsEmailConfirmation: true, recoveryCode }
+  if (!data.session) return { needsEmailConfirmation: true }
   const session = normalizeSession(data.session)
   const access = await sessionAction(session.access_token, 'claim')
-  return { session: { ...session, profile: access.profile || null }, recoveryCode }
+  return { session: { ...session, profile: access.profile || null } }
 }
 let refreshPromise = null
 export async function refreshSessionIfNeeded(session) {
