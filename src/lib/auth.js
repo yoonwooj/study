@@ -24,6 +24,9 @@ export async function reserveLoginId(loginId, email) {
 export async function checkTrialEligibility(email, phone) {
   return usernameAuth({ action: 'trial_check', email, phone })
 }
+export async function recordTrialApplication(email, phone) {
+  return usernameAuth({ action: 'record_trial_application', email, phone })
+}
 
 async function authRequest(path, body) {
   config()
