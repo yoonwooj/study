@@ -164,6 +164,9 @@ async function submitAnswer(body, user, env) {
     }),
   });
   if (!result?.ok) {
+    if (result?.reason === "subscription_inactive") {
+      return json({ error: "유효한 이용권이 없습니다. 학습 이용권을 확인해 주세요." }, 403);
+    }
     if (result?.reason === "invalid_index") return json({ error: "답안 순서가 올바르지 않습니다." }, 400);
     if (result?.reason === "question_missing") return json({ error: "문제를 찾을 수 없습니다." }, 404);
     return json({ error: "학습 세션이 만료되었거나 이미 제출한 답안입니다." }, 409);
@@ -332,11 +335,13 @@ async function handleApi(request, env) {
   try { envCheck(env); } catch (error) { return json({ error: error.message }, 500); }
   const user = await authenticate(request, env);
   if (!user?.id) return json({ error: "로그인이 필요합니다." }, 401);
-  if (!await checkSubscription(user.id, env)) return json({ error: "유효한 이용권이 없습니다. 관리자에게 이용권 등록을 요청해 주세요." }, 403);
   let body;
   try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
   try {
     if (body.action === "start") {
+      if (!await checkSubscription(user.id, env)) {
+        return json({ error: "유효한 이용권이 없습니다. 관리자에게 이용권 등록을 요청해 주세요." }, 403);
+      }
       const profiles = await supabase(env,
         `member_profiles?select=grade&user_id=eq.${encodeURIComponent(user.id)}&limit=1`);
       const allowedGrade = profiles?.[0]?.grade == null ? null : Number(profiles[0].grade);
