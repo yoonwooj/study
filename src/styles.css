@@ -14,7 +14,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:disabled{cursor:default}
 button:focus-visible,input:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
 h1,h2,h3,p{margin:0}
-.app{max-width:var(--maxw);margin:0 auto;min-height:100dvh;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+.app{max-width:var(--maxw);margin:0 auto;min-height:100dvh;padding-bottom:calc(50px + env(safe-area-inset-bottom,0px))}
 .sub{color:var(--sub);font-size:.88rem}
 
 /* 앱바 */
