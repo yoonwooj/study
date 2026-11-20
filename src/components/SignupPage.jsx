@@ -16,7 +16,7 @@ export default function SignupPage({ onLogin }) {
   const submit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!/^01[016789]\\d{7,8}$/.test(phone.replace(/[^0-9]/g, ''))) return setError('보호자 휴대폰 번호를 정확히 입력해 주세요.')
+    if (!/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, ''))) return setError('보호자 휴대폰 번호를 정확히 입력해 주세요.')
     if (password !== passwordConfirm) return setError('비밀번호가 서로 일치하지 않습니다.')
     if (!agreed) return setError('서비스 이용 및 개인정보 처리에 동의해 주세요.')
     setLoading(true)
@@ -78,7 +78,10 @@ export default function SignupPage({ onLogin }) {
             <label className="field">비밀번호
               <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} autoComplete="new-password" minLength={8} placeholder="8자 이상 입력" required />
             </label>
-            <label className="field">보호자 휴대폰 번호\n              <input type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/[^0-9-]/g, '').slice(0, 13)); setError('') }} placeholder="010-0000-0000" required />\n            </label>\n            <label className="field">비밀번호 확인
+            <label className="field">보호자 휴대폰 번호
+              <input type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/[^0-9-]/g, '').slice(0, 13)); setError('') }} placeholder="010-0000-0000" required />
+            </label>
+            <label className="field">비밀번호 확인
               <input type="password" value={passwordConfirm} onChange={(e) => { setPasswordConfirm(e.target.value); setError('') }} autoComplete="new-password" minLength={8} placeholder="비밀번호를 한 번 더 입력" required />
             </label>
           </div>
@@ -88,7 +91,7 @@ export default function SignupPage({ onLogin }) {
             <span><strong>(필수)</strong> 계정 생성 및 서비스 제공을 위한 이메일 수집·이용과 서비스 이용약관 및 개인정보 처리방침에 동의합니다. 휴대폰 번호는 다음 단계의 체험 등록에도 이어집니다.</span>
           </label>
           {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn block signup-submit" type="submit" disabled={!email || !/^01[016789]\\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
+          <button className="btn block signup-submit" type="submit" disabled={!email || !/^01[016789]\d{7,8}$/.test(phone.replace(/[^0-9]/g, '')) || password.length < 8 || password !== passwordConfirm || !agreed || loading}>
             {loading ? '가입 처리 중…' : '다음 단계로'}
           </button>
           <nav className="login-help-links" aria-label="로그인 이동"><a href="/">이미 계정이 있으신가요? 로그인</a></nav>
