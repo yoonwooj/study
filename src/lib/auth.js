@@ -184,3 +184,16 @@ export async function releaseStudentSession(accessToken) {
 export async function completeTrialSetup(accessToken, profile) {
   return sessionAction(accessToken, 'complete_trial', profile)
 }
+
+
+export async function searchSchools(query, regionCode) {
+  config()
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/search-schools`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: String(query || '').trim(), region_code: String(regionCode || '') }),
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.error || '학교 검색에 실패했습니다.')
+  return Array.isArray(data.schools) ? data.schools : []
+}
