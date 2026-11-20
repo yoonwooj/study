@@ -380,3 +380,5 @@ export default {
     ctx.waitUntil(generateDaily(env).catch((error) => console.error("Daily generation failed:", error)));
   },
 };
+
+// Trigger a fresh Cloudflare Workers Builds deployment after runtime secret configuration.
