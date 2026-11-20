@@ -110,7 +110,7 @@ export default function SignupPage({ onLogin }) {
 
           <label className="signup-consent">
             <input type="checkbox" checked={privacyAgreed} onChange={(e) => { setPrivacyAgreed(e.target.checked); setError('') }} />
-            <span><strong>(필수)</strong> 회원가입·계정 관리 및 무료 체험 중복 방지를 위해 보호자 이메일과 휴대폰 번호를 수집·이용하는 데 동의합니다. 무료 체험 이력의 해시 정보는 탈퇴 후에도 중복 발급 방지를 위해 서비스 운영 기간 동안 보관됩니다.</span>
+            <span><strong>(필수)</strong> 회원가입·계정 관리, 무료 체험 중복 확인 및 향후 본인인증·알림 기능을 위해 보호자 이메일과 휴대폰 번호를 수집·이용하는 데 동의합니다. 이메일·전화번호는 해시 또는 암호화 처리하며, 무료 체험 이력은 탈퇴 후에도 중복 발급 방지를 위해 서비스 운영 기간 동안 보관됩니다.</span>
           </label>
           <p className="signup-legal">같은 보호자 이메일 또는 휴대폰 번호로 이미 무료 체험을 이용한 이력이 있으면 추가 체험이 발급되지 않습니다. 이메일 인증이 끝난 뒤 첫 로그인 시 서버에서 중복 여부를 확인하고 체험 기간을 등록합니다. 번호 미인증 상태이므로 다른 사람의 번호를 입력하는 행위까지 완전히 차단하지는 못합니다.</p>
 
