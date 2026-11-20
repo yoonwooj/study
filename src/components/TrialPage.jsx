@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signUp, checkLoginId, checkTrialEligibility } from '../lib/auth.js'
+import { signUp, checkLoginId, checkTrialEligibility, recordTrialApplication } from '../lib/auth.js'
 
 export default function TrialPage({ onLogin }) {
   const [loginId,setLoginId]=useState('')
@@ -43,6 +43,7 @@ export default function TrialPage({ onLogin }) {
       window.sessionStorage.setItem('study.pending-school-name',schoolName.trim())
       window.sessionStorage.setItem('study.pending-grade',grade)
       const result=await signUp(email,password,loginId)
+      await recordTrialApplication(email,normalizedPhone)
       if(result.session){
         await onLogin({session:result.session,user:result.session.user.email})
         window.location.replace('/payment')
