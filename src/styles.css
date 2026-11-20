@@ -684,4 +684,13 @@ h1,h2,h3,p{margin:0}
   background:linear-gradient(135deg,#13a66b,#54c98f);
 }
 
+/* 계정 관련 링크·필수 표시: 로그인/체험 Hero의 그린 포인트 컬러 */
+.login-help-links a,
+.signup-consent strong{color:#13a66b}
 
+/* 회원가입·체험 신청의 01/02 단계와 아이디 중복 확인 버튼 */
+.signup-section-title>span,
+.id-check-button{
+  background:#13a66b;
+  color:#fff;
+}
