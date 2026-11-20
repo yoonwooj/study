@@ -3,16 +3,16 @@ import { completeTrialSetup } from '../lib/auth.js'
 
 const GRADES = [1, 2, 3, 4, 5, 6]
 
-function pendingGuardianPhone() {
-  try { return window.sessionStorage.getItem('study.pending-guardian-phone') || '' } catch { return '' }
+function pendingValue(key, fallback = '') {
+  try { return window.sessionStorage.getItem(key) || fallback } catch { return fallback }
 }
 const isExtendMode = () => new URLSearchParams(window.location.search).get('mode') === 'extend'
 
 export default function PaymentPage({ auth, onComplete, mode }) {
-  const [phone, setPhone] = useState(pendingGuardianPhone)
-  const [studentName, setStudentName] = useState('')
-  const [schoolName, setSchoolName] = useState('')
-  const [grade, setGrade] = useState('3')
+  const [phone, setPhone] = useState(() => pendingValue('study.pending-guardian-phone'))
+  const [studentName, setStudentName] = useState(() => pendingValue('study.pending-student-name'))
+  const [schoolName, setSchoolName] = useState(() => pendingValue('study.pending-school-name'))
+  const [grade, setGrade] = useState(() => pendingValue('study.pending-grade', '3'))
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -41,7 +41,12 @@ export default function PaymentPage({ auth, onComplete, mode }) {
         school_name: schoolName.trim(),
         grade: Number(grade),
       })
-      try { window.sessionStorage.removeItem('study.pending-guardian-phone') } catch {}
+      try {
+        window.sessionStorage.removeItem('study.pending-guardian-phone')
+        window.sessionStorage.removeItem('study.pending-student-name')
+        window.sessionStorage.removeItem('study.pending-school-name')
+        window.sessionStorage.removeItem('study.pending-grade')
+      } catch {}
       await onComplete(result)
     } catch (e) {
       setError(e.message || '무료 체험 등록을 완료하지 못했습니다.')
@@ -74,7 +79,7 @@ export default function PaymentPage({ auth, onComplete, mode }) {
           </section>
         ) : (
           <form className="card signup-card" onSubmit={submit}>
-            <div className="signup-section-title signup-grid-full"><span>01</span><div><strong>보호자 정보</strong><small>무료 체험 중복 확인에 사용합니다.</small></div></div>
+            <div className="signup-section-title signup-grid-full"><span>01</span><div><strong>보호자 정보</strong><small>회원가입 때 입력한 정보가 자동으로 표시됩니다.</small></div></div>
             <div className="signup-form-grid">
               <label className="field">보호자 이메일
                 <input type="email" value={auth?.user?.email || ''} readOnly />
@@ -85,7 +90,7 @@ export default function PaymentPage({ auth, onComplete, mode }) {
             </div>
             <p className="signup-note">휴대폰 번호는 무료 체험 중복 확인을 위해 서버에서 해시 및 암호화 처리합니다. 현재 SMS 본인인증은 하지 않으므로 번호의 실제 소유 여부까지 확인하는 것은 아닙니다.</p>
             <div className="signup-divider" />
-            <div className="signup-section-title signup-grid-full"><span>02</span><div><strong>자녀 정보</strong><small>학습에 사용할 첫 번째 자녀의 정보를 입력해 주세요.</small></div></div>
+            <div className="signup-section-title signup-grid-full"><span>02</span><div><strong>자녀 정보</strong><small>회원가입 때 입력한 정보가 자동으로 표시되며, 필요하면 수정할 수 있습니다.</small></div></div>
             <div className="signup-form-grid">
               <label className="field">학생 이름
                 <input type="text" value={studentName} onChange={(e) => setStudentName(e.target.value.slice(0, 20))} autoComplete="off" placeholder="학생 이름" maxLength={20} required />
