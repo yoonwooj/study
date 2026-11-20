@@ -31,10 +31,6 @@ export default function LoginPage({ onLogin, notice = '' }) {
   return (
     <div className="app login" data-subject="kor">
       <main className="page">
-        <nav className="public-top-nav" aria-label="주요 메뉴">
-          <a href="/signup">회원가입</a>
-          <a className="trial-nav-link" href="/trial">2주 체험</a>
-        </nav>
         <section className="hero"><small>초등 학습</small><b>로그인</b></section>
         <form className="card login-form" onSubmit={submit}>
           <label className="field">아이디 또는 이메일
@@ -71,8 +67,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
             <a href="/find-id">아이디 찾기</a>
             <span aria-hidden="true">·</span>
             <a href="/forgot-password">비밀번호 찾기</a>
-            <span aria-hidden="true">·</span>
-            <a href="/signup">회원가입</a>
+
           </nav>
         </form>
       </main>
