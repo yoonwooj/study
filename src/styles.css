@@ -730,3 +730,30 @@ h1,h2,h3,p{margin:0}
   color:#fff;
 }
 .login-help-links a{color:#13a66b}
+
+
+/* 로그인 입력 포커스 및 활성화 버튼 포인트 컬러 */
+.app.login .login-form .field input:focus,
+.app.login .login-form .field input:focus-visible{
+  border-color:#13a66b;
+  outline:0;
+  box-shadow:0 0 0 3px rgba(19,166,107,.16);
+}
+.app.login .login-form button.btn[type="submit"]:not(:disabled){
+  background:#13a66b;
+  color:#fff;
+  border-color:#13a66b;
+}
+.app.login .login-form button.btn[type="submit"]:not(:disabled):hover{
+  background:#108b59;
+  border-color:#108b59;
+}
+.app.login .login-form button.btn[type="submit"]:not(:disabled):active{
+  background:#0d754b;
+  border-color:#0d754b;
+  transform:translateY(1px);
+}
+.app.login .login-form button.btn[type="submit"]:focus-visible{
+  outline:3px solid rgba(19,166,107,.28);
+  outline-offset:3px;
+}
