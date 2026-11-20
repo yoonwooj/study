@@ -627,3 +627,34 @@ h1,h2,h3,p{margin:0}
 .signup-card>.sub{text-align:center;line-height:1.7}
 
 .signup-trial-caption{margin:2px 0 0;font-size:.75rem;line-height:1.5;opacity:.88}
+
+
+/* 보호자 가입 · 무료 체험 등록 분리 */
+.signup-page{width:100%;max-width:920px;margin:0 auto;padding-bottom:40px}
+.signup-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+.signup-grid-full{grid-column:1/-1}
+.signup-form-grid .field{min-width:0}
+.signup-form-grid input,.signup-form-grid select{width:100%;min-width:0}
+.signup-confirm-card{max-width:560px;margin:0 auto}
+.payment-page{gap:16px}
+.payment-hero{background:linear-gradient(135deg,#426ff4,#70a6ff)}
+.payment-caption{color:var(--sub)}
+.payment-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.payment-plan{display:grid;gap:7px;align-content:start;min-height:112px;padding:16px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.payment-plan strong{font-size:.95rem}
+.payment-plan span{font-size:.78rem;color:var(--sub);line-height:1.5}
+.payment-back{display:block;text-align:center;text-decoration:none;color:var(--sub);font-size:.85rem;padding:8px}
+.trial-renewal-notice{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:10px 16px 14px;padding:14px 16px;border:1px solid #cbdcff;border-radius:16px;background:#eef4ff;color:#173b7a}
+.trial-renewal-notice strong{font-size:.95rem}
+.trial-renewal-notice p{margin-top:3px;font-size:.8rem;color:#49648f}
+.trial-renewal-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.trial-renewal-actions button{padding:9px 13px;border-radius:10px;background:#356cf5;color:#fff;font-size:.82rem;font-weight:700;white-space:nowrap}
+.trial-renewal-actions .trial-renewal-dismiss{background:transparent;color:#49648f;border:1px solid #cbdcff}
+@media(max-width:699px){
+  .signup-form-grid{grid-template-columns:1fr;gap:12px}
+  .payment-plan-grid{grid-template-columns:1fr}
+  .payment-plan{min-height:0}
+  .trial-renewal-notice{align-items:flex-start;flex-direction:column;margin:8px 12px 12px}
+  .trial-renewal-actions{width:100%}
+  .trial-renewal-actions button:first-child{flex:1}
+}
