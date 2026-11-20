@@ -55,13 +55,6 @@ async function authenticate(request, env) {
   if (!response.ok) return null;
   return response.json();
 }
-async function checkSubscription(userId, env) {
-  const now = encodeURIComponent(new Date().toISOString());
-  const rows = await supabase(env,
-    `subscriptions?select=id&user_id=eq.${encodeURIComponent(userId)}&status=eq.active&starts_at=lte.${now}&ends_at=gte.${now}&limit=1`);
-  return Array.isArray(rows) && rows.length > 0;
-}
-
 async function startQuiz(body, user, env) {
   const grade = Number(body.grade);
   const semester = body.semester == null || body.semester === "" ? null : Number(body.semester);
@@ -72,19 +65,33 @@ async function startQuiz(body, user, env) {
   if (semester !== null && ![1, 2].includes(semester)) return json({ error: "학기 값이 올바르지 않습니다." }, 400);
   if (!subject) return json({ error: "과목을 선택해 주세요." }, 400);
 
-  const targetRows = await supabase(env, "unit_daily_targets?select=unit_id&is_active=eq.true");
-  const targetIds = [...new Set((targetRows || []).map((row) => row.unit_id))];
-  if (!targetIds.length) return json({ error: "현재 배포 대상으로 지정된 단원이 없습니다." }, 404);
-  const unitFilters = [
-    "select=id,grade,semester,subject,publisher,unit_number,unit_name",
-    `id=in.(${targetIds.join(",")})`,
-    `grade=eq.${grade}`,
-    `subject=eq.${encodeURIComponent(subject)}`,
-  ];
-  if (semester !== null) unitFilters.push(`semester=eq.${semester}`);
-  const allUnits = await supabase(env, `textbook_units?${unitFilters.join("&")}`);
-  const units = (allUnits || []).filter((unit) => !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher));
-  if (!units?.length) return json({ error: `${grade}학년 ${semester ? semester + "학기 " : ""}${subject} 과목은 아직 검증된 문제 배포 단원이 준비되지 않았습니다.` }, 404);
+  // Validate subscription/grade and fetch the active units in one database request.
+  const context = await supabase(env, "rpc/get_student_quiz_context", {
+    method: "POST",
+    body: JSON.stringify({
+      p_user_id: user.id,
+      p_grade: grade,
+      p_semester: semester,
+      p_subject: subject,
+    }),
+  });
+  if (!context?.ok) {
+    if (context?.reason === "subscription_inactive") {
+      return json({ error: "유효한 이용권이 없습니다. 관리자에게 이용권 등록을 요청해 주세요." }, 403);
+    }
+    if (context?.reason === "grade_not_assigned") {
+      return json({ error: "관리자가 학습 허용 학년을 아직 지정하지 않았습니다. 관리자에게 문의해 주세요." }, 403);
+    }
+    if (context?.reason === "grade_mismatch") {
+      return json({ error: `이 계정은 ${context.allowed_grade}학년 학습만 이용할 수 있습니다.` }, 403);
+    }
+    return json({ error: "학습 정보를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요." }, 500);
+  }
+
+  const units = Array.isArray(context.units) ? context.units : [];
+  if (!units.length) {
+    return json({ error: `${grade}학년 ${semester ? semester + "학기 " : ""}${subject} 과목은 아직 검증된 문제 배포 단원이 준비되지 않았습니다.` }, 404);
+  }
 
   let selectedUnits = units;
   if (unitName) {
@@ -92,25 +99,10 @@ async function startQuiz(body, user, env) {
     if (matching.length) selectedUnits = matching;
   }
   const unitIds = selectedUnits.map((unit) => unit.id);
-  const runs = await supabase(env,
-    "generation_runs?select=id,generation_date,status&status=in.(completed,partial)&order=generation_date.desc,created_at.desc&limit=7");
-  let pool = [];
-  const runIds = (runs || []).map((run) => run.id).filter(Boolean);
-  if (runIds.length) {
-    // Fetch the recent generation runs' matching questions in one DB round trip.
-    const recentRows = await supabase(env,
-      `questions?select=id,unit_id,generation_run_id,question,options,answer,explanation,difficulty&generation_run_id=in.(${runIds.join(",")})&unit_id=in.(${unitIds.join(",")})&order=created_at.desc.nullslast&limit=500`);
-    const rowsByRun = new Map();
-    for (const row of recentRows || []) {
-      if (!rowsByRun.has(row.generation_run_id)) rowsByRun.set(row.generation_run_id, []);
-      rowsByRun.get(row.generation_run_id).push(row);
-    }
-    // Preserve the existing rule: use the newest run that has matching questions.
-    for (const run of runs || []) {
-      const matchingRows = rowsByRun.get(run.id);
-      if (matchingRows?.length) { pool = matchingRows; break; }
-    }
-  }
+  const pool = await supabase(env, "rpc/get_latest_student_quiz_questions", {
+    method: "POST",
+    body: JSON.stringify({ p_unit_ids: unitIds }),
+  });
   const valid = (pool || []).filter((row) =>
     typeof row.question === "string" && Array.isArray(row.options) &&
     row.options.length === 4 && row.options.includes(row.answer));
@@ -118,6 +110,7 @@ async function startQuiz(body, user, env) {
     return json({ error: `현재 ${grade}학년 ${subject}에 배포된 문제가 ${valid.length}개입니다. 20문제 세트가 준비되면 학습할 수 있습니다.` }, 409);
   }
 
+  const unitNameById = new Map(selectedUnits.map((unit) => [String(unit.id), unit.unit_name]));
   const picked = shuffle(valid).slice(0, 20).map((row) => {
     const options = shuffle(row.options);
     return {
@@ -127,8 +120,8 @@ async function startQuiz(body, user, env) {
       o: options,
       a: options.indexOf(row.answer),
       e: row.explanation || "",
-      unit: selectedUnits.find((unit) => unit.id === row.unit_id)?.unit_name || "",
-      _ctx: { subj: ({ "국어": "kor", "통합": "mor", "바른생활": "mor", "도덕": "mor", "사회": "soc", "과학": "sci" })[subject] || "kor", g: grade, s: semester || selectedUnits.find((unit) => unit.id === row.unit_id)?.semester || 1 },
+      unit: unitNameById.get(String(row.unit_id)) || "",
+      _ctx: { subj: ({ "국어": "kor", "통합": "mor", "바른생활": "mor", "도덕": "mor", "사회": "soc", "과학": "sci" })[subject] || "kor", g: grade, s: semester || selectedUnits.find((unit) => String(unit.id) === String(row.unit_id))?.semester || 1 },
     };
   });
   const inserted = await supabase(env, "student_quiz_sessions?select=id", {
@@ -338,21 +331,7 @@ async function handleApi(request, env) {
   let body;
   try { body = await request.json(); } catch { return json({ error: "요청 형식이 올바르지 않습니다." }, 400); }
   try {
-    if (body.action === "start") {
-      if (!await checkSubscription(user.id, env)) {
-        return json({ error: "유효한 이용권이 없습니다. 관리자에게 이용권 등록을 요청해 주세요." }, 403);
-      }
-      const profiles = await supabase(env,
-        `member_profiles?select=grade&user_id=eq.${encodeURIComponent(user.id)}&limit=1`);
-      const allowedGrade = profiles?.[0]?.grade == null ? null : Number(profiles[0].grade);
-      if (![1, 2, 3, 4, 5, 6].includes(allowedGrade)) {
-        return json({ error: "관리자가 학습 허용 학년을 아직 지정하지 않았습니다. 관리자에게 문의해 주세요." }, 403);
-      }
-      if (Number(body.grade) !== allowedGrade) {
-        return json({ error: `이 계정은 ${allowedGrade}학년 학습만 이용할 수 있습니다.` }, 403);
-      }
-      return await startQuiz(body, user, env);
-    }
+    if (body.action === "start") return await startQuiz(body, user, env);
     if (body.action === "submit") return await submitAnswer(body, user, env);
     return json({ error: "지원하지 않는 요청입니다." }, 400);
   } catch (error) {
