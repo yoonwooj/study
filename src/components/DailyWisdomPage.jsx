@@ -32,7 +32,6 @@ export default function DailyWisdomPage({ grade = 1 }) {
   }, [category, grade])
 
   const item = items.length ? items[day % items.length] : null
-  const dayNumber = (day % 100) + 1
   const quoteText = !isYoung && item?.content ? String(item.content).trim() : ''
 
   useEffect(() => {
@@ -91,7 +90,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
         <section className="card daily-wisdom-error">등록된 콘텐츠가 없습니다.</section>
       ) : (
         <section className="card daily-wisdom-card">
-          <span className="daily-wisdom-day">DAY {String(dayNumber).padStart(2, '0')} · 100일 콘텐츠</span>
+          {isYoung && <span className="daily-wisdom-day">DAY {String((day % 100) + 1).padStart(2, '0')} · 100일 콘텐츠</span>}
           {isYoung ? (
             <>
               <h2 className="daily-wisdom-title">{item.title}</h2>
