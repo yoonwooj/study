@@ -813,3 +813,41 @@ textarea:focus-visible){
 .quote-audio-rate select{max-width:190px;min-height:38px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:inherit}
 .quote-audio-help{font-size:.74rem;color:var(--sub);text-align:center}
 @media(max-width:380px){.quote-audio-actions{display:grid;grid-template-columns:1fr 1fr}.quote-audio-actions .quote-audio-play{grid-column:1/-1}.quote-audio-rate{align-items:flex-start;flex-direction:column}.quote-audio-rate select{width:100%;max-width:none}}
+
+
+/* 계정 진입 화면 중앙 정렬 */
+.app.login.account-center{
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+}
+.app.login.account-center>.page{
+  width:100%;
+  max-width:440px;
+  margin:0 auto;
+  padding:0;
+}
+.account-card{gap:14px}
+.account-found-id{
+  padding:16px;
+  border-radius:12px;
+  background:var(--soft);
+  color:#087a4b;
+  text-align:center;
+  font-size:1.2rem;
+  font-weight:800;
+  letter-spacing:.04em;
+  overflow-wrap:anywhere;
+}
+.account-message{line-height:1.7}
+.account-back-link{
+  display:block;
+  margin-top:4px;
+  text-align:center;
+  color:#13a66b;
+  font-size:.88rem;
+  font-weight:700;
+  text-decoration:none;
+}
