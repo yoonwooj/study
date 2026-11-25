@@ -88,9 +88,8 @@ export default function SignupPage({ onLogin }) {
     <div className="app login" data-subject="kor">
       <main className="page signup-page">
         <section className="hero signup-hero">
-          <small>GUARDIAN ACCOUNT</small>
           <b>보호자 회원가입</b>
-          <p>보호자와 자녀 정보를 한 번에 입력하고 계정을 만들어 주세요. 무료 체험은 로그인 후 별도로 시작할 수 있습니다.</p>
+          <p>보호자와 자녀 정보를 한 번에 입력하고 계정을 만들어 주세요.</p>
         </section>
 
         <form className="card login-form signup-card" onSubmit={submit}>
