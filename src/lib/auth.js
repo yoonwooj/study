@@ -133,6 +133,48 @@ export async function requestPasswordReset(email) {
   }
   return true
 }
+
+export async function requestIdLookupLink(email) {
+  config()
+  const redirectTo = `${window.location.origin}/find-id`
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo)}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: String(email).trim().toLowerCase(), create_user: false }),
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(data.msg || data.message || data.error_description || '확인 메일을 요청하지 못했습니다.')
+    error.status = response.status
+    throw error
+  }
+  return true
+}
+
+export async function readLoginIdFromMagicLink() {
+  config()
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const accessToken = params.get('access_token')
+  if (params.get('type') !== 'magiclink' || !accessToken) return null
+
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` },
+  })
+  const user = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error('이메일 인증을 확인하지 못했습니다. 메일의 링크를 다시 열어 주세요.')
+
+  // 아이디 확인에 사용한 임시 인증 세션은 바로 폐기합니다.
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}` },
+  }).catch(() => {})
+  window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`)
+
+  const loginId = user?.user_metadata?.login_id
+  if (!loginId) throw new Error('이 계정에서 로그인 아이디를 찾지 못했습니다. 가입 이메일로 로그인해 주세요.')
+  return String(loginId)
+}
+
 export async function signIn(identifier, password) {
   const value = String(identifier).trim()
   const data = value.includes('@')
