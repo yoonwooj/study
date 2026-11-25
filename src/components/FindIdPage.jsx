@@ -55,7 +55,7 @@ export default function FindIdPage() {
           ) : (
             <>
               <p className="sub">회원가입 때 등록한 이메일 주소를 입력해 주세요. 해당 이메일로 인증 링크를 보내드립니다.</p>
-              <form onSubmit={submit}>
+              <form className="account-recovery-form" onSubmit={submit}>
                 <label className="field">가입 이메일
                   <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} autoComplete="email" autoCapitalize="none" placeholder="가입한 이메일 주소" required />
                 </label>
