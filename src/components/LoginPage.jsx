@@ -29,7 +29,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
   }
 
   return (
-    <div className="app login" data-subject="kor">
+    <div className="app login account-center" data-subject="kor">
       <main className="page">
         <section className="hero"><small>kids quiz</small><b>로그인</b></section>
         <form className="card login-form" onSubmit={submit}>
