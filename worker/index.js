@@ -275,10 +275,13 @@ async function generateDaily(env) {
   if (!ids.length) return { status: "skipped", reason: "no_active_targets", generation_date: date };
   const allUnits = await supabase(env,
     `textbook_units?select=id,grade,semester,subject,publisher,unit_number,unit_name,learning_goal,verification_status,source_note&id=in.(${ids.join(",")})&order=grade.asc,semester.asc,subject.asc,unit_number.asc`);
+  // Safety gate: only units explicitly verified against the original textbook table of contents may generate questions.
+  // Current catalog records are unverified, so generation safely skips them until verification_status is set to "verified".
   const semesterTwoUnits = (allUnits || []).filter((unit) =>
     Number(unit.semester) === 2 &&
-    !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher) &&
-    !(Number(unit.grade) === 3 && unit.subject === "국어" && unit.publisher === "미래엔(국정)")
+    unit.subject === "국어" &&
+    unit.verification_status === "verified" &&
+    !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher)
   );
   if (!semesterTwoUnits.length) return { status: "skipped", reason: "no_verified_semester_two_units", generation_date: date };
 
