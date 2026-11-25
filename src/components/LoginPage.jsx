@@ -31,7 +31,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
   return (
     <div className="app login" data-subject="kor">
       <main className="page">
-        <section className="hero"><small>초등 학습</small><b>로그인</b></section>
+        <section className="hero"><small>kids quiz</small><b>로그인</b></section>
         <form className="card login-form" onSubmit={submit}>
           <label className="field">아이디 또는 이메일
             <input type="text" value={id} onChange={(e) => {
