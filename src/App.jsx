@@ -27,7 +27,6 @@ import AdminPage from './components/AdminPage.jsx'
 import PasswordRecoveryPage from './components/PasswordRecoveryPage.jsx'
 import FindIdPage from './components/FindIdPage.jsx'
 import PasswordResetRequestPage from './components/PasswordResetRequestPage.jsx'
-import RecoveryCodePage from './components/RecoveryCodePage.jsx'
 
 const SHOW_NOTICE = false // 안내 팝업 임시 비활성화 (다시 켜려면 true)
 const today = () => new Date().toDateString()
@@ -448,7 +447,7 @@ export default function App() {
     )
   }
 
-  const special = { hanja: '📜 하루한자', wisdom: Number(auth.settings?.grade || dailyGrade) <= 2 ? '💬 하루속담' : '💬 영어명언', rec: '과목별 학습', recovery: '아이디 복구 코드' }
+  const special = { hanja: '📜 하루한자', wisdom: Number(auth.settings?.grade || dailyGrade) <= 2 ? '💬 하루속담' : '💬 영어명언', rec: '과목별 학습' }
   const theme =
     special[tab] && tab !== 'rec'
       ? tab
@@ -529,9 +528,8 @@ export default function App() {
       {tab === 'week' && <WeekPage records={records.filter((r) => Number(r.g) === lockedGrade)} />}
       {tab === 'hanja' && <HanjaPage />}
       {tab === 'wisdom' && <DailyWisdomPage grade={lockedGrade || dailyGrade} />}
-      {tab === 'recovery' && <RecoveryCodePage accessToken={auth.access_token} />}
 
-      {tab !== 'recovery' && <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />}
+      <TabBar tab={tab} onTab={setTab} noteCount={notes.length} />
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onGo={goMenu} onLogout={logout} name={name} grade={lockedGrade || dailyGrade} />
       {notice && <NoticeModal onHideToday={hideNoticeToday} onClose={() => setNotice(false)} />}
     </div>
