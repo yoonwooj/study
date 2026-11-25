@@ -6,6 +6,7 @@ export default function PasswordResetRequestPage() {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 
   const submit = async (event) => {
     event.preventDefault()
@@ -30,7 +31,7 @@ export default function PasswordResetRequestPage() {
     desc: { margin: '0 0 22px', color: '#667085', fontSize: 14, lineHeight: 1.6 },
     label: { display: 'grid', gap: 7, marginBottom: 14, fontSize: 13, fontWeight: 700 },
     input: { width: '100%', boxSizing: 'border-box', padding: '13px 14px', border: '1px solid #dce2eb', borderRadius: 11, fontSize: 15 },
-    button: { width: '100%', padding: 14, border: 0, borderRadius: 11, background: '#13a66b', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer' },
+    button: { width: '100%', padding: 14, border: 0, borderRadius: 11, background: validEmail ? '#13a66b' : '#b9dfce', color: '#fff', fontSize: 15, fontWeight: 800, cursor: validEmail && !loading ? 'pointer' : 'not-allowed' },
     message: { margin: '14px 0 0', color: '#087a4b', fontSize: 13, lineHeight: 1.6 },
     link: { display: 'block', marginTop: 16, textAlign: 'center', color: '#13a66b', fontSize: 14, fontWeight: 700, textDecoration: 'none' },
   }
@@ -47,7 +48,7 @@ export default function PasswordResetRequestPage() {
                 <input style={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" autoCapitalize="none" required />
               </label>
               {error && <p role="alert">{error}</p>}
-              <button style={styles.button} type="submit" disabled={!email || loading}>{loading ? '메일 요청 중…' : '재설정 메일 보내기'}</button>
+              <button style={styles.button} type="submit" disabled={!validEmail || loading}>{loading ? '메일 요청 중…' : '재설정 메일 보내기'}</button>
             </form>
           </>
         ) : (
