@@ -238,6 +238,7 @@ async function createQuestions(unit, env) {
     body: JSON.stringify({
       model: env.OPENAI_MODEL || "gpt-4o-mini",
       input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }],
+      max_output_tokens: 4000,
       text: { format: { type: "json_schema", name: "daily_questions", strict: true, schema } },
     }),
   });
@@ -272,11 +273,24 @@ async function generateDaily(env) {
   if (!ids.length) return { status: "skipped", reason: "no_active_targets", generation_date: date };
   const allUnits = await supabase(env,
     `textbook_units?select=id,grade,semester,subject,publisher,unit_number,unit_name,learning_goal,verification_status,source_note&id=in.(${ids.join(",")})&order=grade.asc,semester.asc,subject.asc,unit_number.asc`);
-  const units = (allUnits || []).filter((unit) =>
+  const semesterTwoUnits = (allUnits || []).filter((unit) =>
+    Number(unit.semester) === 2 &&
     !["TEST-SEED", "테스트용(임시)"].includes(unit.publisher) &&
-    !(Number(unit.grade) === 3 && Number(unit.semester) === 2 && unit.subject === "국어" && unit.publisher === "미래엔(국정)")
+    !(Number(unit.grade) === 3 && unit.subject === "국어" && unit.publisher === "미래엔(국정)")
   );
-  if (!units.length) return { status: "skipped", reason: "no_verified_units", generation_date: date };
+  if (!semesterTwoUnits.length) return { status: "skipped", reason: "no_verified_semester_two_units", generation_date: date };
+
+  // Credit guard: generate at most one 20-question unit for each grade per day.
+  // This caps the daily workload at 6 OpenAI requests / 120 questions.
+  const dayNumber = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86400000);
+  const units = [];
+  for (let grade = 1; grade <= 6; grade++) {
+    const gradeUnits = semesterTwoUnits
+      .filter((unit) => Number(unit.grade) === grade)
+      .sort((a, b) => String(a.subject).localeCompare(String(b.subject), "ko") || Number(a.unit_number) - Number(b.unit_number));
+    if (gradeUnits.length) units.push(gradeUnits[dayNumber % gradeUnits.length]);
+  }
+  if (!units.length) return { status: "skipped", reason: "no_grade_targets", generation_date: date };
 
   if (run?.id) {
     await supabase(env, `questions?generation_run_id=eq.${run.id}`, { method: "DELETE" });
@@ -336,6 +350,52 @@ async function generateDaily(env) {
   return { status, generation_date: date, requested_count: requested, generated_count: generated, unit_count: units.length, errors };
 }
 
+async function testQuestionStorage(env) {
+  envCheck(env);
+  const sourceRows = await supabase(env,
+    "questions?select=unit_id,question,question_type,options,answer,explanation,difficulty&options=not.is.null&limit=20");
+  const source = (sourceRows || []).find((row) =>
+    row.unit_id && typeof row.question === "string" &&
+    Array.isArray(row.options) && row.options.length === 4 &&
+    row.options.includes(row.answer)
+  );
+  if (!source) throw new Error("복사할 기존 객관식 문제가 없습니다.");
+
+  const marker = "[저장 테스트 후 자동 삭제] ";
+  const inserted = await supabase(env, "questions?select=id,question", {
+    method: "POST",
+    headers: { prefer: "return=representation" },
+    body: JSON.stringify({
+      unit_id: source.unit_id,
+      question: marker + source.question,
+      question_type: source.question_type || "객관식",
+      options: source.options,
+      answer: source.answer,
+      explanation: source.explanation || "저장 기능 테스트",
+      difficulty: source.difficulty || "보통",
+      generation_run_id: null,
+    }),
+  });
+  const testRow = Array.isArray(inserted) ? inserted[0] : null;
+  if (!testRow?.id) throw new Error("테스트 문제 INSERT 결과를 확인하지 못했습니다.");
+
+  let verified = false;
+  let cleanup = false;
+  try {
+    const check = await supabase(env, `questions?select=id,question&id=eq.${testRow.id}&limit=1`);
+    verified = Array.isArray(check) && check.length === 1 && check[0].question === marker + source.question;
+  } finally {
+    await supabase(env, `questions?id=eq.${testRow.id}`, { method: "DELETE" });
+    cleanup = true;
+  }
+  return {
+    status: verified && cleanup ? "passed" : "failed",
+    inserted_and_read_back: verified,
+    temporary_row_deleted: cleanup,
+    tested_table: "questions",
+  };
+}
+
 async function handleApi(request, env) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
@@ -357,6 +417,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/api/student-daily-quiz") return handleApi(request, env);
+    if (url.pathname === "/api/admin/test-save") {
+      if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
+      const expected = env.ADMIN_TEST_TOKEN;
+      const provided = (request.headers.get("authorization") || "").replace(/^Bearer\\s+/i, "");
+      if (!expected || provided !== expected) return json({ error: "관리자 테스트 인증에 실패했습니다." }, 401);
+      try { return json(await testQuestionStorage(env)); }
+      catch (error) { return json({ status: "failed", error: error.message || String(error) }, 500); }
+    }
     if (url.pathname === "/api/health") return json({ status: "ok", service: "study-worker" });
     if (url.pathname === "/api/env-check" && request.method === "GET") {
       return json({
