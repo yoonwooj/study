@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { readLoginIdFromMagicLink, requestIdLookupLink } from '../lib/auth.js'
 
 export default function FindIdPage() {
@@ -7,9 +7,12 @@ export default function FindIdPage() {
   const [sent, setSent] = useState(false)
   const [loginId, setLoginId] = useState('')
   const [error, setError] = useState('')
+  const processingMagicLink = useRef(false)
 
   useEffect(() => {
     let active = true
+    if (processingMagicLink.current) return () => { active = false }
+    processingMagicLink.current = true
     readLoginIdFromMagicLink()
       .then((found) => { if (active && found) { setLoginId(found); setSent(false) } })
       .catch((e) => { if (active) setError(e.message || '이메일 인증에 실패했습니다.') })
@@ -56,7 +59,6 @@ export default function FindIdPage() {
                 <label className="field">가입 이메일
                   <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} autoComplete="email" autoCapitalize="none" placeholder="가입한 이메일 주소" required />
                 </label>
-                {error && <p className="err" role="alert">{error}</p>}
                 <button className="btn block" type="submit" disabled={!email.trim() || loading}>{loading ? '메일 요청 중…' : '인증 메일 보내기'}</button>
               </form>
             </>
