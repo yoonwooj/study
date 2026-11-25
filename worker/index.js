@@ -420,7 +420,7 @@ export default {
     if (url.pathname === "/api/admin/test-save") {
       if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
       const expected = env.ADMIN_TEST_TOKEN;
-      const provided = (request.headers.get("authorization") || "").replace(/^Bearer\\s+/i, "");
+      const provided = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
       if (!expected || provided !== expected) return json({ error: "관리자 테스트 인증에 실패했습니다." }, 401);
       try { return json(await testQuestionStorage(env)); }
       catch (error) { return json({ status: "failed", error: error.message || String(error) }, 500); }
