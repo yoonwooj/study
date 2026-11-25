@@ -263,10 +263,12 @@ async function generateDaily(env) {
   const date = seoulDate();
   const existingRows = await supabase(env, `generation_runs?select=id,status,started_at&generation_date=eq.${date}&limit=1`);
   let run = existingRows?.[0];
-  if (run?.status === "completed") return { status: "already_completed", generation_date: date };
-  if (run?.status === "running" && run.started_at && Date.now() - Date.parse(run.started_at) < 20 * 60 * 1000) {
-    return { status: "already_running", generation_date: date };
-  }
+  // One attempt per Seoul calendar day: prevents repeated Cron invocations from spending credits again.
+  if (run) return {
+    status: run.status === "completed" ? "already_completed" : "already_attempted",
+    generation_date: date,
+    previous_status: run.status,
+  };
 
   const targets = await supabase(env, "unit_daily_targets?select=unit_id&is_active=eq.true");
   const ids = [...new Set((targets || []).map((target) => target.unit_id))];
