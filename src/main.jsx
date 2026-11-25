@@ -5,6 +5,5 @@ import './styles.css'
 createRoot(document.getElementById('root')).render(
   <>
     <App />
-    <div className="ver" aria-label="버전 2">v.2</div>
   </>
 )
