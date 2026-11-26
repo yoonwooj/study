@@ -27,8 +27,6 @@ import AdminPage from './components/AdminPage.jsx'
 import PasswordRecoveryPage from './components/PasswordRecoveryPage.jsx'
 import FindIdPage from './components/FindIdPage.jsx'
 import PasswordResetRequestPage from './components/PasswordResetRequestPage.jsx'
-import HomepageQuestionPreview from './components/HomepageQuestionPreview.jsx'
-import LandingPage from './components/LandingPage.jsx'
 
 const SHOW_NOTICE = false // 안내 팝업 임시 비활성화 (다시 켜려면 true)
 const today = () => new Date().toDateString()
@@ -490,9 +488,7 @@ export default function App() {
 
   // 관리자 페이지는 학생용 임시 로그인과 분리해 Supabase Auth로 인증합니다.
   const currentPath = window.location.pathname.replace(/\/+$/, '') || '/'
-  if (currentPath === '/homepage-preview') return <HomepageQuestionPreview />
   if (currentPath === '/login' && !auth) return <LoginPage onLogin={handleLogin} notice={loginNotice} />
-  if (currentPath === '/' && !auth) return <LandingPage />
   if (currentPath === '/admin') return <AdminPage />
   if (currentPath === '/signup') return <SignupPage onLogin={handleLogin} />
   if (currentPath === '/trial') return <TrialPage onLogin={handleLogin} />
