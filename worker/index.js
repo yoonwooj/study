@@ -68,13 +68,15 @@ async function authenticate(request, env) {
 }
 async function startQuiz(body, user, env) {
   const grade = Number(body.grade);
-  const semester = body.semester == null || body.semester === "" ? null : Number(body.semester);
+  const requestedSemester = body.semester == null || body.semester === "" ? null : Number(body.semester);
   const requestedSubject = String(body.subject || "").trim();
   const subject = requestedSubject === "바른생활" ? "통합" : requestedSubject;
   const unitName = String(body.unitName || "").trim();
-  // Explicit preview mode is restricted to grade 3, semester 2, and the three main subjects.
-  const previewMode = body.preview === true && grade === 3 && semester === 2 &&
+  // Explicit preview mode always uses the prepared grade 3, semester 2 sample set,
+  // regardless of the student's saved semester preference.
+  const previewMode = body.preview === true && grade === 3 &&
     ["국어", "사회", "과학"].includes(subject);
+  const semester = previewMode ? 2 : requestedSemester;
   if (![1, 2, 3, 4, 5, 6].includes(grade)) return json({ error: "학년 값이 올바르지 않습니다." }, 400);
   if (semester !== null && ![1, 2].includes(semester)) return json({ error: "학기 값이 올바르지 않습니다." }, 400);
   if (!subject) return json({ error: "과목을 선택해 주세요." }, 400);
