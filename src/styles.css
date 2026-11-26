@@ -887,26 +887,21 @@ textarea:focus-visible){
 }
 
 
-/* 홈페이지 과목별 Hero + 실제 문제 풀이 미리보기 */
+/* 홈페이지 과목별 Hero + 실제 학습 화면 미리보기 */
 .homepage-demo{min-height:100vh;background:var(--bg);padding:0 0 48px;display:grid;gap:34px}
 .homepage-subject{width:100%;padding:0 0 28px;border-bottom:1px solid var(--line)}
-.homepage-subject-hero{max-width:780px;margin:0 auto;padding:34px 28px 24px;background:linear-gradient(135deg,#087f53 0%,#13a66b 58%,#55c995 100%);color:#fff}
+.homepage-subject-hero{max-width:var(--maxw);margin:0 auto;padding:34px 28px 24px;background:linear-gradient(135deg,#087f53 0%,#13a66b 58%,#55c995 100%);color:#fff}
 .homepage-subject-hero .homepage-subject-eyebrow{display:block;margin-bottom:8px;font-size:.7rem;font-weight:800;letter-spacing:.12em;opacity:.82}
 .homepage-subject-hero h2{font-size:2rem;line-height:1.2;font-weight:800;letter-spacing:-.04em}
 .homepage-subject-hero p{margin-top:8px;font-size:.88rem;color:#fff;opacity:.9}
-.homepage-demo .app.quiz{max-width:780px;min-height:0;padding-bottom:30px;background:var(--bg)}
-.homepage-demo .qbar{position:relative;top:auto}
-.homepage-demo .qbody{padding-top:22px}
-.homepage-subject-kor .homepage-subject-hero{background:linear-gradient(135deg,#087f53 0%,#13a66b 58%,#55c995 100%)}
-.homepage-subject-soc .homepage-subject-hero{background:linear-gradient(135deg,#087f53 0%,#13a66b 58%,#55c995 100%)}
+.homepage-demo .app.quiz{max-width:var(--maxw);min-height:100dvh;padding-bottom:calc(260px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.homepage-demo .qbar{position:sticky;top:0}
+.homepage-subject-kor .homepage-subject-hero,
+.homepage-subject-soc .homepage-subject-hero,
 .homepage-subject-sci .homepage-subject-hero{background:linear-gradient(135deg,#087f53 0%,#13a66b 58%,#55c995 100%)}
 @media(max-width:699px){
   .homepage-demo{gap:24px}
   .homepage-subject-hero{padding:28px 20px 20px}
   .homepage-subject-hero h2{font-size:1.7rem}
   .homepage-demo .app.quiz{max-width:100%}
-  .homepage-demo .qbody{padding:16px 20px}
-}
-@media(min-width:700px){
-  .homepage-demo .qbar{padding-left:28px;padding-right:28px}
 }
