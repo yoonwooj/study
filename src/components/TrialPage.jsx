@@ -63,7 +63,7 @@ export default function TrialPage({ onLogin }) {
       {emailConfirmation ? <section className="card signup-card signup-confirm-card">
         <div className="signup-success-icon" aria-hidden="true">✉</div><h2>이메일을 확인해 주세요</h2>
         <p className="sub"><strong>{email}</strong> 주소로 인증 메일을 보냈어요. 이메일 인증을 마친 뒤 로그인하면 체험 등록을 이어갈 수 있습니다.</p>
-        <a className="btn block signup-link" href="/">로그인 화면으로 이동</a>
+        <a className="btn block signup-link" href="/login">로그인 화면으로 이동</a>
       </section> : <form className="card signup-card" onSubmit={submit}>
         <div className="signup-section-title signup-grid-full"><span>01</span><div><strong>보호자 계정 정보</strong><small>체험 신청 후 로그인할 때 사용할 정보입니다.</small></div></div>
         <div className="signup-form-grid">
