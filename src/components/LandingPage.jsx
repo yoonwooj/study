@@ -31,9 +31,9 @@ export default function LandingPage() {
             <div className="marketing-hero-copy">
               <span className="marketing-kicker"><i /> 초등학생을 위한 매일 학습</span>
               <h1>하루 20문제,<br /><em>공부 습관</em>이 달라집니다.</h1>
-              <p className="marketing-hero-lead">국어·사회·과학을 매일 조금씩. 부담은 가볍게, 배움은 꾸준하게 이어가세요.</p>
+              <p className="marketing-hero-lead">커피 한 잔 값으로, 월요일부터 금요일까지 매일 새로운 20문제. 부담은 가볍게, 배움은 꾸준하게 이어가세요.</p>
               <div className="marketing-hero-points">
-                <span>✓ 하루 20문제</span><span>✓ PC·태블릿·모바일</span><span>✓ 약정 없이 시작</span>
+                <span>✓ 평일 매일 20문제</span><span>✓ PC·태블릿·모바일</span><span>✓ 약정 없이 시작</span>
               </div>
               <div className="marketing-hero-actions">
                 <a className="marketing-button primary" href="/trial">첫 2주 무료로 시작하기 <span>→</span></a>
