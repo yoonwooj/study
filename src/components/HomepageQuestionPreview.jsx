@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import QuizScreen from './QuizScreen.jsx'
 import { isRight, prep } from '../lib/quiz.js'
 
@@ -85,9 +85,9 @@ function SubjectQuestionPreview({ code, item }) {
   const [selected, setSelected] = useState(null)
   const [answered, setAnswered] = useState(false)
   const [text, setText] = useState('')
-  const questions = item.questions.map((question) =>
+  const questions = useMemo(() => item.questions.map((question) =>
     question.t === 'c' ? prep(question, item.unit) : { ...question, unit: item.unit }
-  )
+  ), [item])
   const question = questions[index]
   const correct = answered ? isRight(question, selected) : null
   const run = {
