@@ -256,9 +256,46 @@ export default function App() {
     setQuizLoading(true)
     setQuizError('')
     try {
+      const previewRequested = new URLSearchParams(window.location.search).get('preview') === '1'
+      // Visual-only preview: use the existing sample questions directly in QuizScreen.
+      // This intentionally bypasses the 20-question server gate and never saves a result.
+      const previewSamples = {
+        국어: {
+          unit: '경험과 관련지으며 이해해요',
+          q: '다음 글을 읽고 민지의 마음으로 가장 알맞은 것은? “민지는 처음으로 반 친구들 앞에서 책을 읽었다. 목소리가 조금 떨렸지만, 친구들이 끝까지 들어 주고 박수를 보내자 환하게 웃었다.”',
+          o: ['친구들이 자신을 놀릴까 봐 화가 났다', '책 읽기가 지루해서 빨리 끝내고 싶었다', '친구들의 응원에 뿌듯하고 기뻤다', '다시는 책을 읽지 않겠다고 생각했다'],
+          answer: '친구들의 응원에 뿌듯하고 기뻤다',
+          e: '친구들이 끝까지 들어 주고 박수를 보내자 민지가 환하게 웃었어요. 응원받은 기쁨과 뿌듯함을 느꼈다고 볼 수 있어요.',
+        },
+        사회: {
+          unit: '사회 변화와 다양한 문화',
+          q: '다양한 문화가 함께 살아가는 사회에서 가장 바람직한 태도는 무엇일까요?',
+          o: ['서로 다른 문화를 존중한다', '나와 다른 문화를 무조건 틀렸다고 한다', '친구의 문화를 놀린다', '한 가지 문화만 인정한다'],
+          answer: '서로 다른 문화를 존중한다',
+          e: '사람마다 생활 모습과 문화가 다를 수 있으므로 서로 이해하고 존중하는 태도가 필요해요.',
+        },
+        과학: {
+          unit: '물체와 물질',
+          q: '연필을 이루는 물질에 대한 설명으로 알맞은 것은 무엇일까요?',
+          o: ['연필은 나무와 흑연 등 여러 물질로 이루어져 있다', '연필은 물만으로 이루어져 있다', '연필은 공기만으로 이루어져 있다', '연필은 유리만으로 이루어져 있다'],
+          answer: '연필은 나무와 흑연 등 여러 물질로 이루어져 있다',
+          e: '연필은 나무로 된 부분과 흑연으로 된 심처럼 여러 물질로 이루어져 있어요.',
+        },
+      }
+      if (previewRequested && activeGrade === 3 && previewSamples[subjName]) {
+        const sample = previewSamples[subjName]
+        const question = {
+          t: 'c', q: sample.q, o: sample.o,
+          a: sample.o.indexOf(sample.answer), e: sample.e, unit: sample.unit,
+        }
+        begin([question], `3학년 2학기 · ${subjName} 미리보기`, 'daily', true, {
+          dgrade: 3, dsem: 2, dsubject: subjName, dunitName: sample.unit,
+          previewOnly: true,
+        })
+        return
+      }
       const result = await startStudentDailyQuiz(auth.access_token, {
         grade: activeGrade, semester: activeSem, subject: subjName, unitName: activeUnit,
-        preview: new URLSearchParams(window.location.search).get('preview') === '1',
       })
       begin(result.questions, label, 'daily', false, {
         dgrade: activeGrade, dsem: activeSem, dsubject: subjName, dunitName: activeUnit,
