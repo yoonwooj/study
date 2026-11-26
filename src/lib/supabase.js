@@ -47,8 +47,8 @@ export async function fetchCatalogUnits({ grade, semester, subject }) {
   })
   return rows.filter((row) => !['TEST-SEED', '테스트용(임시)'].includes(row.publisher))
 }
-export async function startStudentDailyQuiz(accessToken, { grade, semester, subject, unitName = '' }) {
-  return studentQuizRequest(accessToken, { action: 'start', grade, semester, subject, unitName })
+export async function startStudentDailyQuiz(accessToken, { grade, semester, subject, unitName = '', preview = false }) {
+  return studentQuizRequest(accessToken, { action: 'start', grade, semester, subject, unitName, preview })
 }
 export async function submitStudentDailyAnswer(accessToken, { sessionId, questionIndex, answer }) {
   return studentQuizRequest(accessToken, {
