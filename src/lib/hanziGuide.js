@@ -8,20 +8,33 @@ export async function loadGuide(c) {
   if (cache.has(c)) return cache.get(c)
   let g = null
 
-  // 1순위: Supabase에 이전한 획순 좌표 데이터
+  // 1순위: Supabase에 저장된 Hanzi Writer 획순 및 중심선 데이터
   try {
     const row = await fetchHanjaStrokeData(c)
-    if (Array.isArray(row?.stroke_paths) && row.stroke_paths.length) {
-      const lines = row.stroke_paths.map((stroke) =>
-        stroke.map(([x, y]) => [x * 10.24, y * 10.24])
-      )
+    const data = row?.stroke_paths
+    if (
+      data &&
+      !Array.isArray(data) &&
+      Array.isArray(data.strokes) &&
+      Array.isArray(data.medians) &&
+      data.strokes.length === data.medians.length &&
+      data.strokes.length > 0
+    ) {
+      g = {
+        kind: 'full',
+        paths: data.strokes,
+        medians: data.medians.map((m) => m.map(([x, y]) => [x, 900 - y])),
+      }
+    } else if (Array.isArray(data) && data.length && Array.isArray(data[0])) {
+      // 이전에 저장했던 점 좌표 형식과의 하위 호환
+      const lines = data.map((stroke) => stroke.map(([x, y]) => [x * 10.24, y * 10.24]))
       g = { kind: 'basic', lines, medians: lines }
     }
   } catch {
-    // Supabase에서 획순을 읽지 못하면 기존 공개 JSON/내장 데이터로 대체합니다.
+    // Supabase에서 읽지 못하면 공개 JSON 또는 기존 내장 데이터로 대체합니다.
   }
 
-  // 2순위: Hanzi Writer 정식 획순 JSON
+  // 2순위: 프로젝트에 포함된 Hanzi Writer JSON
   if (!g) {
     try {
       const r = await fetch(`${import.meta.env.BASE_URL}hanzi/${code(c)}.json`)
