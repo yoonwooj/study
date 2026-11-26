@@ -184,7 +184,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
                   </select>
                 </label>
                 {!speechSupported && <p className="quote-audio-help">이 브라우저에서는 음성 재생을 지원하지 않습니다.</p>}
-                {speechSupported && <p className="quote-audio-help">기기에서 사용할 수 있는 영어 음성 중 자연스러운 음성을 자동으로 선택합니다. 음질은 브라우저와 기기에 따라 달라집니다.</p>}
+                {speechSupported && <p className="quote-audio-help">음질은 브라우저와 기기에 따라 달라집니다.</p>}
               </div>
             </>
           )}
