@@ -37,7 +37,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const quoteText = !isYoung && item?.content ? String(item.content).trim() : ''
 
   useEffect(() => {
-    if (!speechSupported) return
+    if (!('speechSynthesis' in window)) return
     const synth = window.speechSynthesis
     const loadVoices = () => {
       const available = synth.getVoices()
@@ -65,7 +65,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
     loadVoices()
     synth.addEventListener('voiceschanged', loadVoices)
     return () => synth.removeEventListener('voiceschanged', loadVoices)
-  }, [speechSupported])
+  }, [])
 
   useEffect(() => {
     repeatRef.current = repeat
