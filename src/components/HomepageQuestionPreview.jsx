@@ -28,11 +28,9 @@ const DEMO_QUESTIONS = {
   }
 }
 
-export default function HomepageQuestionPreview() {
-  const [subject, setSubject] = useState('kor')
+function SubjectQuestionPreview({ code, item }) {
   const [selected, setSelected] = useState(null)
   const [answered, setAnswered] = useState(false)
-  const item = DEMO_QUESTIONS[subject]
   const question = { t: 'c', q: item.q, o: item.o, a: item.a, e: item.e, unit: item.unit }
   const run = {
     qs: [question], i: 0, ans: selected,
@@ -41,32 +39,33 @@ export default function HomepageQuestionPreview() {
     wrongs: answered && selected !== item.a ? [question] : [],
     finished: false, retry: false
   }
-  const changeSubject = (next) => {
-    setSubject(next)
-    setSelected(null)
-    setAnswered(false)
-  }
+
   return (
-    <div className="homepage-demo">
-      <div className="homepage-demo-head">
-        <div className="homepage-demo-label">홈페이지 디자인용 실제 학습 UI 미리보기</div>
-        <strong>초등 3학년 문제 풀이</strong>
-        <div className="homepage-demo-tabs" aria-label="과목 선택">
-          {Object.entries(DEMO_QUESTIONS).map(([key, value]) => (
-            <button key={key} type="button" aria-pressed={subject === key} onClick={() => changeSubject(key)}>{value.subject}</button>
-          ))}
-        </div>
-        <p>실제 서비스의 문제 풀이 컴포넌트를 사용한 시안 전용 화면입니다.</p>
-      </div>
+    <section className={`homepage-subject homepage-subject-${code}`}>
+      <header className="homepage-subject-hero">
+        <span className="homepage-subject-eyebrow">SUBJECT PREVIEW</span>
+        <h2>{item.subject}</h2>
+        <p>초등 3학년 · 실제 문제 풀이 화면</p>
+      </header>
       <QuizScreen
         run={run}
-        subj={subject}
+        subj={code}
         text=""
         onText={() => {}}
         onSubmit={(value) => { setSelected(value); setAnswered(true) }}
         onNext={() => { setSelected(null); setAnswered(false) }}
-        onQuit={() => { window.location.href = '/' }}
+        onQuit={() => { setSelected(null); setAnswered(false) }}
       />
-    </div>
+    </section>
+  )
+}
+
+export default function HomepageQuestionPreview() {
+  return (
+    <main className="homepage-demo">
+      {Object.entries(DEMO_QUESTIONS).map(([code, item]) => (
+        <SubjectQuestionPreview key={code} code={code} item={item} />
+      ))}
+    </main>
   )
 }
