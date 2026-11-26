@@ -77,7 +77,7 @@ export default function SignupPage({ onLogin }) {
             <h2>인증 메일을 보냈어요</h2>
             <p className="sub"><strong>{email}</strong> 주소로 발송된 인증 링크를 눌러 가입을 완료해 주세요.</p>
             <p className="signup-note">이메일 인증을 완료한 뒤 로그인해 주세요. 입력한 보호자·자녀 정보는 2주 2주 무료 체험은 상단 메뉴에서 별도로 신청해 주세요.</p>
-            <a className="btn block signup-link" href="/">로그인 화면으로 이동</a>
+            <a className="btn block signup-link" href="/login">로그인 화면으로 이동</a>
           </section>
         </main>
       </div>
