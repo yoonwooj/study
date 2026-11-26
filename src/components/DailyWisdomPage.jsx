@@ -185,7 +185,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
           ) : (
             <>
               <p className="daily-wisdom-original" aria-label="단어를 선택해 뜻과 발음을 확인하세요">
-                “{String(item.content).split(/(\\s+)/).map((part, index) => {
+                “{String(item.content).split(/(\s+)/).map((part, index) => {
                   if (!part.trim()) return part
                   const word = part.replace(/^[^A-Za-z]+|[^A-Za-z'-]+$/g, '')
                   if (!word) return part
