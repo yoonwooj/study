@@ -258,6 +258,7 @@ export default function App() {
     try {
       const result = await startStudentDailyQuiz(auth.access_token, {
         grade: activeGrade, semester: activeSem, subject: subjName, unitName: activeUnit,
+        preview: new URLSearchParams(window.location.search).get('preview') === '1',
       })
       begin(result.questions, label, 'daily', false, {
         dgrade: activeGrade, dsem: activeSem, dsubject: subjName, dunitName: activeUnit,
