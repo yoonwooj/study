@@ -9,7 +9,9 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [day, setDay] = useState(() => dayIndex())
-  const [speechRate, setSpeechRate] = useState(1)
+  const [speechRate, setSpeechRate] = useState(0.95)
+  const [englishVoices, setEnglishVoices] = useState([])
+  const [selectedVoiceName, setSelectedVoiceName] = useState('')
   const [repeat, setRepeat] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const repeatRef = useRef(false)
@@ -35,6 +37,37 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const quoteText = !isYoung && item?.content ? String(item.content).trim() : ''
 
   useEffect(() => {
+    if (!speechSupported) return
+    const synth = window.speechSynthesis
+    const loadVoices = () => {
+      const available = synth.getVoices()
+        .filter((voice) => /^en(-|_)/i.test(voice.lang || ''))
+        .sort((a, b) => {
+          const score = (voice) => {
+            const name = voice.name.toLowerCase()
+            let value = 0
+            if (/google us english/.test(name)) value += 100
+            if (/microsoft.*(aria|jenny|guy|ana|ava|andrew)/.test(name)) value += 95
+            if (/samantha|ava|allison|serena/.test(name)) value += 85
+            if (/enhanced|premium|neural|natural/.test(name)) value += 30
+            if (/en-us/i.test(voice.lang)) value += 20
+            if (voice.localService) value += 2
+            return value
+          }
+          return score(b) - score(a)
+        })
+      setEnglishVoices(available)
+      setSelectedVoiceName((current) => {
+        if (current && available.some((voice) => voice.name === current)) return current
+        return available[0]?.name || ''
+      })
+    }
+    loadVoices()
+    synth.addEventListener('voiceschanged', loadVoices)
+    return () => synth.removeEventListener('voiceschanged', loadVoices)
+  }, [speechSupported])
+
+  useEffect(() => {
     repeatRef.current = repeat
   }, [repeat])
 
@@ -57,11 +90,14 @@ export default function DailyWisdomPage({ grade = 1 }) {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(quoteText)
     const voices = window.speechSynthesis.getVoices()
-    const englishVoice = voices.find((voice) => voice.lang?.toLowerCase() === 'en-us')
+    const englishVoice = voices.find((voice) => voice.name === selectedVoiceName)
+      || voices.find((voice) => voice.lang?.toLowerCase() === 'en-us')
       || voices.find((voice) => voice.lang?.toLowerCase().startsWith('en-'))
     if (englishVoice) utterance.voice = englishVoice
     utterance.lang = englishVoice?.lang || 'en-US'
     utterance.rate = speechRate
+    utterance.pitch = 1.02
+    utterance.volume = 1
     utterance.onstart = () => setSpeaking(true)
     utterance.onend = () => {
       if (repeatRef.current && currentTextRef.current === quoteText) speakQuote()
@@ -121,6 +157,20 @@ export default function DailyWisdomPage({ grade = 1 }) {
                   </button>
                 </div>
                 <label className="quote-audio-rate">
+                  <span>영어 음성</span>
+                  <select
+                    value={selectedVoiceName}
+                    onChange={(event) => setSelectedVoiceName(event.target.value)}
+                    disabled={!englishVoices.length}
+                  >
+                    {englishVoices.map((voice) => (
+                      <option key={voice.name} value={voice.name}>
+                        {voice.name} ({voice.lang})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="quote-audio-rate">
                   <span>재생 속도</span>
                   <select value={speechRate} onChange={(event) => setSpeechRate(Number(event.target.value))}>
                     <option value="0.75">느리게 · 0.75배</option>
@@ -129,7 +179,12 @@ export default function DailyWisdomPage({ grade = 1 }) {
                   </select>
                 </label>
                 {!speechSupported && <p className="quote-audio-help">이 브라우저에서는 음성 재생을 지원하지 않습니다.</p>}
-                {speechSupported && <p className="quote-audio-help">기기에서 제공하는 영어 음성으로 읽어 줍니다.</p>}
+                {speechSupported && <p className="quote-audio-help">
+                  {englishVoices.length
+                    ? '기기에서 사용할 수 있는 영어 음성 중 자연스러운 음성을 우선 선택했습니다. 음성은 목록에서 바꿀 수 있습니다.'
+                    : '영어 음성을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.'}
+                  {' '}음질은 브라우저와 기기에 설치된 음성에 따라 달라집니다.
+                </p>}
               </div>
             </>
           )}
