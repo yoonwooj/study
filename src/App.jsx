@@ -262,33 +262,63 @@ export default function App() {
       const previewSamples = {
         국어: {
           unit: '경험과 관련지으며 이해해요',
-          q: '다음 글을 읽고 민지의 마음으로 가장 알맞은 것은? “민지는 처음으로 반 친구들 앞에서 책을 읽었다. 목소리가 조금 떨렸지만, 친구들이 끝까지 들어 주고 박수를 보내자 환하게 웃었다.”',
-          o: ['친구들이 자신을 놀릴까 봐 화가 났다', '책 읽기가 지루해서 빨리 끝내고 싶었다', '친구들의 응원에 뿌듯하고 기뻤다', '다시는 책을 읽지 않겠다고 생각했다'],
-          answer: '친구들의 응원에 뿌듯하고 기뻤다',
-          e: '친구들이 끝까지 들어 주고 박수를 보내자 민지가 환하게 웃었어요. 응원받은 기쁨과 뿌듯함을 느꼈다고 볼 수 있어요.',
+          questions: [
+            {
+              t: 'ox',
+              q: '글을 읽으며 자신의 경험을 떠올리면 인물의 마음과 글의 내용을 더 잘 이해할 수 있어요.',
+              a: true,
+              e: '자신의 경험과 글의 내용을 연결하면 인물의 마음과 상황을 더 깊이 이해할 수 있어요.',
+            },
+            {
+              t: 's',
+              q: '글의 내용과 관련 있는 자신의 경험을 떠올리며 읽는 방법을 무엇이라고 할까요?',
+              a: ['경험과 관련지어 읽기', '경험과 관련지으며 읽기', '경험을 떠올리며 읽기', '경험 연결하기'],
+              e: '글의 내용과 자신의 경험을 연결하여 읽는 것을 경험과 관련지어 읽기라고 해요.',
+            },
+          ],
         },
         사회: {
           unit: '사회 변화와 다양한 문화',
-          q: '다양한 문화가 함께 살아가는 사회에서 가장 바람직한 태도는 무엇일까요?',
-          o: ['서로 다른 문화를 존중한다', '나와 다른 문화를 무조건 틀렸다고 한다', '친구의 문화를 놀린다', '한 가지 문화만 인정한다'],
-          answer: '서로 다른 문화를 존중한다',
-          e: '사람마다 생활 모습과 문화가 다를 수 있으므로 서로 이해하고 존중하는 태도가 필요해요.',
+          questions: [
+            {
+              t: 'ox',
+              q: '서로 다른 문화가 함께 살아가는 사회에서는 나와 다른 문화를 존중하는 태도가 필요해요.',
+              a: true,
+              e: '문화마다 생활 모습과 생각이 다를 수 있으므로 서로 이해하고 존중해야 해요.',
+            },
+            {
+              t: 's',
+              q: '나와 다른 생활 모습이나 문화를 이해하고 소중하게 대하는 태도를 무엇이라고 할까요?',
+              a: ['존중', '문화 존중', '서로 존중하기'],
+              e: '서로 다른 문화를 소중하게 여기고 인정하는 태도를 존중이라고 해요.',
+            },
+          ],
         },
         과학: {
           unit: '물체와 물질',
-          q: '연필을 이루는 물질에 대한 설명으로 알맞은 것은 무엇일까요?',
-          o: ['연필은 나무와 흑연 등 여러 물질로 이루어져 있다', '연필은 물만으로 이루어져 있다', '연필은 공기만으로 이루어져 있다', '연필은 유리만으로 이루어져 있다'],
-          answer: '연필은 나무와 흑연 등 여러 물질로 이루어져 있다',
-          e: '연필은 나무로 된 부분과 흑연으로 된 심처럼 여러 물질로 이루어져 있어요.',
+          questions: [
+            {
+              t: 'ox',
+              q: '연필은 나무와 흑연처럼 한 가지가 아닌 여러 물질로 이루어져 있어요.',
+              a: true,
+              e: '연필은 나무로 된 부분과 흑연으로 된 심 등 여러 물질로 이루어져 있어요.',
+            },
+            {
+              t: 's',
+              q: '연필의 몸통을 만드는 대표적인 물질 한 가지를 써 보세요.',
+              a: ['나무'],
+              e: '연필의 몸통은 보통 나무로 만들어요. (제품에 따라 다른 재료를 사용하기도 해요.)',
+            },
+          ],
         },
       }
       if (previewRequested && activeGrade === 3 && previewSamples[subjName]) {
         const sample = previewSamples[subjName]
-        const question = {
-          t: 'c', q: sample.q, o: sample.o,
-          a: sample.o.indexOf(sample.answer), e: sample.e, unit: sample.unit,
-        }
-        begin([question], `3학년 2학기 · ${subjName} 미리보기`, 'daily', true, {
+        const questions = sample.questions.map((item) => ({
+          ...item,
+          unit: sample.unit,
+        }))
+        begin(questions, `3학년 2학기 · ${subjName} 미리보기`, 'daily', true, {
           dgrade: 3, dsem: 2, dsubject: subjName, dunitName: sample.unit,
           previewOnly: true,
         })
@@ -363,13 +393,15 @@ export default function App() {
     const ok = isRight(q, v)
     const ctx = q._ctx || { subj, g: grade, s: sem, ed }
     const key = `${ctx.subj}|${ctx.g}|${ctx.s}|${ctx.ed ? ctx.ed + '|' : ''}${q.q}`
-    const nextNotes = ok
-      ? notes.filter((item) => item.key !== key)
-      : notes.some((item) => item.key === key)
-        ? notes
-        : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: q.a, e: q.e } }, ...notes].slice(0, 300)
-    setNotes(nextNotes)
-    saveUser(KEYS.notes, auth?.user?.id, nextNotes)
+    if (!run.previewOnly) {
+      const nextNotes = ok
+        ? notes.filter((item) => item.key !== key)
+        : notes.some((item) => item.key === key)
+          ? notes
+          : [{ key, ...ctx, unit: q.unit, at: Date.now(), q: { t: q.t, q: q.q, o: q.o, a: q.a, e: q.e } }, ...notes].slice(0, 300)
+      setNotes(nextNotes)
+      saveUser(KEYS.notes, auth?.user?.id, nextNotes)
+    }
     setRun({
       ...run,
       ans: v,
