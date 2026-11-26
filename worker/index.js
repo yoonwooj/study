@@ -401,6 +401,35 @@ async function testQuestionStorage(env) {
   };
 }
 
+async function handleRecoveryLookup(request, env) {
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
+  if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
+  try {
+    envCheck(env);
+    const body = await request.json();
+    const codeHash = String(body?.code_hash || "").toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(codeHash)) {
+      return json({ error: "복구 코드 형식이 올바르지 않습니다." }, 400);
+    }
+
+    // Hash the client IP together with the server-only key; never persist raw IP addresses.
+    const clientIp = request.headers.get("cf-connecting-ip") || "unknown";
+    const rateKey = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(clientIp + ":" + env.SUPABASE_SERVICE_ROLE_KEY)
+    );
+    const ipHash = Array.from(new Uint8Array(rateKey), (b) => b.toString(16).padStart(2, "0")).join("");
+    const email = await supabase(env, "rpc/lookup_email_by_recovery_code_limited", {
+      method: "POST",
+      body: JSON.stringify({ p_code_hash: codeHash, p_ip_hash: ipHash }),
+    });
+    return json({ email: typeof email === "string" ? email : null });
+  } catch (error) {
+    console.error("Recovery lookup failed:", error);
+    return json({ error: "아이디 조회를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요." }, 500);
+  }
+}
+
 async function handleApi(request, env) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
@@ -421,6 +450,7 @@ async function handleApi(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/api/find-id") return handleRecoveryLookup(request, env);
     if (url.pathname === "/api/student-daily-quiz") return handleApi(request, env);
     if (url.pathname === "/api/admin/test-save") {
       if (request.method !== "POST") return json({ error: "POST 요청만 허용됩니다." }, 405);
