@@ -73,14 +73,14 @@ export async function saveMyRecoveryCode(accessToken, codeHash) {
 export async function findIdByRecoveryCode(code) {
   config()
   const codeHash = await hashRecoveryCode(code)
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/lookup_email_by_recovery_code`, {
+  const response = await fetch('/api/find-id', {
     method: 'POST',
-    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ p_code_hash: codeHash }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code_hash: codeHash }),
   })
-  const data = await response.json().catch(() => null)
-  if (!response.ok) throw new Error('아이디 조회를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.')
-  return typeof data === 'string' ? data : null
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.error || '아이디 조회를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+  return typeof data.email === 'string' ? data.email : null
 }
 
 function normalizeSession(data) {
