@@ -72,6 +72,9 @@ async function startQuiz(body, user, env) {
   const requestedSubject = String(body.subject || "").trim();
   const subject = requestedSubject === "바른생활" ? "통합" : requestedSubject;
   const unitName = String(body.unitName || "").trim();
+  // Explicit preview mode is restricted to grade 3, semester 2, and the three main subjects.
+  const previewMode = body.preview === true && grade === 3 && semester === 2 &&
+    ["국어", "사회", "과학"].includes(subject);
   if (![1, 2, 3, 4, 5, 6].includes(grade)) return json({ error: "학년 값이 올바르지 않습니다." }, 400);
   if (semester !== null && ![1, 2].includes(semester)) return json({ error: "학기 값이 올바르지 않습니다." }, 400);
   if (!subject) return json({ error: "과목을 선택해 주세요." }, 400);
@@ -117,12 +120,16 @@ async function startQuiz(body, user, env) {
   const valid = (pool || []).filter((row) =>
     typeof row.question === "string" && Array.isArray(row.options) &&
     row.options.length === 4 && row.options.includes(row.answer));
-  if (valid.length < 20) {
-    return json({ error: `현재 ${grade}학년 ${subject}에 배포된 문제가 ${valid.length}개입니다. 20문제 세트가 준비되면 학습할 수 있습니다.` }, 409);
+  const minimumQuestions = previewMode ? 1 : 20;
+  const questionLimit = previewMode ? 1 : 20;
+  if (valid.length < minimumQuestions) {
+    return json({ error: previewMode
+      ? `현재 ${grade}학년 ${subject} 미리보기 문제가 없습니다.`
+      : `현재 ${grade}학년 ${subject}에 배포된 문제가 ${valid.length}개입니다. 20문제 세트가 준비되면 학습할 수 있습니다.` }, 409);
   }
 
   const unitNameById = new Map(selectedUnits.map((unit) => [String(unit.id), unit.unit_name]));
-  const picked = shuffle(valid).slice(0, 20).map((row) => {
+  const picked = shuffle(valid).slice(0, questionLimit).map((row) => {
     const options = shuffle(row.options);
     return {
       id: String(row.id),
