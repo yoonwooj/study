@@ -885,3 +885,17 @@ textarea:focus-visible){
   outline-offset:2px;
   border-radius:3px;
 }
+
+
+/* 홈페이지 시안용 실제 문제 화면 미리보기 */
+.homepage-demo{min-height:100vh;background:var(--bg);padding:0 0 24px}
+.homepage-demo-head{max-width:480px;margin:0 auto;padding:20px 18px 12px;display:grid;gap:8px}
+.homepage-demo-label{font-size:.75rem;color:var(--sub);font-weight:700;letter-spacing:.02em}
+.homepage-demo-head>strong{font-size:1.18rem}
+.homepage-demo-head>p{font-size:.78rem;color:var(--sub)}
+.homepage-demo-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.homepage-demo-tabs button{padding:9px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:700}
+.homepage-demo-tabs button[aria-pressed=true]{background:#12d160;border-color:#12d160;color:#fff}
+.homepage-demo .app.quiz{max-width:480px;min-height:calc(100vh - 140px);padding-bottom:30px}
+.homepage-demo .qbar{position:relative}
+@media(min-width:700px){.homepage-demo-head{max-width:780px}.homepage-demo .app.quiz{max-width:780px}}
