@@ -14,7 +14,7 @@ export default function QuizScreen({ run, subj, text, onText, onSubmit, onNext, 
         <span className="count">{run.i + 1}/{run.qs.length}</span>
       </header>
       <main className="qbody">
-        <p className="tags"><span>{run.retry ? '다시 풀기' : q.unit}</span><span>{TYPE[q.t]}</span></p>
+        <p className="tags"><span>{run.previewOnly ? q.unit : run.retry ? '다시 풀기' : q.unit}</span><span>{TYPE[q.t]}</span></p>
         <h2 className="qtext">{q.q}</h2>
         {q.t === 'c' && (
           <div className="opts">
