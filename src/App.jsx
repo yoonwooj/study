@@ -264,6 +264,13 @@ export default function App() {
           unit: '경험과 관련지으며 이해해요',
           questions: [
             {
+              t: 'c',
+              q: '다음 글을 읽고 민지의 마음으로 가장 알맞은 것은? “민지는 처음으로 반 친구들 앞에서 책을 읽었다. 목소리가 조금 떨렸지만, 친구들이 끝까지 들어 주고 박수를 보내자 환하게 웃었다.”',
+              o: ['친구들이 자신을 놀릴까 봐 화가 났다', '책 읽기가 지루해서 빨리 끝내고 싶었다', '친구들의 응원에 뿌듯하고 기뻤다', '다시는 책을 읽지 않겠다고 생각했다'],
+              a: 2,
+              e: '친구들이 끝까지 들어 주고 박수를 보내자 민지가 환하게 웃었어요. 응원받은 기쁨과 뿌듯함을 느꼈다고 볼 수 있어요.',
+            },
+            {
               t: 'ox',
               q: '글을 읽으며 자신의 경험을 떠올리면 인물의 마음과 글의 내용을 더 잘 이해할 수 있어요.',
               a: true,
@@ -280,6 +287,13 @@ export default function App() {
         사회: {
           unit: '사회 변화와 다양한 문화',
           questions: [
+            {
+              t: 'c',
+              q: '다양한 문화가 함께 살아가는 사회에서 가장 바람직한 태도는 무엇일까요?',
+              o: ['서로 다른 문화를 존중한다', '나와 다른 문화를 무조건 틀렸다고 한다', '친구의 문화를 놀린다', '한 가지 문화만 인정한다'],
+              a: 0,
+              e: '사람마다 생활 모습과 문화가 다를 수 있으므로 서로 이해하고 존중하는 태도가 필요해요.',
+            },
             {
               t: 'ox',
               q: '서로 다른 문화가 함께 살아가는 사회에서는 나와 다른 문화를 존중하는 태도가 필요해요.',
@@ -298,6 +312,13 @@ export default function App() {
           unit: '물체와 물질',
           questions: [
             {
+              t: 'c',
+              q: '연필을 이루는 물질에 대한 설명으로 알맞은 것은 무엇일까요?',
+              o: ['연필은 나무와 흑연 등 여러 물질로 이루어져 있다', '연필은 물만으로 이루어져 있다', '연필은 공기만으로 이루어져 있다', '연필은 유리만으로 이루어져 있다'],
+              a: 0,
+              e: '연필은 나무로 된 부분과 흑연으로 된 심처럼 여러 물질로 이루어져 있어요.',
+            },
+            {
               t: 'ox',
               q: '연필은 나무와 흑연처럼 한 가지가 아닌 여러 물질로 이루어져 있어요.',
               a: true,
@@ -314,10 +335,9 @@ export default function App() {
       }
       if (previewRequested && activeGrade === 3 && previewSamples[subjName]) {
         const sample = previewSamples[subjName]
-        const questions = sample.questions.map((item) => ({
-          ...item,
-          unit: sample.unit,
-        }))
+        const questions = sample.questions.map((item) =>
+          item.t === 'c' ? prep(item, sample.unit) : { ...item, unit: sample.unit }
+        )
         begin(questions, `3학년 2학기 · ${subjName} 미리보기`, 'daily', true, {
           dgrade: 3, dsem: 2, dsubject: subjName, dunitName: sample.unit,
           previewOnly: true,
