@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { signIn } from '../lib/auth.js'
 
 const REMEMBER_ID_KEY = 'study.remembered-login'
+const VISIT_KEY = 'study.has-visited'
 
 function readRememberedEmail() {
   try { return window.localStorage.getItem(REMEMBER_ID_KEY) || '' } catch { return '' }
@@ -13,7 +14,28 @@ export default function LoginPage({ onLogin, notice = '' }) {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showBookmarkHelp, setShowBookmarkHelp] = useState(false)
+  const [visitToast, setVisitToast] = useState('')
+  const visitType = useRef(null)
+
+  useEffect(() => {
+    if (!visitType.current) {
+      try {
+        const hasVisited = window.localStorage.getItem(VISIT_KEY) === '1'
+        visitType.current = hasVisited ? 'returning' : 'first'
+        window.localStorage.setItem(VISIT_KEY, '1')
+      } catch {
+        visitType.current = 'first'
+      }
+    }
+
+    setVisitToast(
+      visitType.current === 'first'
+        ? '처음 방문하셨네요! 학습페이지를 즐겨찾기에 추가하면 다음에 더 편리하게 이용할 수 있어요.'
+        : '다시 방문해 주셔서 감사합니다! 학습페이지를 즐겨찾기에 추가해 두면 편리해요.'
+    )
+    const timer = window.setTimeout(() => setVisitToast(''), 4000)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -62,22 +84,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
               }} />
               <span>아이디 기억하기</span>
             </label>
-            <button
-              className="login-bookmark-button"
-              type="button"
-              onClick={() => setShowBookmarkHelp((value) => !value)}
-              aria-expanded={showBookmarkHelp}
-            >
-              ☆ 학습페이지 즐겨찾기 추가
-            </button>
           </div>
-          {showBookmarkHelp && (
-            <div className="login-bookmark-help" role="status">
-              <strong>학습페이지를 즐겨찾기에 추가하려면</strong>
-              <p>PC에서는 <b>Ctrl + D</b> (Mac은 ⌘ + D)를 누른 뒤 저장하세요.</p>
-              <p>모바일에서는 브라우저 메뉴 또는 공유 메뉴에서 ‘즐겨찾기 추가’나 ‘북마크’를 선택하세요.</p>
-            </div>
-          )}
           {notice && <p className="sub" role="status">{notice}</p>}
           {err && <p className="err" role="alert">{err}</p>}
           <button className="btn block" type="submit" disabled={!id || !pw || loading}>{loading ? '로그인 중…' : '로그인'}</button>
@@ -89,6 +96,11 @@ export default function LoginPage({ onLogin, notice = '' }) {
           </nav>
         </form>
       </main>
+      {visitToast && (
+        <div className="visit-toast" role="status" aria-live="polite">
+          {visitToast}
+        </div>
+      )}
     </div>
   )
 }
