@@ -172,7 +172,7 @@ h1,h2,h3,p{margin:0}
 /* ── 과목 아래 학년·학기·방식 구분 ── */
 .hero small{opacity:.85;font-size:.8rem}
 .sel{background:var(--card);border-radius:18px;padding:12px;display:grid;gap:10px}
-.sel-row{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:8px}
+/* .sel-row{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:8px} */
 .lbl{font-size:.78rem;font-weight:700;color:var(--sub)}
 .grades{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .grades.nf{grid-template-columns:repeat(7,1fr)}
