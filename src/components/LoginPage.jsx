@@ -50,17 +50,34 @@ export default function LoginPage({ onLogin, notice = '' }) {
           <label className="field">비밀번호
             <input type="password" value={pw} onChange={(e) => { setPw(e.target.value); setErr('') }} autoComplete="current-password" required />
           </label>
-          <label className="remember-id">
-            <input type="checkbox" checked={rememberId} onChange={(e) => {
-              const checked = e.target.checked
-              setRememberId(checked)
-              try {
-                if (checked && id) window.localStorage.setItem(REMEMBER_ID_KEY, id)
-                else window.localStorage.removeItem(REMEMBER_ID_KEY)
-              } catch {}
-            }} />
-            <span>아이디 기억하기</span>
-          </label>
+          <div className="login-utility-row">
+            <label className="remember-id">
+              <input type="checkbox" checked={rememberId} onChange={(e) => {
+                const checked = e.target.checked
+                setRememberId(checked)
+                try {
+                  if (checked && id) window.localStorage.setItem(REMEMBER_ID_KEY, id)
+                  else window.localStorage.removeItem(REMEMBER_ID_KEY)
+                } catch {}
+              }} />
+              <span>아이디 기억하기</span>
+            </label>
+            <button
+              className="login-bookmark-button"
+              type="button"
+              onClick={() => setShowBookmarkHelp((value) => !value)}
+              aria-expanded={showBookmarkHelp}
+            >
+              ☆ 학습페이지 즐겨찾기 추가
+            </button>
+          </div>
+          {showBookmarkHelp && (
+            <div className="login-bookmark-help" role="status">
+              <strong>학습페이지를 즐겨찾기에 추가하려면</strong>
+              <p>PC에서는 <b>Ctrl + D</b> (Mac은 ⌘ + D)를 누른 뒤 저장하세요.</p>
+              <p>모바일에서는 브라우저 메뉴 또는 공유 메뉴에서 ‘즐겨찾기 추가’나 ‘북마크’를 선택하세요.</p>
+            </div>
+          )}
           {notice && <p className="sub" role="status">{notice}</p>}
           {err && <p className="err" role="alert">{err}</p>}
           <button className="btn block" type="submit" disabled={!id || !pw || loading}>{loading ? '로그인 중…' : '로그인'}</button>
@@ -70,21 +87,6 @@ export default function LoginPage({ onLogin, notice = '' }) {
             <a href="/forgot-password">비밀번호 찾기</a>
 
           </nav>
-          <button
-            className="btn block"
-            type="button"
-            onClick={() => setShowBookmarkHelp((value) => !value)}
-            aria-expanded={showBookmarkHelp}
-          >
-            ☆ 즐겨찾기 추가
-          </button>
-          {showBookmarkHelp && (
-            <div className="login-bookmark-help" role="status">
-              <strong>이 사이트를 즐겨찾기에 추가하려면</strong>
-              <p>PC: 키보드에서 <b>Ctrl + D</b>를 누른 뒤 저장하세요. (Mac은 ⌘ + D)</p>
-              <p>모바일: 브라우저 메뉴(⋮ 또는 공유)를 열고 ‘즐겨찾기 추가’ 또는 ‘북마크’를 선택하세요.</p>
-            </div>
-          )}
         </form>
       </main>
     </div>
