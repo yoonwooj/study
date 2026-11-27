@@ -184,6 +184,44 @@ export default function App() {
     setRun(null)
     setTab('learn')
   }
+  // 실제 회원만 30분 비활동 시 자동 로그아웃합니다. 관리자 생성 테스트 계정은 제외합니다.
+  useEffect(() => {
+    if (!auth?.access_token) return undefined
+
+    const metadata = auth.user?.user_metadata || {}
+    const profile = auth.profile || {}
+    const isTestAccount =
+      metadata.is_test === true ||
+      metadata.is_test_account === true ||
+      metadata.account_type === 'test' ||
+      metadata.signup_mode === 'test' ||
+      profile.is_test === true ||
+      profile.is_test_account === true ||
+      profile.account_type === 'test'
+
+    if (isTestAccount) return undefined
+
+    let timer
+    let expired = false
+    const resetIdleTimer = () => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(async () => {
+        if (expired) return
+        expired = true
+        window.alert('30분 동안 동작이 없어 자동 로그아웃됩니다.')
+        await logout()
+      }, 30 * 60 * 1000)
+    }
+    const activityEvents = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart', 'wheel']
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, resetIdleTimer, { passive: true }))
+    resetIdleTimer()
+
+    return () => {
+      window.clearTimeout(timer)
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetIdleTimer))
+    }
+  }, [auth?.access_token])
+
   useEffect(() => {
     if (!auth?.access_token) return undefined
     let alive = true
