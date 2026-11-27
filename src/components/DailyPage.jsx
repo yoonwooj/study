@@ -87,7 +87,7 @@ export default function DailyPage({
 
         <section className="sel">
           <div className="sel-row">
-            <span className="lbl">과목</span>
+            {/* <span className="lbl">과목</span> */}
             <div className="subject-pills" role="group" aria-label="과목 선택">
               {gradeSubjects.map((subjName) => (
                 <button
