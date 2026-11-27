@@ -97,7 +97,7 @@ export default function CatalogLearnPage({ initialGrade = 1, initialSemester = 1
               {[1, 2].map((s) => <button key={s} aria-pressed={s === semester} onClick={() => { setSemester(s); setSelected([]) }}>{s}학기</button>)}
             </div>
           </div>
-          <div className="sel-row"><span className="lbl">과목</span>
+          <div className="sel-row">
             <div className="subject-pills">
               {subjectsFor(grade).map((s) => <button key={s} data-theme={SUBJECT_THEME[s]} aria-pressed={subject === s} onClick={() => { setSubject(s); setPublisher(''); setSelected([]) }}>{s}</button>)}
             </div>
