@@ -197,7 +197,12 @@ export default function App() {
     let expired = false
 
     const expireSession = () => {
-      if (expired || Date.now() - lastActivityAt < idleLimit) return
+      if (expired) return
+      const remaining = idleLimit - (Date.now() - lastActivityAt)
+      if (remaining > 0) {
+        timer = window.setTimeout(expireSession, remaining)
+        return
+      }
       expired = true
       window.alert('30분 동안 동작이 없어 자동 로그아웃됩니다.')
       void logout()
