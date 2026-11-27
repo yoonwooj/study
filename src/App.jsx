@@ -166,7 +166,8 @@ export default function App() {
     window.location.replace('/')
   }
   const logout = async () => {
-    await releaseStudentSession(auth?.access_token)
+    const accessToken = auth?.access_token
+    // 화면과 로컬 세션을 먼저 정리해 서버 응답 지연이 로그아웃을 막지 않게 합니다.
     setAuth(null)
     save(KEYS.auth, null)
     setRecords([]); setNotes([]); setDaily({})
@@ -183,29 +184,44 @@ export default function App() {
     setMenuOpen(false)
     setRun(null)
     setTab('learn')
+    // 서버의 기기 세션 해제는 백그라운드에서 처리합니다.
+    void releaseStudentSession(accessToken)
   }
   // 로그인한 모든 학습 계정에 30분 비활동 자동 로그아웃을 적용합니다.
   useEffect(() => {
     if (!auth?.access_token) return undefined
 
+    const idleLimit = 30 * 60 * 1000
+    let lastActivityAt = Date.now()
     let timer
     let expired = false
+
+    const expireSession = () => {
+      if (expired || Date.now() - lastActivityAt < idleLimit) return
+      expired = true
+      window.alert('30분 동안 동작이 없어 자동 로그아웃됩니다.')
+      void logout()
+    }
     const resetIdleTimer = () => {
+      if (expired) return
+      lastActivityAt = Date.now()
       window.clearTimeout(timer)
-      timer = window.setTimeout(async () => {
-        if (expired) return
-        expired = true
-        window.alert('30분 동안 동작이 없어 자동 로그아웃됩니다.')
-        await logout()
-      }, 30 * 60 * 1000)
+      timer = window.setTimeout(expireSession, idleLimit)
+    }
+    const checkIdleOnReturn = () => {
+      if (document.visibilityState === 'visible') expireSession()
     }
     const activityEvents = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart', 'wheel']
     activityEvents.forEach((eventName) => window.addEventListener(eventName, resetIdleTimer, { passive: true }))
+    document.addEventListener('visibilitychange', checkIdleOnReturn)
+    window.addEventListener('focus', checkIdleOnReturn)
     resetIdleTimer()
 
     return () => {
       window.clearTimeout(timer)
       activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetIdleTimer))
+      document.removeEventListener('visibilitychange', checkIdleOnReturn)
+      window.removeEventListener('focus', checkIdleOnReturn)
     }
   }, [auth?.access_token])
 
