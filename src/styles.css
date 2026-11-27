@@ -327,8 +327,8 @@ h1,h2,h3,p{margin:0}
 .logout{margin-top:auto;padding:14px;border-radius:14px;background:var(--bg);color:var(--no);font-weight:700}
 
 /* Supabase 교과서 카탈로그 선택 */
-.subject-pills{display:flex;flex-wrap:wrap;gap:6px}
-.subject-pills button{padding:8px 13px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.88rem}
+.subject-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content: space-between;}
+.subject-pills button{padding:8px 13px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.88rem;width: calc(33% - 8px);justify-content: center;}
 .subject-pills button[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:var(--pri-ink);font-weight:700}
 .unit-heading{display:flex;align-items:center;justify-content:space-between}
 .unit-heading span{font-size:.78rem;color:var(--sub)}
