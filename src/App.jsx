@@ -184,22 +184,9 @@ export default function App() {
     setRun(null)
     setTab('learn')
   }
-  // 실제 회원만 30분 비활동 시 자동 로그아웃합니다. 관리자 생성 테스트 계정은 제외합니다.
+  // 로그인한 모든 학습 계정에 30분 비활동 자동 로그아웃을 적용합니다.
   useEffect(() => {
     if (!auth?.access_token) return undefined
-
-    const metadata = auth.user?.user_metadata || {}
-    const profile = auth.profile || {}
-    const isTestAccount =
-      metadata.is_test === true ||
-      metadata.is_test_account === true ||
-      metadata.account_type === 'test' ||
-      metadata.signup_mode === 'test' ||
-      profile.is_test === true ||
-      profile.is_test_account === true ||
-      profile.account_type === 'test'
-
-    if (isTestAccount) return undefined
 
     let timer
     let expired = false
