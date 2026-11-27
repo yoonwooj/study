@@ -9,7 +9,7 @@ export default function DailyWisdomPage({ grade = 1 }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [day, setDay] = useState(() => dayIndex())
-  const [speechRate, setSpeechRate] = useState(0.95)
+  const [speechRate, setSpeechRate] = useState(1)
   const [repeat, setRepeat] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const repeatRef = useRef(false)
