@@ -28,11 +28,9 @@ export default function LoginPage({ onLogin, notice = '' }) {
       }
     }
 
-    setVisitToast(
-      visitType.current === 'first'
-        ? '처음 방문하셨네요! 학습페이지를 즐겨찾기에 추가하면 다음에 더 편리하게 이용할 수 있어요.'
-        : '다시 방문해 주셔서 감사합니다! 학습페이지를 즐겨찾기에 추가해 두면 편리해요.'
-    )
+    if (visitType.current !== 'first') return
+
+    setVisitToast('처음 방문하셨네요! 학습페이지를 즐겨찾기에 추가하면 다음에 더 편리하게 이용할 수 있어요.')
     const timer = window.setTimeout(() => setVisitToast(''), 4000)
     return () => window.clearTimeout(timer)
   }, [])
