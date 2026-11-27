@@ -318,12 +318,7 @@ h1,h2,h3,p{margin:0}
 .remember-id{display:flex;align-items:center;gap:8px;align-self:flex-start;color:var(--sub);font-size:.85rem;font-weight:600;cursor:pointer;user-select:none}
 .remember-id input{width:17px;height:17px;margin:0;accent-color:var(--pri)}
 .remember-id span{line-height:1.4}
-.login-utility-row{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;flex-wrap:nowrap;white-space:nowrap;min-width:0}
-.login-utility-row .remember-id{flex:0 0 auto;align-self:center}
-.login-bookmark-button{display:inline-flex;align-items:center;flex:0 0 auto;padding:0;color:var(--sub);font-size:.85rem;font-weight:600;line-height:1.4;text-align:left;white-space:nowrap}
-.login-bookmark-button:hover{text-decoration:underline}
-.login-bookmark-help{display:grid;gap:4px;padding:10px 12px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:.78rem;line-height:1.6}
-.login-bookmark-help strong{color:var(--ink);font-size:.82rem}
+.login-utility-row{display:flex;align-items:center;justify-content:flex-start}
 .field{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--sub)}
 .field input:not([type=checkbox]),.field select{box-sizing:border-box;display:block;font-family:inherit;font-size:1rem;font-weight:400;line-height:normal;height:48px;min-height:48px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%;max-width:100%}
 .field select{-webkit-appearance:menulist;appearance:auto}
@@ -891,3 +886,29 @@ textarea:focus-visible){
   outline-offset:2px;
   border-radius:3px;
 }
+
+
+/* 첫 방문·재방문 안내 토스트 */
+.visit-toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  z-index:60;
+  width:max-content;
+  max-width:min( calc(100vw - 32px), 440px );
+  padding:12px 16px;
+  border-radius:14px;
+  background:#173d2d;
+  color:#fff;
+  box-shadow:0 8px 28px rgba(0,0,0,.22);
+  font-size:.86rem;
+  line-height:1.55;
+  text-align:center;
+  transform:translateX(-50%);
+  animation:visit-toast-in .25s ease-out both;
+}
+@keyframes visit-toast-in{
+  from{opacity:0;translate:0 8px}
+  to{opacity:1;translate:0 0}
+}
+@media(prefers-reduced-motion:reduce){.visit-toast{animation:none}}
