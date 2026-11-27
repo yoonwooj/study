@@ -56,7 +56,7 @@ export default function TrialPage({ onLogin }) {
   return <div className="app login" data-subject="kor">
     <main className="page signup-page trial-application-page">
       <section className="hero signup-hero trial-hero">
-        <small>14 DAYS FREE TRIAL</small><b>첫 2주 무료 체험 신청</b>
+        <b>첫 2주 무료 체험 신청</b>
         <p>처음 이용하는 학생을 위한 14일 무료 학습입니다. 회원가입 메뉴와 별도로 신청하며, 자동 결제나 카드 등록은 없습니다.</p>
         <div className="signup-trial"><strong>14일 무료</strong><span>최초 1회 · 자동 결제 없음 · 약정 없음</span></div>
       </section>
