@@ -318,6 +318,11 @@ h1,h2,h3,p{margin:0}
 .remember-id{display:flex;align-items:center;gap:8px;align-self:flex-start;color:var(--sub);font-size:.85rem;font-weight:600;cursor:pointer;user-select:none}
 .remember-id input{width:17px;height:17px;margin:0;accent-color:var(--pri)}
 .remember-id span{line-height:1.4}
+.login-utility-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.login-bookmark-button{padding:0;color:var(--sub);font-size:.85rem;font-weight:600;line-height:1.4;text-align:left}
+.login-bookmark-button:hover{text-decoration:underline}
+.login-bookmark-help{display:grid;gap:4px;padding:10px 12px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:.78rem;line-height:1.6}
+.login-bookmark-help strong{color:var(--ink);font-size:.82rem}
 .field{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--sub)}
 .field input:not([type=checkbox]),.field select{box-sizing:border-box;display:block;font-family:inherit;font-size:1rem;font-weight:400;line-height:normal;height:48px;min-height:48px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%;max-width:100%}
 .field select{-webkit-appearance:menulist;appearance:auto}
