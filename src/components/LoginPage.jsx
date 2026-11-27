@@ -13,6 +13,7 @@ export default function LoginPage({ onLogin, notice = '' }) {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showBookmarkHelp, setShowBookmarkHelp] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -69,6 +70,21 @@ export default function LoginPage({ onLogin, notice = '' }) {
             <a href="/forgot-password">비밀번호 찾기</a>
 
           </nav>
+          <button
+            className="btn block"
+            type="button"
+            onClick={() => setShowBookmarkHelp((value) => !value)}
+            aria-expanded={showBookmarkHelp}
+          >
+            ☆ 즐겨찾기 추가
+          </button>
+          {showBookmarkHelp && (
+            <div className="login-bookmark-help" role="status">
+              <strong>이 사이트를 즐겨찾기에 추가하려면</strong>
+              <p>PC: 키보드에서 <b>Ctrl + D</b>를 누른 뒤 저장하세요. (Mac은 ⌘ + D)</p>
+              <p>모바일: 브라우저 메뉴(⋮ 또는 공유)를 열고 ‘즐겨찾기 추가’ 또는 ‘북마크’를 선택하세요.</p>
+            </div>
+          )}
         </form>
       </main>
     </div>
